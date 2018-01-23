@@ -36,6 +36,9 @@ import java.security.NoSuchAlgorithmException;
 import java.net.MalformedURLException;
 import java.security.InvalidKeyException;
 import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -52,47 +55,11 @@ public class Core {
     private static String urlNameAdderStaging = "IBEISIARestUrlV2ReviewAdder";
     private static String urlNameReviewIdentify = "IBEISIARestUrlIdentifyV2Review";
     private static String urlNameStartIdentify = "IBEISIARestUrlStartIdentifyV2Annotations";
+    private static String urlNameGraphStatus = "IBEISIARestUrlGraphStatus";
 
     private static String CALLBACK_GRAPH_START_REVIEW = "graph_start_review";
     private static String CALLBACK_GRAPH_START_FINISHED = "graph_start_finished";
     private static String CALLBACK_GRAPH_REVIEW_FORM = "graph_review_form";
-
-/*
-    //this gets a little hacky to handle also Staging.  :( 
-    public static JSONObject sendToIA(List<Annotmatch> list, String context) {
-        if ((list == null) || (list.size() < 1)) return null;
-        boolean isStaging = (list.get(0) instanceof Staging);
-        JSONObject rtn = null;
-        HashMap<String,Object> data = null;
-        try {
-            rtn = Comm.post(isStaging ? urlNameAdderStaging : urlNameAdderAnnotmatch, context, adderData(list));
-        } catch (Exception ex) {
-        }
-        return rtn;
-    }
-
-    protected static HashMap<String,Object> adderData(List<Annotmatch> list) {
-        if ((list == null) || (list.size() < 1)) return null;
-        boolean isStaging = (list.get(0) instanceof Staging);
-        String prefix = isStaging ? "review" : "match";
-        HashMap<String,Object> map = new HashMap<String,Object>();
-        List<JSONObject> a1 = new ArrayList<JSONObject>();
-        List<JSONObject> a2 = new ArrayList<JSONObject>();
-        List<String> ed = new ArrayList<String>();
-
-        for (Annotmatch am : list) {
-            a1.add(Comm.toFancyUUID(am.getAnnot1().getId()));
-            a2.add(Comm.toFancyUUID(am.getAnnot2().getId()));
-            ed.add(am.getEvidenceDecision());
-        }
-
-        map.put(prefix + "_annot_uuid1_list", a1);
-        map.put(prefix + "_annot_uuid2_list", a2);
-        map.put(prefix + "_evidence_decision_list", ed);
-        return map;
-    }
-
-*/
 
     public static JSONObject startGraph(List<Annotation> annots, String context) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
         HashMap<String,Object> map = new HashMap<String,Object>();
@@ -124,14 +91,16 @@ System.out.println("startGraph() rtn => " + rtn);
     public static String nextGraphReview(UUID infrId, String context) throws RuntimeException, IOException, NoSuchAlgorithmException, InvalidKeyException {
         JSONObject rtn = null;
         try {
-            String qstring = "?graph_uuid=" + Comm.toFancyUUID(infrId) + "&callback_url=" + Comm.callbackUrlString(context, "&" + CALLBACK_GRAPH_REVIEW_FORM);
+            String qstring = "?graph_uuid=" + Comm.toFancyUUID(infrId) + "&callback_url=" + Comm.callbackUrlString(context, "&" + CALLBACK_GRAPH_REVIEW_FORM + "&gid=" + infrId.toString());
+System.out.println("qstring ===> " + qstring);
             URL u = new URL(Comm.getUrl(urlNameReviewIdentify, context), qstring);
 System.out.println("nextGraphReview() -> " + u);
             rtn = Comm.get(u);
         } catch (Exception ex) {
+            System.out.println("nextGraphReview() ERROR: " + ex.toString());
             throw new RuntimeException(ex.toString());  //this is kinda dumb but...
         }
-System.out.println("nextGraphReview() rtn => " + rtn);
+//System.out.println("nextGraphReview() rtn => " + rtn);
         if (rtn == null) return null; //TODO RuntimeException instead?
         return rtn.optString("response", null);  //TODO ditto above... exception if no "response" ?
     }
@@ -149,8 +118,58 @@ System.out.println("syncGraph() rtn => " + rtn);
         return rtn;
     }
 
+    //this gets all graphs and their pending review counts (via .response)
+    public static JSONObject graphStatus(String context) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+        JSONObject rtn = null;
+        try {
+            rtn = Comm.get(Comm.getUrl(urlNameGraphStatus, context));
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.toString());  //this is kinda dumb but...
+        }
+System.out.println("graphStatus() rtn => " + rtn);
+        return rtn;
+    }
+
+/*
+
+{
+    status: {
+        cache: -1,
+        success: true,
+        message: "",
+        code: 200
+    },
+    response: {
+        aa62d822-4fd8-c046-a7ea-569bbd277f55: {
+            status: "Waiting (Empty Queue)",
+            num_aids: 289,
+            num_reviews: 2
+        }
+    }
+}
+
+*/
+
+    //just results, or null if trouble
+    public static JSONObject graphStatusResults(String context) {
+        try {
+            JSONObject rtn = graphStatus(context);
+            if ((rtn.optJSONObject("status") == null) || !rtn.getJSONObject("status").optBoolean("success", false)) {
+                System.out.println("WARNING: graphStatusResults() .status.success not true");
+                return null;
+            }
+            return rtn.optJSONObject("response");
+        } catch (Exception ex) {
+            System.out.println("WARNING: graphStatusResults() got exception: " + ex.toString());
+            return null;
+        }
+    }
+
+
     public static void processCallback(HttpServletRequest request, HttpServletResponse response) throws java.net.MalformedURLException, java.io.IOException {
         String qstr = request.getQueryString();
+//String gid = request.getParameter("gid");
+System.out.println("processCallback() qstr => " + qstr);
         if (qstr == null) throw new RuntimeException("null query string!");  //extremely unlikely to ever happen here
         if (qstr.indexOf(CALLBACK_GRAPH_REVIEW_FORM) > -1) {
             processCallbackGraphReviewForm(request, response);
@@ -164,15 +183,23 @@ System.out.println("syncGraph() rtn => " + rtn);
         //note: cannot use getContext() -- it messes up postStream()!  GRRRRRR  FIXME
         //String context = ServletUtilities.getContext(request);
         String context = "context0";
-UUID id = UUID.fromString("037e720b-9753-7bdc-8c64-2e234d196f82");  //TODO make this real (id per species)
-        URL u = new URL(Comm.getUrl(urlNameReviewIdentify, context), "?graph_uuid=" + Comm.toFancyUUID(id));
-        //URL u = Comm.getUrl(urlNameReviewIdentify, context);
-System.out.println("attempting passthru to " + u);
         JSONObject rtn = new JSONObject("{\"success\": false}");
-        try {
-            rtn = RestClient.postStream(u, request.getInputStream());
-        } catch (Exception ex) {
-            rtn.put("error", ex.toString());
+        String gid = null;
+        Pattern pat = Pattern.compile("&gid=([0-9a-f-]+)");
+        Matcher mat = pat.matcher(request.getQueryString());  //note: cant use request.getParameter() as it messes up passthru!!!
+        if (mat.find()) gid = mat.group(1);
+System.out.println(">>>> gid=" + gid);
+        if (gid == null) {
+            rtn.put("error", "could not recover gid from request query string");
+        } else {
+            URL u = new URL(Comm.getUrl(urlNameReviewIdentify, context), "?graph_uuid=" + Comm.toFancyUUID(gid));
+            //URL u = Comm.getUrl(urlNameReviewIdentify, context);
+System.out.println("attempting passthru to " + u);
+            try {
+                rtn = RestClient.postStream(u, request.getInputStream());
+            } catch (Exception ex) {
+                rtn.put("error", ex.toString());
+            }
         }
         response.setContentType("text/plain");
         PrintWriter out = response.getWriter();

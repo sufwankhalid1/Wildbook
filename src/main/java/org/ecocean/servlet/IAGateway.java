@@ -35,7 +35,7 @@ import org.ecocean.Resolver;
 import org.ecocean.media.*;
 import org.ecocean.identity.*;
 import org.ecocean.ScheduledQueue;
-import org.ecocean.plugins.WildbookIA.Annotmatch;
+import org.ecocean.plugins.WildbookIA.Core;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -385,16 +385,34 @@ System.out.println("Next: res(" + taskId + ") -> " + res);
     ////  this is new V2 id graph review
     } else if (request.getParameter("getIdentificationReviewHtmlNext") != null) {
         Shepherd myShepherd = new Shepherd(context);
+        JSONObject ires = org.ecocean.plugins.WildbookIA.Core.graphStatusResults(context);
+        UUID gid = null;
 
-        UUID id = UUID.fromString("037e720b-9753-7bdc-8c64-2e234d196f82");  //TODO make this real (id per species)
-        try {
-            getOut = Annotmatch.nextGraphReview(id, context);  //returns html
-        } catch (Exception ex) {
-            //response.sendError(ERROR_CODE_NO_REVIEWS, "No identification reviews pending");
-            //getOut = "<div class=\"no-identification-reviews\">no identifications needing review</div>";
-            response.sendError(556, "Generic exception?");
-            getOut = "<div error-code=\"556\" class=\"response-error\">Error: " + ex.toString() + "</div>";
+        //not sure how to determine *which* graph to use, so we will just pick first one???
+        Iterator it = ires.keys();
+        while (it.hasNext()) {
+            String k = (String)it.next();
+            JSONObject stat = ires.getJSONObject(k);
+            if (stat.optInt("num_reviews") > 0) {
+                gid = UUID.fromString(k);
+                break;
+            }
         }
+ 
+System.out.println("V2 getIdentificationReviewHtmlNext gid=" + gid);
+        if (gid == null) {
+            response.sendError(ERROR_CODE_NO_REVIEWS, "No identification reviews pending");
+            getOut = "<div class=\"no-identification-reviews\">no identifications needing review</div>";
+
+        } else {
+            try {
+                getOut = Core.nextGraphReview(gid, context);  //returns html
+            } catch (Exception ex) {
+                response.sendError(556, "Generic exception?");
+                getOut = "<div error-code=\"556\" class=\"response-error\">Error: " + ex.toString() + "</div>";
+            }
+        }
+
         if (request.getParameter("test") != null) {
             getOut = "<html><head><script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js\"></script></head><body>" + getOut + "</body></html>";
         }
@@ -470,6 +488,7 @@ System.out.println("trying again:\n" + u.toString());
 */
         myShepherd.rollbackDBTransaction();
         myShepherd.closeDBTransaction();
+
     } else if (request.getParameter("getReviewCounts") != null) {
         Shepherd myShepherd = new Shepherd(context);
         myShepherd.setAction("IAGateway.class6");
@@ -493,7 +512,7 @@ System.out.println("trying again:\n" + u.toString());
 
     String qstr = request.getQueryString();
     if ((qstr != null) && (qstr.indexOf("v2Callback") > -1)) {
-        Annotmatch.processCallback(request, response);
+        Core.processCallback(request, response);
         return;
     }
 
@@ -1319,6 +1338,33 @@ System.out.println(" _sendIdentificationTask ----> " + rtn);
         List<MediaAsset> inWS = filterByWorkspace(c, ws, myShepherd);
         if (inWS != null) cts.put("detection", inWS.size());
 
+/*
+        for identification, now we just have to put our trust into the wizard behind the curtain
+
+    response: {
+        aa62d822-4fd8-c046-a7ea-569bbd277f55: {
+            status: "Waiting (Empty Queue)",
+            num_aids: 289,
+            num_reviews: 2
+        }
+    }
+*/
+        String context = ServletUtilities.getContext(request);
+        JSONObject ires = org.ecocean.plugins.WildbookIA.Core.graphStatusResults(context);
+        int ict = 0;
+        if (ires != null) {
+            cts.put("_ires", ires);
+            Iterator it = ires.keys();
+            while (it.hasNext()) {
+                String k = (String)it.next();
+                JSONObject stat = ires.optJSONObject(k);
+                if (stat == null) continue;
+                ict += stat.optInt("num_reviews", 0);
+            }
+        }
+        cts.put("identification", ict);
+
+/*
         filter = "SELECT FROM org.ecocean.Annotation WHERE identificationStatus == \"pending\"";
         query = myShepherd.getPM().newQuery(filter);
         c = (Collection) (query.execute());
@@ -1339,6 +1385,7 @@ System.out.println("  + testing against " + ann + " / " + ann.getMediaAsset());
             cts.put("identification", acount);
         }
 
+*/
         String uname = AccessControl.simpleUserString(request);
         cts.put("username", (uname == null) ? JSONObject.NULL : uname);
         return cts;
