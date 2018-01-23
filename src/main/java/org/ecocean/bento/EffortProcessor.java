@@ -107,7 +107,7 @@ public class EffortProcessor extends BentoProcessor {
                 if ("oneffort".equals(name)) {
                     Measurement effort = new Measurement(sv.getID(), "Effort", Double.valueOf(value), "HH:mm", "Measured");
                     sv.setEffort(effort);
-                    System.out.println("======= Set effort measurement.");
+                    System.out.println("======= Set effort measurement: "+value);
                     used = true;
                 }
             } catch (Exception e) {
@@ -117,7 +117,7 @@ public class EffortProcessor extends BentoProcessor {
             try {
                 if (name.contains("comments")) {
                     sv.addComments(value);
-                    System.out.println("======= Set comments.");
+                    System.out.println("======= Set comments: "+value);
                     used = true;
                 }
             } catch (Exception e) {
