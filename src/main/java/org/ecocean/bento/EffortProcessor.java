@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Arrays;
 import java.util.Locale;
@@ -23,23 +24,13 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.commons.io.IOUtils;
 import org.ecocean.Measurement;
 import org.ecocean.Shepherd;
-import org.ecocean.Util;
 
 import com.opencsv.*;
-
-import org.ecocean.movement.*;
 import org.ecocean.Survey;
 
 
@@ -67,7 +58,6 @@ public class EffortProcessor extends BentoProcessor {
                 Survey sv = null;
                 String[] dataRow = rows.next();
                 sv = processColumns(columnNameArr, dataRow);
-                //System.out.println("Row Data? "+Arrays.toString(dataRow));
                 if (sv!=null) {
                     svs.add(sv);
                 }
@@ -82,6 +72,7 @@ public class EffortProcessor extends BentoProcessor {
     private Survey processColumns(String[] columnNameArr, String[] row ) {
 
         ArrayList<String> columns = new ArrayList<>(Arrays.asList(columnNameArr));
+        HashMap<String,String> obPairs = new HashMap<>();
 
         Survey sv = null;
         int count = 0;
@@ -96,10 +87,12 @@ public class EffortProcessor extends BentoProcessor {
                 sv = new Survey(shortDate);
                 System.out.println("=============== Made a survey!!!!");
                 used = true;
-            } else {
+            } 
+            
+            if (sv==null) {
                 return null;
             }
-            
+
             try {
                 if ("project".equals(name)) {
                     sv.setProjectName(value);
@@ -130,7 +123,18 @@ public class EffortProcessor extends BentoProcessor {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+
+            if (!used) {
+                obPairs.put(name, value);
+            }
+
             count ++;
+        }
+        try {
+            processRemainingColumnsAsObservations(sv, obPairs);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return sv;
     }

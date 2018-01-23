@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -135,7 +136,7 @@ public abstract class BentoProcessor {
         return dt;
       }
 
-      private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> names, ArrayList<String> values) {
+      protected void processRemainingColumnsAsObservations(Object obj, HashMap<String, String> pairs) {
 
         Encounter enc = null;
         Occurrence occ = null;
@@ -160,21 +161,21 @@ public abstract class BentoProcessor {
         }
         
         ArrayList<Observation> newObs = new ArrayList<Observation>();
-        int count = 0;
-        for (String name : names) {
+        Set<String> keyset = pairs.keySet();
+        for (String name : keyset) {
           String value = null;
           try {
-            if (values.get(count)!=null) {
-              value = values.get(column.trim()).toString().trim();
+            if (pairs.get(name)!=null&&!"".equals(pairs.get(name))) {
+              value = pairs.get(name).trim().toString().trim();
               if (value.length() > 0) {
-                Observation ob = new Observation(column.toString(), value, obj, id);
+                System.out.println(".......... Created Ob name: "+name+", value: "+value+" ..........");
+                Observation ob = new Observation(name, value, obj, id);
                 newObs.add(ob);           
               }
             }
           } catch (Exception e) {
             e.printStackTrace();
           }
-          count++;
         }
         if (newObs.size() > 0) {
           try {
@@ -195,5 +196,4 @@ public abstract class BentoProcessor {
           }        
         }
       }
-
 }
