@@ -47,7 +47,7 @@ public class StartupWildbook implements ServletContextListener {
     ensureTomcatUserExists(myShepherd);
     ensureAssetStoreExists(request, myShepherd);
     ensureProfilePhotoKeywordExists(myShepherd);
-    dataPresenceChecks();
+    //dataPresenceChecks();
 
   }
   

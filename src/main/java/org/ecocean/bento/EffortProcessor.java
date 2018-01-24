@@ -44,10 +44,9 @@ public class EffortProcessor extends BentoProcessor {
 
         CSVReader reader = getCSVReader(file);
 
-        //These are seperate log entries for a single Survey. 
+        //There may be multiple surveys logged.
         Iterator<String[]> rows = reader.iterator();
         String[] columnNameArr = rows.next();
-        //System.out.println("Column Names? "+Arrays.toString(columnNameArr));
         boolean isValid = checkRequiredColumns(columnNameArr, REQUIRED_COLUMNS);
 
         if (isValid) {

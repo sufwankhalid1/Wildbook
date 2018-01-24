@@ -41,7 +41,7 @@ String langCode = ServletUtilities.getLanguageCode(request);
 // Grab the properties file with the correct language strings.
 props = ShepherdProperties.getProperties("index.properties", langCode,context);
 
-String mapKey = CommonConfiguration.getGoogleSearchKey(context);
+String mapKey = CommonConfiguration.getGoogleMapsKey(context);
 %>
 
 
@@ -55,6 +55,7 @@ width: 100% !important;
 height: 100% !important;
 margin-top: 0px !important;
 margin-bottom: 8px !important;
+}
 </style>
 <script src="//maps.google.com/maps/api/js?key=<%=mapKey%>&language=<%=langCode%>"></script>
 <script src="cust/mantamatcher/js/google_maps_style_vars.js"></script>

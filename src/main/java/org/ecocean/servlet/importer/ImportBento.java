@@ -29,9 +29,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.ecocean.bento.BentoProcessor;
 import org.ecocean.bento.EffortProcessor;
-import org.ecocean.bento.SurveyLogProcessor;;
+import org.ecocean.bento.SurveyLogProcessor;
+import org.ecocean.bento.SightingsProcessor;
 
 public class ImportBento extends HttpServlet {
   /**
@@ -188,21 +188,26 @@ public class ImportBento extends HttpServlet {
         try  {
           EffortProcessor ep = new EffortProcessor();
           ArrayList<Survey> svs = ep.getSurveysFromFile(file, myShepherd);
-          //processBentoEffort(file, myShepherd);
+          if (svs!=null&&!svs.isEmpty()) {
+            for (Survey sv : svs) {
+              myShepherd.storeNewSurvey(sv);
+            }
+          }
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith("sightings.csv")) {
         try  {
-          //processBentoSightings(file, myShepherd);
+          SightingsProcessor sp = new SightingsProcessor();
+          ArrayList<Occurrence> occs = sp.getOccurrencesFromFile(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
       if (fileName.endsWith(("survey_log.csv"))||fileName.endsWith(("surveylog.csv"))) {
         try  {
-          //processBentoSurveyLog(file, myShepherd);
+          SurveyLogProcessor slp = new SurveyLogProcessor();
         } catch (Exception e) {
           e.printStackTrace();
         }
