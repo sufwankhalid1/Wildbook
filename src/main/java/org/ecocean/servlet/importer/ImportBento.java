@@ -113,7 +113,7 @@ public class ImportBento extends HttpServlet {
             String[] folderNameArr = splitter.split("_");
             folderVessel = folderNameArr[folderNameArr.length-1].replace("_", "");
           } else if (fileName.toUpperCase().endsWith("JPG")) {
-            // A bit hacky, but this really is just a short term location. 
+            // TODO - Make sure these are deleted when file makes it to final destination.
             folderVessel = "images";
             folderDate = "temp";
           }
@@ -174,7 +174,7 @@ public class ImportBento extends HttpServlet {
 
     for (File file : files) {
       String fileName = standardizeFilename(file.getName());
-
+      String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
       System.out.println("=========================== FILENAME: "+fileName);
 
       if (fileName.endsWith("biopsy.csv")) {
@@ -184,12 +184,14 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
+      HashMap<String,Survey> svs = new HashMap<String,Survey>();
       if (fileName.endsWith("effort.csv")) {
         try  {
           EffortProcessor ep = new EffortProcessor();
-          ArrayList<Survey> svs = ep.getSurveysFromFile(file, myShepherd);
-          if (svs!=null&&!svs.isEmpty()) {
-            for (Survey sv : svs) {
+          ArrayList<Survey> svArr = ep.getSurveysFromFile(file, myShepherd);
+          if (svArr!=null&&!svArr.isEmpty()) {
+            for (Survey sv : svArr) {
+              svs.put(fileName, sv );
               myShepherd.storeNewSurvey(sv);
             }
           }
@@ -197,17 +199,26 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
+      HashMap<String,Occurrence> occs = new HashMap<String,Occurrence>();
       if (fileName.endsWith("sightings.csv")) {
         try  {
           SightingsProcessor sp = new SightingsProcessor();
-          ArrayList<Occurrence> occs = sp.getOccurrencesFromFile(file, myShepherd);
+          ArrayList<Occurrence> occArr = sp.getOccurrencesFromFile(file, myShepherd);
+          if (occArr!=null&&!occArr.isEmpty()) {
+            for (Occurrence occ : occArr) {
+              occs.put(fileName, occ );
+              myShepherd.storeNewOccurrence(occ);
+            }
+          }
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
+      HashMap<String,Observation> obs = new HashMap<String,Observation>();
       if (fileName.endsWith(("survey_log.csv"))||fileName.endsWith(("surveylog.csv"))) {
         try  {
           SurveyLogProcessor slp = new SurveyLogProcessor();
+          ArrayList<Observation> obArr = slp.getLogEntriesFromFile(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -256,42 +267,6 @@ public class ImportBento extends HttpServlet {
       }
     }
   }
-  
-  //private void createMediaAsset(File file, Shepherd myShepherd) {
-    
-  //}
-
-  //private void processBentoSurveyLog(File file, Shepherd myShepherd) {
-
-  //}
-
-  //private void processBentoEffort(File file, Shepherd myShepherd) {
-    
-  //}
-
-  //private void processBentoSightings(File file, Shepherd myShepherd) {
-    
-  //}
-
-  //private void processBentoBiopsy(File file, Shepherd myShepherd) {
-    
-  //}
-
-  //private void processBentoDTag(File file, Shepherd myShepherd) {
-    
-  //}
-
-  //private void processBentoSatTag(File file, Shepherd myShepherd) {
-    
-  //}
-
-  //private void processBentoFocalFollow(File file, Shepherd myShepherd) {
-    
-  //}
-
-  //private void processBentoPlayback(File file, Shepherd myShepherd) {
-    
-  //}
 
   private String standardizeFilename(String filename) {
     String result =  filename.toLowerCase().trim();

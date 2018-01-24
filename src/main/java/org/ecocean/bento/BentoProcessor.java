@@ -103,6 +103,21 @@ public abstract class BentoProcessor {
         return null;
     }
 
+    protected String processTime(String rawDate, String inputFormat, String outputFormat) {
+      try  {
+          DateTimeFormatter in = DateTimeFormat.forPattern(inputFormat); 
+          DateTimeFormatter out = DateTimeFormat.forPattern(outputFormat);  
+  
+          DateTime dt = in.parseDateTime(rawDate); 
+          String date = out.print(dt.getMillis());
+          return date;
+
+      } catch (IllegalArgumentException iae) {
+          iae.printStackTrace();
+      }
+      return null;
+  }
+
     //Maybe not need. It's a bit gross and hardcoded. Does the job (most of the time) if people can't be consistent though. 
     protected String formatDate(String rawDate) {
         String date = null;

@@ -4,6 +4,7 @@ package org.ecocean.bento;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -39,35 +40,71 @@ import com.opencsv.*;
 
 import org.ecocean.movement.*;
 import org.ecocean.Survey;
+import org.ecocean.Observation;
 
 
 
 public class SurveyLogProcessor extends BentoProcessor {
     
-    private static final String[] REQUIRED_COLUMNS_LIST = {"Date Created","Date Modified","Vessel", "Project", "Event"};
+    private static final String[] REQUIRED_COLUMNS_LIST = {"Date Created","Date Modified"};
     public static final HashSet<String> REQUIRED_COLUMNS = new HashSet<>(Arrays.asList(REQUIRED_COLUMNS_LIST));
 
-    public Survey getSurveyFromFile(File file, Shepherd myShepherd) {
+    public ArrayList<Observation> getLogEntriesFromFile(File file, Shepherd myShepherd) {
 
         CSVReader reader = getCSVReader(file);
-
         //These are seperate log entries for a single Survey. 
         Iterator<String[]> rows = reader.iterator();
-
-        boolean isValid = checkRequiredColumns(rows.next(), REQUIRED_COLUMNS);
-
-        // Row zero for column names.
+        //Grab the first row for column headers.
         String[] columnNameArr = rows.next();
-        Survey sv = null;
+        System.out.println("Column Names? "+Arrays.toString(columnNameArr));
+        boolean isValid = checkRequiredColumns(columnNameArr, REQUIRED_COLUMNS);
 
+        if (isValid) {
+            ArrayList<Observation> svs = new ArrayList<>();
+            // Row zero for column names.
+            int count = 0;
+            while (rows.hasNext()) {
+                count++;
+                System.out.println("=========== Making occurrence #"+count+" from bento!");
+                Observation ob = null;
+                String[] dataRow = rows.next();
+                ob = processColumns(columnNameArr, dataRow);
+                if (ob!=null) {
+                    svs.add(ob);
+                }
+            }
+            if (!svs.isEmpty()) {
+                return svs;
+            }
+        }
         return null;
     }
 
-    private Survey processRow(File file) {
-        Survey sv = new Survey();
+    private Observation processColumns(String[] columnNameArr, String[] row ) {
+
+        ArrayList<String> columns = new ArrayList<>(Arrays.asList(columnNameArr));
+        HashMap<String,String> obPairs = new HashMap<>();    
+        String obValue = "";
+        String time = "";
+        
+        int count = 0;
+        for (String column : columns) {
+            boolean used = false;
+            String name = column.trim().toLowerCase();
+            String value = row[count];
+            System.out.println("?????? ColumnValue: "+value+" ??????");
+            
+            if ("date created".equals(name)) {
+                String shortDate = processDate(value, "MMM d, yyyy, k:m","MM-dd-yyyy");
+                time = processTime(value, "MMM d, yyyy, k:m","HH:mm");        
+                used = true;
+            } 
+        }
+        Observation ob = new Observation("Log Entry "+time,obValue, );
 
 
-        return sv;
+        return ob;
     }
+
 
 }
