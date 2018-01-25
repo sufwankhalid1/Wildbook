@@ -20,6 +20,8 @@ import org.apache.shiro.subject.Subject;
 
 import org.apache.shiro.web.util.WebUtils;
 import org.ecocean.*;
+import org.json.JSONObject;
+import java.io.PrintWriter;
 
 
 
@@ -63,6 +65,11 @@ import org.ecocean.*;
 		//see /login.jsp for these form fields
 		String username = request.getParameter("username").trim();
 		String password = request.getParameter("password").trim();
+
+                //hack to allow json return
+		boolean wantJson = (request.getParameter("json") != null);
+                boolean success = false;
+                boolean needUserAgreement = false;
 		
 		
 		String salt="";
@@ -146,12 +153,14 @@ import org.ecocean.*;
 		      if((CommonConfiguration.getProperty("showUserAgreement",context)!=null)&&(CommonConfiguration.getProperty("userAgreementURL",context)!=null)&&(CommonConfiguration.getProperty("showUserAgreement",context).equals("true"))&&(!user.getAcceptedUserAgreement())){
 		        subject.logout();
 		        redirectUser=true;
+                        needUserAgreement = true;
 		        //redirect to the user agreement
 		        
 		      }
 		      else{
 		        user.setLastLogin((new Date()).getTime());
 		        url = "/welcome.jsp";}
+                        success = true;
 		   
 		    }
 		    
@@ -195,6 +204,18 @@ import org.ecocean.*;
       myShepherd.closeDBTransaction();
 		}
 		
+
+    if (wantJson) {
+        JSONObject rtn = new JSONObject();
+        rtn.put("success", success);
+        rtn.put("needUserAgreement", needUserAgreement);
+        rtn.put("error", request.getAttribute("error"));
+        response.setContentType("application/javascript");
+        PrintWriter out = response.getWriter();
+        out.println(rtn.toString());
+        out.close();
+        return;
+    }
 		
 	     // forward the request and response to the view
         //RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(url);
