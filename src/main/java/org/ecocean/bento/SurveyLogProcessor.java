@@ -49,7 +49,7 @@ public class SurveyLogProcessor extends BentoProcessor {
     private static final String[] REQUIRED_COLUMNS_LIST = {"Date Created","Date Modified"};
     public static final HashSet<String> REQUIRED_COLUMNS = new HashSet<>(Arrays.asList(REQUIRED_COLUMNS_LIST));
 
-    public ArrayList<Observation> getLogEntriesFromFile(File file, Shepherd myShepherd) {
+    public ArrayList<Observation> getLogEntriesFromFile(File file, ArrayList<Survey> parentSurveys, Shepherd myShepherd) {
 
         CSVReader reader = getCSVReader(file);
         //These are seperate log entries for a single Survey. 
@@ -60,7 +60,7 @@ public class SurveyLogProcessor extends BentoProcessor {
         boolean isValid = checkRequiredColumns(columnNameArr, REQUIRED_COLUMNS);
 
         if (isValid) {
-            ArrayList<Observation> svs = new ArrayList<>();
+            ArrayList<Observation> obs = new ArrayList<>();
             // Row zero for column names.
             int count = 0;
             while (rows.hasNext()) {
@@ -68,25 +68,24 @@ public class SurveyLogProcessor extends BentoProcessor {
                 System.out.println("=========== Making occurrence #"+count+" from bento!");
                 Observation ob = null;
                 String[] dataRow = rows.next();
-                ob = processColumns(columnNameArr, dataRow);
+                ob = processColumns(columnNameArr, dataRow, parentSurveys);
                 if (ob!=null) {
-                    svs.add(ob);
+                    obs.add(ob);
                 }
             }
-            if (!svs.isEmpty()) {
-                return svs;
+            if (!obs.isEmpty()) {
+                return obs;
             }
         }
         return null;
     }
 
-    private Observation processColumns(String[] columnNameArr, String[] row ) {
+    private Observation processColumns(String[] columnNameArr, String[] row, ArrayList<Survey> parentSurveys) {
 
         ArrayList<String> columns = new ArrayList<>(Arrays.asList(columnNameArr));
         HashMap<String,String> obPairs = new HashMap<>();    
         String obValue = "";
         String time = "";
-        
         int count = 0;
         for (String column : columns) {
             boolean used = false;
@@ -99,12 +98,10 @@ public class SurveyLogProcessor extends BentoProcessor {
                 time = processTime(value, "MMM d, yyyy, k:m","HH:mm");        
                 used = true;
             } 
+        } (Survey sv : parentSurveys) {
+            Observation ob = new Observation("Log Entry "+time,obValue,"Survey", sv.getID() );
         }
-        Observation ob = new Observation("Log Entry "+time,obValue, );
-
-
         return ob;
     }
-
 
 }

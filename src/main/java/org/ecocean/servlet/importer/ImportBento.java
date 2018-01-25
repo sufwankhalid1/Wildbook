@@ -184,14 +184,21 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
-      HashMap<String,Survey> svs = new HashMap<String,Survey>();
+      HashMap<String,HashSet<Survey>> svMap = new HashMap<String,HashSet<Survey>>();
       if (fileName.endsWith("effort.csv")) {
         try  {
           EffortProcessor ep = new EffortProcessor();
           ArrayList<Survey> svArr = ep.getSurveysFromFile(file, myShepherd);
           if (svArr!=null&&!svArr.isEmpty()) {
             for (Survey sv : svArr) {
-              svs.put(fileName, sv );
+              if (svMap.get(fileName)!=null) {
+                HashSet<Survey> svs = svMap.get(fileName);
+                svs.add(sv);
+              } else {
+                HashSet<Survey> newEntry = new HashSet<>();
+                newEntry.add(sv);
+                svMap.put(fileKey, newEntry);
+              }
               myShepherd.storeNewSurvey(sv);
             }
           }
@@ -199,14 +206,21 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
-      HashMap<String,Occurrence> occs = new HashMap<String,Occurrence>();
+      HashMap<String,HashSet<Occurrence>> occMap = new HashMap<String,HashSet<Occurrence>>();
       if (fileName.endsWith("sightings.csv")) {
         try  {
           SightingsProcessor sp = new SightingsProcessor();
           ArrayList<Occurrence> occArr = sp.getOccurrencesFromFile(file, myShepherd);
           if (occArr!=null&&!occArr.isEmpty()) {
             for (Occurrence occ : occArr) {
-              occs.put(fileName, occ );
+              if (occMap.get(fileName)!=null) {
+                HashSet<Occurrence> occs = occMap.get(fileName);
+                occs.add(occ);
+              } else {
+                HashSet<Occurrence> newEntry = new HashSet<>();
+                newEntry.add(occ);
+                occMap.put(fileKey, newEntry);
+              }
               myShepherd.storeNewOccurrence(occ);
             }
           }
@@ -214,11 +228,28 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
-      HashMap<String,Observation> obs = new HashMap<String,Observation>();
+      HashMap<String,HashSet<Observation>> obMap = new HashMap<String,HashSet<Observation>>();
       if (fileName.endsWith(("survey_log.csv"))||fileName.endsWith(("surveylog.csv"))) {
         try  {
+          // You gonna need to send in the Surveys, or check the keys and send in one in order to make the obs proper.
+          // Grab the fileKey, check for a matching survey.
+          HashSet<Survey> parentSurveys = svMap.get(fileKey);
+
           SurveyLogProcessor slp = new SurveyLogProcessor();
-          ArrayList<Observation> obArr = slp.getLogEntriesFromFile(file, myShepherd);
+          ArrayList<Observation> obArr = slp.getLogEntriesFromFile(file, parentSurveys, myShepherd);
+          if (obArr!=null&&!obArr.isEmpty()) {
+            for (Observation ob : obArr) {
+              if (obMap.get(fileName)!=null) {
+                HashSet<Observation> obs = obMap.get(fileName);
+                obs.add(ob);
+                myShepherd.storeNewObservation(ob);
+              } else {
+                HashSet<Observation> newEntry = new HashSet<>();
+                newEntry.add(ob);
+                obMap.put(fileKey, newEntry);
+              }
+            }
+          }
         } catch (Exception e) {
           e.printStackTrace();
         }
