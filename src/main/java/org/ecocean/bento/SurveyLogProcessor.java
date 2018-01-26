@@ -49,7 +49,7 @@ public class SurveyLogProcessor extends BentoProcessor {
     private static final String[] REQUIRED_COLUMNS_LIST = {"Date Created","Date Modified"};
     public static final HashSet<String> REQUIRED_COLUMNS = new HashSet<>(Arrays.asList(REQUIRED_COLUMNS_LIST));
 
-    public ArrayList<Observation> getLogEntriesFromFile(File file, ArrayList<Survey> parentSurveys, Shepherd myShepherd) {
+    public ArrayList<Observation> getLogEntriesFromFile(File file, HashSet<Survey> parentSurveys, Shepherd myShepherd) {
 
         CSVReader reader = getCSVReader(file);
         //These are seperate log entries for a single Survey. 
@@ -80,7 +80,7 @@ public class SurveyLogProcessor extends BentoProcessor {
         return null;
     }
 
-    private Observation processColumns(String[] columnNameArr, String[] row, ArrayList<Survey> parentSurveys) {
+    private Observation processColumns(String[] columnNameArr, String[] row, HashSet<Survey> parentSurveys) {
 
         ArrayList<String> columns = new ArrayList<>(Arrays.asList(columnNameArr));
         HashMap<String,String> obPairs = new HashMap<>();    
@@ -94,14 +94,19 @@ public class SurveyLogProcessor extends BentoProcessor {
             System.out.println("?????? ColumnValue: "+value+" ??????");
             
             if ("date created".equals(name)) {
-                String shortDate = processDate(value, "MMM d, yyyy, k:m","MM-dd-yyyy");
+                //String shortDate = processDate(value, "MMM d, yyyy, k:m","MM-dd-yyyy");
                 time = processTime(value, "MMM d, yyyy, k:m","HH:mm");        
                 used = true;
             } 
-        } (Survey sv : parentSurveys) {
-            Observation ob = new Observation("Log Entry "+time,obValue,"Survey", sv.getID() );
         }
-        return ob;
+        Observation ob = null;
+        for (Survey sv : parentSurveys) {
+            ob = new Observation("Log Entry "+time,obValue,"Survey", sv.getID());
+            sv.addObservation(ob);
+        }
+        if (ob!=null) {
+            return ob;
+        }
+        return null;
     }
-
 }
