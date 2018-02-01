@@ -197,6 +197,8 @@ public class ImportReadImages extends HttpServlet {
           Keyword du = myShepherd.getKeyword("DU - Distinct Unknown");
           ma.addKeyword(du);
         }
+
+        
         
         nameList.add(image.getName().toUpperCase());
         
@@ -217,10 +219,19 @@ public class ImportReadImages extends HttpServlet {
   }
   
   public void generateKeywords(Shepherd myShepherd) {
-    Keyword du = new Keyword("DU - Distinct Unknown");
-    myShepherd.beginDBTransaction();
-    myShepherd.getPM().makePersistent(du);
-    myShepherd.commitDBTransaction();
+    ArrayList<Keyword> keywords = new ArrayList<Keyword>();
+    keywords.add(new Keyword("DU - Distinct Unknown"));
+    keywords.add(new Keyword("PQ-1"));
+    keywords.add(new Keyword("PQ-2"));
+    keywords.add(new Keyword("PQ-3"));
+    keywords.add(new Keyword("D-1"));
+    keywords.add(new Keyword("D-2"));
+    keywords.add(new Keyword("D-3"));
+    for (Keyword kw : keywords) {
+      myShepherd.beginDBTransaction();
+      myShepherd.getPM().makePersistent(kw);
+      myShepherd.commitDBTransaction();
+    }   
   }
   
   public void collectExcelData(File file, Shepherd myShepherd) throws IOException { 
@@ -307,7 +318,7 @@ public class ImportReadImages extends HttpServlet {
                 rowData.put(cellKey, filename);
               } else {                
                 rowData.put(cellKey, cellValue);                                
-              }
+              } 
               //out.println("Adding Key : "+cellKey+" Value : "+cellValue);
             } else {
               rowData.put(cellKey, "");
@@ -369,7 +380,7 @@ public class ImportReadImages extends HttpServlet {
     ArrayList<String> errors = new ArrayList<String>();
     ArrayList<String> unmatched = new ArrayList<String>(); 
     int noIndys = 0;
-    
+    Iterator<Keyword> keywordIt = myShepherd.getAllKeywords();
     for (int i=0;i<nameList.size();i++) {
       out.println("\n--------------------------");
       out.println("Current Index : "+i);
@@ -391,22 +402,50 @@ public class ImportReadImages extends HttpServlet {
         System.out.println("Get MA from filenames?"+ma.getFilename());
       } catch (Exception e) {
         e.printStackTrace();
-        out.println("Choked trying to retrive a media asset and data to associate.");
+        out.println("Choked trying to retrieve a media asset and data to associate.");
       }
         
       String indyID = null;
       String date = null;
       String sightNo = null;
+      String quality = null;
+      String distinctiveness = null;
       
       if (excelData!=null) {
         indyID = excelData.get("id_code");
         date = excelData.get("date");
         sightNo = excelData.get("sight_no").toUpperCase(); 
+        quality = excelData.get("quality");
+        distinctiveness = excelData.get("distinct");
         if (sightNo==null||sightNo.equals("")) {
-          out.println("The excelData sighting number is null or empty : "+excelData.toString());
+          
         }
         if (sightNo.contains("S")) {
           sightNo = sightNo.replace("S", "");
+        }
+        out.println("The excelData sighting number is null or empty : "+excelData.toString());
+        out.println("Quality: "+quality+" Distinctiveness: "+distinctiveness);
+        while (keywordIt.hasNext()) {
+          Keyword tempkw = keywordIt.next();
+          String kwName = tempkw.getReadableName();
+          if (quality.contains("1")&&kwName.equals("PQ-1")) {
+            ma.addKeyword(tempkw);
+          }
+          if (quality.contains("2")&&kwName.equals("PQ-2")) {
+            ma.addKeyword(tempkw);
+          }
+          if (quality.contains("3")&&kwName.equals("PQ-3")) {
+            ma.addKeyword(tempkw);
+          }
+          if (distinctiveness.contains("1")&&kwName.equals("D-1")) {
+            ma.addKeyword(tempkw);
+          }
+          if (distinctiveness.contains("2")&&kwName.equals("D-2")) {
+            ma.addKeyword(tempkw);
+          }
+          if (distinctiveness.contains("3")&&kwName.equals("D-3")) {
+            ma.addKeyword(tempkw);
+          }
         }
       }
       
