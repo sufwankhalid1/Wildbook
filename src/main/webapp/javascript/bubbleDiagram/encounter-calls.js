@@ -162,7 +162,9 @@ var getSexHaploData = function(individualID, items) {
       result.haplotype = jsonData[i].localHaplotypeReflection;
     }
     makeCooccurrenceChart(items);
+
     makeTable(items, "#coHead", "#coBody",null);
+    //console.log(items);
   });
 };
 
@@ -177,12 +179,12 @@ var makeTable = function(items, tableHeadLocation, tableBodyLocation, sortOn) {
       if(d === "text") {
         return dict['occurringWith'];
       } if (d === "count"){
-        return dict['occurrenceNumber'];
+        return dict['numCoOccurrences'];
       } if (d === "behavior") {
         return dict['behavior'];
       } if(d === "alternateID") {
         return dict['alternateID'];
-      }if (d === "sex") {
+      } if (d === "sex") {
         return dict['sex'];
       } if (d === "haplotype") {
         return dict['haplotype'];
@@ -210,7 +212,9 @@ var makeTable = function(items, tableHeadLocation, tableBodyLocation, sortOn) {
         return dict['remove'];
       } if(d === "relationshipID") {
         return  dict['relationshipID'];
-      }
+      } if(d === "numCoOccurrences") {
+        return dict['numCoOccurrences'];
+      } 
     })
     .on("click", function(d){
       if(tableHeadLocation != "#relationshipHead") {
@@ -330,7 +334,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
           date = dateInMilliseconds.toISOString().substring(0, 10);
 		  if(jsonData.encounters[i].day<1){date=date.substring(0,7);}
 		  if(jsonData.encounters[i].month<0){date=date.substring(0,4);}
-
+        var occurrenceNumber = dict['occurrenceNumber'];  
         } else {
           date = dict['unknown'];
         }
@@ -358,7 +362,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
         if(occurringWith === undefined) {
           var occurringWith = "";
         }
-        encounter = {catalogNumber: catalogNumber, date: date, location: location, dataTypes: dataTypes, alternateID: alternateID, sex: sex, occurringWith: occurringWith, behavior: behavior};
+        encounter = {occurrenceNumber: occurrenceNumber, catalogNumber: catalogNumber, date: date, location: location, dataTypes: dataTypes, alternateID: alternateID, sex: sex, occurringWith: occurringWith, behavior: behavior};
         encounterData.push(encounter);
       }
       makeTable(encounterData, "#encountHead", "#encountBody", "date");

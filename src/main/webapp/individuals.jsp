@@ -71,7 +71,7 @@ context=ServletUtilities.getContext(request);
   String getRecord = props.getProperty("getRecord");
   String allEncounters = props.getProperty("allEncounters");
   String allIndividuals = props.getProperty("allIndividuals");
-
+  String numCoOccurrences = props.getProperty("numCoOccurrences");
   String sex = props.getProperty("sex");
   String location = props.getProperty("location");
   String alternateID = props.getProperty("alternateID");
@@ -317,6 +317,7 @@ if (request.getParameter("number")!=null) {
  
 var tableDictionary = {}
 
+tableDictionary['numCoOccurrences'] = "<%= numCoOccurrences %>";
 tableDictionary['sex'] = "<%= sex %>";
 tableDictionary['location'] = "<%= location %>";
 tableDictionary['alternateID'] = "<%= alternateID %>";
@@ -1335,10 +1336,6 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
         	<p class="para"><%=props.getProperty("noCooccurrences") %></p><br />
         <%
         }
-        //
-
-
-
           if (isOwner) {
         %>
         <br />
