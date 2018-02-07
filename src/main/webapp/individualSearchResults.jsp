@@ -248,13 +248,13 @@
 			label: '#',
 			value: _colRowNum,
 		},
-	*/
 		{
 			key: 'thumb',
 			label: '<%=props.getProperty("thumbnail") %>',
 			value: _colThumb,
 			nosort: true,
 		},
+	*/
 		{
 			key: 'individual',
 			label: '<%=props.getProperty("markedIndividual")%>',
@@ -263,6 +263,12 @@
 			//sortFunction: function(a,b) {},
 		},
 	
+		{
+		  key: 'firstId',
+			label: '<%=props.getProperty("firstIdentified")%>',
+			value: _colFirstIdentified,
+		},
+
 		{
 			key: 'numberEncounters',
 			label: '<%=props.getProperty("numEncounters")%>',
@@ -288,7 +294,7 @@
 	];
 	
 	
-	var howMany = 10;
+	var howMany = 20;
 	var start = 0;
 	var results = [];
 	
@@ -574,9 +580,14 @@
 	
 	function _colIndividual(o) {
 		var i = '<b>' + o.individualID + '</b>';
-		var fi = o.dateFirstIdentified;
-		if (fi) i += '<br /><%=props.getProperty("firstIdentified") %> ' + fi;
 		return i;
+	}
+
+	function _colFirstIdentified(o) {
+		var i = '';
+		var fi = o.dateFirstIdentified;
+		//if (fi) i += ' <%=props.getProperty("firstIdentified") %> ' + fi;
+		return fi;
 	}
 	
 	

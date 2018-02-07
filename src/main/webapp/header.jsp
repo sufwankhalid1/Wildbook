@@ -282,9 +282,6 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
             		%>
             		<!-- end language functionality injection -->
 
-
-
-
                     </ul>
 
                     <div class="search-wrapper">
@@ -313,30 +310,24 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
 
                   <div id="navbar" class="navbar-collapse collapse">
                   <div id="notifications"><%= Collaboration.getNotificationsWidgetHtml(request) %></div>
-                    <ul class="nav navbar-nav">
-                          
+                    <ul class="nav navbar-nav">             
                       <li class="active home text-hide"><a href="<%=urlLoc %>"><%=props.getProperty("home")%></a></li>
-					  
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("adminReports")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-
-							<li class="dropdown"><a href="<%=urlLoc %>/surveys/createSurvey.jsp"><%=props.getProperty("createSurvey")%></a></li>
+		            					<li class="dropdown"><a href="<%=urlLoc %>/surveys/createSurvey.jsp"><%=props.getProperty("createSurvey")%></a></li>
                         	<li class="divider"></li>
                         	<li class="dropdown"><a href="<%=urlLoc %>/importBento.jsp"><%=props.getProperty("importBento")%></a></li>
                         	<li class="dropdown"><a href="<%=urlLoc %>/bentoSearch.jsp"><%=props.getProperty("searchBento")%></a></li>
-                          	<li><a href="<%=urlLoc %>/bentoSearchResults.jsp?returnAll=true"><%=props.getProperty("allBento")%></a></li>
-                            <li class="divider"></li>
-                            <li class="dropdown"><a href="<%=urlLoc %>/reporting/generateNOAAReport.jsp"><%=props.getProperty("noaaReport")%></a></li>
-                            <li class="divider"></li>
-                      		<li><a class="dropdown" href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
-                             
+                          <li><a href="<%=urlLoc %>/bentoSearchResults.jsp?returnAll=true"><%=props.getProperty("allBento")%></a></li>
+                          <li class="divider"></li>
+                          <li class="dropdown"><a href="<%=urlLoc %>/reporting/generateNOAAReport.jsp"><%=props.getProperty("noaaReport")%></a></li>
                         </ul>
                       </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("individuals")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                          <li><a href="<%=urlLoc %>/gallery.jsp"><%=props.getProperty("gallery")%></a></li>
+                          <!-- <li><a href="<%=urlLoc %>/gallery.jsp">Gallery</a></li> -->
 
                           <li><a href="<%=urlLoc %>/individualSearchResults.jsp"><%=props.getProperty("viewAll")%></a></li>
                         </ul>
