@@ -126,7 +126,7 @@
             var dy = circle.cy - cy;
             var r = circle.r + rad;
             if (dx * dx + dy * dy < (r - delta * r - delta)) {
-              console.log( r - delta );
+              //console.log( r - delta );
               hit = true;
               return false;
             }
@@ -151,6 +151,7 @@
         var values = [];
         var self = this;
         $.each(self.items, function (i, item) {values.push(self.options.data.eval(item));});
+        //console.log("VALUES: "+values.toString());
         return values;
       },
 
@@ -370,18 +371,27 @@
   //lines
   d3.svg.BubbleChart.define("lines", function (options) {
     var self = this;
-
     self.setup = (function () {
       var original = self.setup;
       return function () {
         var fn = original.apply(this, arguments);
         var node = self.getNodes();
+        console.log(options.format[0].textField);
+        console.log(options.format[1].textField);
         $.each(options.format, function (i, f) {
+          
+          var label = "";
+          if (i===0) {
+            label = "ID:";
+          } else {
+            label = "Count:";
+          }
+          
           node.append("text")
             .classed(f.classed)
             .style(f.style)
             .attr(f.attr)
-            .text(function (d) {return d.item[f.textField];});
+            .text(function (d) {return label + d.item[f.textField];});
         });
         return fn;
       };
@@ -391,11 +401,35 @@
       var original = self.reset;
       return function (node) {
         var fn = original.apply(this, arguments);
+        var nodeNum = self.getNodes().length;
+        var fontSize = 18;
+        if (nodeNum>20) {
+          fontSize = 16;
+        }
+        if (nodeNum>30) {
+          fontSize = 12;
+        }
+        if (nodeNum>40) {
+          fontSize = 10;
+        }
+        if (nodeNum>50) {
+          fontSize = 8;
+        }
+        var fontString = fontSize+"px";
         $.each(options.format, function (i, f) {
+          var label = "";
+          if (i===0) {
+            label = "ID:";
+          } else {
+            label = "Count:";
+          }
+
+          console.log(f.textField);
           var tNode = d3.select(node.selectAll("text")[0][i]);
-          tNode.classed(f.classed).text(function (d) {return d.item[f.textField];})
+          tNode.classed(f.classed).text(function (d) {return label + d.item[f.textField];})
             .transition().duration(self.getOptions().transitDuration)
             .style(f.style)
+            .style("font-size",fontString)
             .attr(f.attr);
         });
         return fn;
@@ -407,12 +441,19 @@
       return function (node) {
         var fn = original.apply(this, arguments);
         $.each(options.centralFormat, function (i, f) {
+          var label = "";
+          if (i===0) {
+            label = "ID:";
+          } else {
+            label = "Count:";
+          }
           var tNode = d3.select(node.selectAll("text")[0][i]);
           tNode.transition().duration(self.getOptions().transitDuration)
             .style(f.style)
+            .style("font-size","32px")
             .attr(f.attr);
           f.classed !== undefined && tNode.classed(f.classed);
-          f.textField !== undefined && tNode.text(function (d) {return d.item[f.textField];});
+          f.textField !== undefined && tNode.text(function (d) {return label + d.item[f.textField];});
         });
         return fn;
       };

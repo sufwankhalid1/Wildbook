@@ -279,7 +279,11 @@ if (request.getParameter("number")!=null) {
 
       setTimeout(function() {
 	      $('#encountTable tr').click(function() {  
-	        selectedWhale = ($(this).attr("class"));
+	        //selectedWhale = ($(this).attr("class"));
+          selectedWhale = this.__data__.catalogNumber;
+          //console.log("DATA? : "+this.__data__.catalogNumber);
+
+          //console.log($(this).__data__.catalogNumber);
 	        //console.log("This is 'this' : '"+this.attributes);
 	        goToEncounterURL(selectedWhale);
 	      });
@@ -1281,6 +1285,10 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
         <%-- Cooccurrence table starts here --%>
         <a name="cooccurrence"></a>
         <p><strong><%=props.getProperty("cooccurrence")%></strong></p>
+        <p>
+          The coocurrence bubble-chart shows animals sighted with the current selection. The bubble is larger the more times they have been sighted together. 
+          Each bubble contains the database ID of the individual co-sighted, and the number of times. 
+        </p>
 
 
         <script type="text/javascript">

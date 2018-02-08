@@ -586,8 +586,8 @@
 	function _colFirstIdentified(o) {
 		var i = '';
 		var fi = o.dateFirstIdentified;
-		//if (fi) i += ' <%=props.getProperty("firstIdentified") %> ' + fi;
-		return fi;
+		if (fi) i += fi;
+		return i;
 	}
 	
 	
