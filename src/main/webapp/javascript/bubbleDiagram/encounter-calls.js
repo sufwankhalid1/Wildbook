@@ -137,7 +137,7 @@ var getData = function(individualID) {
       }
       for (var prop in dataObject) {
         var whale = new Object();
-        whale = {text:prop, count:dataObject[prop], sex: "", haplotype: ""};
+        whale = {text:prop, count:dataObject[prop], sex: ""};
         items.push(whale);	
       }
       if (items.length > 0) {
@@ -152,6 +152,7 @@ var getSexHaploData = function(individualID, items) {
     if(error) {
       console.log("error")
     }
+    // Adding stuff to the result object packs it into the sample and encounter table. I hate this file so much. 
     jsonData = json;
     for(var i=0; i < jsonData.length; i++) {
       var result = items.filter(function(obj) {
@@ -159,12 +160,15 @@ var getSexHaploData = function(individualID, items) {
       })[0];
       if (!result) continue;
       result.sex = jsonData[i].sex;
-      result.haplotype = jsonData[i].localHaplotypeReflection;
+      // Haplotype removed... 
+      //result.haplotype = jsonData[i].localHaplotypeReflection;
+    }
+    for (var item in items) {
+      delete item.haplotype;
     }
     makeCooccurrenceChart(items);
-
     makeTable(items, "#coHead", "#coBody",null);
-    //console.log(items);
+    console.log(items);
   });
 };
 
@@ -348,7 +352,7 @@ var getEncounterTableData = function(occurrenceObjectArray, individualID) {
           if((jsonData.encounters[i].tissueSamples)&&(jsonData.encounters[i].tissueSamples.length > 0)) {
             var dataTypes = jsonData.encounters[i].tissueSamples[0].type;
           } else if((jsonData.encounters[i].annotations)&&(jsonData.encounters[i].annotations.length > 0)) {
-            var dataTypes = "image";
+            var dataTypes = "image";        
           } else if (jsonData.encounters[i].tissueSamples && jsonData.encounters[i].tissueSamples.length > 0 && jsonData.encounters[i].annotations.length > 0){
             var dataTypes = "both"
           } else {
