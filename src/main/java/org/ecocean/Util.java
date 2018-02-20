@@ -64,6 +64,7 @@ public class Util {
   private static final String SATELLITE_TAG_NAME = "satelliteTagName";
   private static final String VESSEL = "vessel";
   private static final String GENUS_SPECIES = "genusSpecies";
+  private static final String PROJECT = "project";
 
   //GPS coordinate caching for Encounter Search and Individual Search
   private static ArrayList<Point2D> coords;
@@ -94,6 +95,18 @@ public class Util {
       }
     }
     return list;
+  }
+
+  public static ArrayList<String> findProjectNames(String langCode,String context) {
+    ArrayList<String> projects = new ArrayList<String>();
+    List<String> types = CommonConfiguration.getIndexedPropertyValues(PROJECT,context);
+    if (types.size() > 0) {
+      for (int i = 0; i < types.size(); i++) {
+        String type = types.get(i);
+        projects.add(type);
+      }
+    }
+    return projects;
   }
   
   public static ArrayList<String> findSpeciesNames(String langCode, String context) {

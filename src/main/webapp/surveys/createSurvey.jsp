@@ -7,8 +7,7 @@ org.ecocean.grid.*,org.ecocean.movement.*,
 java.io.*,java.util.*, java.io.FileInputStream, java.util.Date, java.text.SimpleDateFormat, java.io.File, java.io.FileNotFoundException, org.ecocean.*,org.ecocean.servlet.*,javax.jdo.*, java.lang.StringBuffer, java.util.Vector, java.util.Iterator, java.lang.NumberFormatException"%>
 
 <%
-String context="context0";
-context=ServletUtilities.getContext(request);
+String context=ServletUtilities.getContext(request);
 String langCode=ServletUtilities.getLanguageCode(request);
 Shepherd myShepherd=new Shepherd(context);
 
@@ -19,6 +18,13 @@ myShepherd.beginDBTransaction();
 
 props = ShepherdProperties.getProperties("createSurvey.properties", langCode,context);
 surveyProps = ShepherdProperties.getProperties("createSurvey.properties", langCode,context);
+
+ArrayList<String> projectNames = new ArrayList<String>();
+try {
+	projectNames = Util.findProjectNames(langCode, context);
+} catch (NullPointerException npe) {
+	npe.printStackTrace();
+}
 
 
 %>
@@ -48,11 +54,23 @@ surveyProps = ShepherdProperties.getProperties("createSurvey.properties", langCo
 						        <span class="glyphicon glyphicon-th"></span>
 						    </div>
 						</div>
-						
-						
-						<label><%=props.getProperty("project")%></label>
-						<input name="project" title="Project" type="text" class="form-control" id="addSurveyInput1" />
-						
+						<p>
+							<label><%=props.getProperty("project")%></label>
+							<label><small>Choose from dropdown or specify a new one.</small></label>
+							<select name="projectName">
+								<option value="none" selected>None Specified</option>
+								<%
+								for (String project : projectNames) {
+								%>		
+									<option value="<%=project%>" name="projectName"><%=project%></option>
+								<%
+								}
+								%>
+							</select>		
+						</p>
+						<input name="newProject" title="newProject" type="text" placeholder="New Project - Leave blank if one is selected." class="form-control" id="addSurveyInput1" />
+						<br/>
+
 						<label><%=props.getProperty("organization")%></label>
 						<input name="organization" title="Organization" type="text" class="form-control" id="addSurveyInput2" />
 						
