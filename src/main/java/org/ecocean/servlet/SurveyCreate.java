@@ -72,10 +72,10 @@ public class SurveyCreate extends HttpServlet {
     
     try {
       if (date!=null) {
-        String project = null;
-        if (request.getParameter("project")!=null) {
-          project = request.getParameter("project");
-          sv.setProjectName(project);
+        String projectName = null;
+        if (request.getParameter("projectName")!=null) {
+          projectName = request.getParameter("projectName");
+          sv.setProjectName(projectName);
         }
         
         String organization = null;

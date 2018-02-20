@@ -58,7 +58,7 @@ try {
 							<label><%=props.getProperty("project")%></label>
 							<label><small>Choose from dropdown or specify a new one.</small></label>
 							<select name="projectName">
-								<option value="none" selected>None Specified</option>
+								<option value="" name="projectName" selected>None Specified</option>
 								<%
 								for (String project : projectNames) {
 								%>		
