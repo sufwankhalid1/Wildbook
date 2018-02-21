@@ -152,6 +152,7 @@ String lastLatLong="";
 					 %>
 					          var latLng = new google.maps.LatLng(<%=thisLatLong%>);
 					          bounds.extend(latLng);
+
 					          movePathCoordinates<%=g%>.push(latLng);
 					           <%
 					           //currently unused programatically
@@ -255,6 +256,7 @@ String lastLatLong="";
  <%
  }
  %>
+ // ICON OPACITY SET TO 1 TO HIDE CHEVRONS FOR READ LAB
  var movePath = new google.maps.Polyline({
      path: movePathCoordinates,
      geodesic: true,
@@ -263,7 +265,7 @@ String lastLatLong="";
      icons: [{
        icon: {
          path: 'M -1,1 0,0 1,1',
-         strokeOpacity: 1,
+         strokeOpacity: 0.0,
          strokeWeight: 1.5,
          scale: 6
        },
