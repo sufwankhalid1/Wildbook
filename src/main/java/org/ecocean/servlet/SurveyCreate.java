@@ -69,11 +69,13 @@ public class SurveyCreate extends HttpServlet {
     } else {
       message += "<p style=\"color:red;\"><strong>Error: </strong>Survey must be submitted with a date.</p>";
     }
+
+    System.out.println("********************************* Making a Survey!!!");
     
     try {
       if (date!=null) {
         String projectName = null;
-        if (request.getParameter("projectName")!=null) {
+        if (request.getParameter("projectName")!=null&&!"".equals(projectName)) {
           projectName = request.getParameter("projectName");
           sv.setProjectName(projectName);
         }
@@ -117,12 +119,12 @@ public class SurveyCreate extends HttpServlet {
           surveyType = request.getParameter("surveyType");
           sv.setProjectType(surveyType);
         }
-     
+
         myShepherd.getPM().makePersistent(sv);
         myShepherd.commitDBTransaction();
         
+        System.out.println("************ Adding Track to Survey? "+request.getParameter("getsTrack"));
         if (request.getParameter("getsTrack")!=null) {
-          System.out.println("getsTrack says: "+request.getParameter("getsTrack"));
           if (request.getParameter("getsTrack").equals("true")) {
             SurveyTrack st = null;
             try {
@@ -134,6 +136,7 @@ public class SurveyCreate extends HttpServlet {
               System.out.println("Created Survey Track : "+st.getID());
               System.out.println("Did the survey get it? "+sv.getAllSurveyTracks().toString());
             } catch (Exception e) {
+              System.out.println("******** Failed to make track!!!");
               myShepherd.rollbackDBTransaction();
               e.printStackTrace();
             }
@@ -142,17 +145,15 @@ public class SurveyCreate extends HttpServlet {
               Path pth = createPath(request, st);
               myShepherd.getPM().makePersistent(pth);
               myShepherd.commitDBTransaction();
-              System.out.println("Persisted Path "+pth.getID());
+              //System.out.println("Persisted Path "+pth.getID());
             } catch (Exception e) {
+              //System.out.println("******** Failed to make path!!!");
               myShepherd.rollbackDBTransaction();
               System.out.println("Failed to persist a Path for this survey.");
-              e.printStackTrace();
-              
+              e.printStackTrace();   
             }
           }
-          
         }
-        
         message += "<p><strong>Success: </strong> A new survey on "+date+" was created.</p>";
         message += "<p><strong>View Survey Page: </strong><a href=\"/surveys/survey.jsp?surveyID="+sv.getID()+"\">Survey ID: "+sv.getID()+"</a></p>";
         message += "<p>From the Survey home page you can add occurrences and other info.</p>";      

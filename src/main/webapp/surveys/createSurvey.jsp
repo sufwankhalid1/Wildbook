@@ -100,6 +100,8 @@ try {
 						<label><%=props.getProperty("comments")%>:</label>
 						<input name="comments" title="Comments" type="text" class="form-control" id="addTagInput7" />
 						
+						<input name="getsTrack" type="hidden" value="false" id="getsTrack" />
+
 						<div id="trackForm" style="display:none;">
 							<hr/>
 							<label><strong><%=props.getProperty("trackProps")%></strong></label><br/>
@@ -150,11 +152,13 @@ try {
         	$('#addSurveyTrackBtn').hide();
         	$('#hideSurveyTrackBtn').show();
         	$('#trackForm').slideDown();
+			$('#getsTrack').val('true');
         });
         $('#hideSurveyTrackBtn').click(function(){
         	$('#addSurveyTrackBtn').show();
         	$('#hideSurveyTrackBtn').hide();
         	$('#trackForm').slideUp();
+			$('#getsTrack').val('false');
         });
     });    
 </script>
