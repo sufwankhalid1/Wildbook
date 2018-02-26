@@ -236,6 +236,7 @@ public class Encounter implements java.io.Serializable {
   //submitting organization and project further detail the scope of who submitted this project
   private String submitterOrganization;
   private String submitterProject;
+  private List<String> submitterResearchers;
 
   //hold submittedData
   //private List<DataCollectionEvent> collectedData;
@@ -257,6 +258,10 @@ public class Encounter implements java.io.Serializable {
 
   // This is a standard 1-5 color scale used by cetacean researchers
   private Integer flukeType;
+
+  // added by request for ASWN, this is the role an individual served in its occurrence
+  // (from a standard list like Escort Male)
+  private String groupRole;
 
   //start constructors
 
@@ -513,6 +518,7 @@ public class Encounter implements java.io.Serializable {
    */
 
 	public boolean getMmaCompatible() {
+                if (mmaCompatible == null) return false;
 		return mmaCompatible;
 	}
 	public void setMmaCompatible(boolean b) {
@@ -727,6 +733,12 @@ public class Encounter implements java.io.Serializable {
     this.fieldID = fieldID;
   }
 
+  public String getGroupRole() {
+    return this.groupRole;
+  }
+  public void setGroupRole(String role) {
+    this.groupRole = role;
+  }
 
   /**
    * Adds another image to the collection of images for this encounter.
@@ -1985,6 +1997,17 @@ the decimal one (Double) .. half tempted to break out a class for this: lat/lon/
         if(newOrg!=null){submitterOrganization = newOrg;}
     	else{submitterOrganization=null;}
     }
+
+	public List<String> getSubmitterResearchers() {
+		return submitterResearchers;
+	}
+	public void addSubmitterResearcher(String researcher) {
+		if (submitterResearchers==null) submitterResearchers = new ArrayList<String>();
+		submitterResearchers.add(researcher);
+	}
+	public void setSubmitterResearchers(Collection<String> researchers) {
+		this.submitterResearchers = new ArrayList<String>(researchers);
+	}
 
    // public List<DataCollectionEvent> getCollectedData(){return collectedData;}
 

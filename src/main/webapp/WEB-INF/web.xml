@@ -219,6 +219,7 @@
 				  /interconnectSubmitSpots= authc, roles[researcher]
 				   /ImportSRGD = authc, roles[admin]
           /ImportAccess = authc, roles[admin]
+          /StandardImport = authc, roles[admin]
 
 
 				   /encounters/encounterSpotVisualizer.jsp = authc, roles[researcher]
@@ -504,6 +505,10 @@
   <servlet>
     <servlet-name>ImportAccess</servlet-name>
     <servlet-class>org.ecocean.servlet.importer.ImportAccess</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>StandardImport</servlet-name>
+    <servlet-class>org.ecocean.servlet.importer.StandardImport</servlet-class>
   </servlet>
 
 
@@ -927,6 +932,12 @@
     <servlet-name>EncounterSetSex</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetSex</servlet-class>
   </servlet>
+
+  <servlet>
+    <servlet-name>EncounterSetString</servlet-name>
+    <servlet-class>org.ecocean.servlet.EncounterSetString</servlet-class>
+  </servlet>
+
 
     <servlet>
     <servlet-name>EncounterDelete</servlet-name>
@@ -1580,7 +1591,7 @@
         <servlet-mapping>
           <servlet-name>KinalyzerExport</servlet-name>
           <url-pattern>/KinalyzerExport</url-pattern>
-  </servlet-mapping>R
+  </servlet-mapping>
 
 
         <servlet-mapping>
@@ -1596,6 +1607,10 @@
   <servlet-mapping>
       <servlet-name>ImportAccess</servlet-name>
       <url-pattern>/ImportAccess</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+      <servlet-name>StandardImport</servlet-name>
+      <url-pattern>/StandardImport</url-pattern>
   </servlet-mapping>
 
 
@@ -1627,6 +1642,11 @@
   <servlet-mapping>
     <servlet-name>EncounterSetTags</servlet-name>
     <url-pattern>/EncounterSetTags</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>EncounterVMData</servlet-name>
+    <url-pattern>/EncounterVMData</url-pattern>
   </servlet-mapping>
 
 
@@ -1821,6 +1841,11 @@
   <servlet-mapping>
     <servlet-name>EncounterSetSex</servlet-name>
     <url-pattern>/EncounterSetSex</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>EncounterSetString</servlet-name>
+    <url-pattern>/EncounterSetString</url-pattern>
   </servlet-mapping>
 
 

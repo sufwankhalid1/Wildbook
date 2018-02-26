@@ -212,6 +212,11 @@
         <column length="256"/>
       </field>
 
+      <field name="groupRole" persistence-modifier="persistent">
+        <column length="256"/>
+      </field>
+
+
       <field name="livingStatus" persistence-modifier="persistent">
         <column length="256"/>
       </field>
@@ -300,6 +305,15 @@
         <collection element-type="java.lang.String"/>
       </field>
 
+      <field name="isUsed">
+        <column default-value="false" />
+
+<!--  note, if you are using mysql, which maybe you shouldnt be?, you want this here:
+      <column default-value="0" />
+-->
+      </field>
+
+
       <fetch-group name="count"/>
     </class>
 
@@ -324,6 +338,15 @@
             	</field>
 
       <field name="mediaAsset" persistence-modifier="persistent" element-type="org.ecocean.media.MediaAsset" recursion-depth="3"/>
+
+      <field name="quality" persistence-modifier="persistent">
+        <column jdbc-type="DOUBLE" allows-null="true"/>
+      </field>
+
+      <field name="distinctiveness" persistence-modifier="persistent">
+        <column jdbc-type="DOUBLE" allows-null="true"/>
+      </field>
+
       <!--
 		<field name="annot_xtl" />
 		<field name="annot_ytl" />
