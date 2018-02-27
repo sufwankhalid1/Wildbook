@@ -1,4 +1,4 @@
-package ec.com.mapache.ngflow.servlet;
+package org.ecocean.resumableupload;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,9 +18,9 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-import ec.com.mapache.ngflow.upload.FlowInfo;
-import ec.com.mapache.ngflow.upload.FlowInfoStorage;
-import ec.com.mapache.ngflow.upload.HttpUtils;
+//import ec.com.mapache.ngflow.upload.FlowInfo;
+//import ec.com.mapache.ngflow.upload.FlowInfoStorage;
+//import ec.com.mapache.ngflow.upload.HttpUtils;
 
 import org.ecocean.CommonConfiguration;
 import org.ecocean.servlet.ServletUtilities;
