@@ -123,7 +123,7 @@ public class SurveyCreate extends HttpServlet {
         myShepherd.getPM().makePersistent(sv);
         myShepherd.commitDBTransaction();
         
-        System.out.println("************ Adding Track to Survey? "+request.getParameter("getsTrack"));
+        System.out.println("************ Adding Track to Survey?   "+request.getParameter("getsTrack"));
         if (request.getParameter("getsTrack")!=null) {
           if (request.getParameter("getsTrack").equals("true")) {
             SurveyTrack st = null;

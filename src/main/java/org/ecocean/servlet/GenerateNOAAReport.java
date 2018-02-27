@@ -46,7 +46,7 @@ public class GenerateNOAAReport extends HttpServlet {
   private String completeSummary = "";
   private ArrayList<Occurrence> satTagOccs = new ArrayList<Occurrence>();
   private ArrayList<Occurrence> dTagOccs = new ArrayList<Occurrence>();
-
+  
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
   }
@@ -603,7 +603,7 @@ public class GenerateNOAAReport extends HttpServlet {
   private void createPhysicalIDSummary(HashMap<String,ArrayList<String>> takesCounts) {
     String summary = "";
     if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
-      summary += "<h3>Summary of Physical ID takes:</h3>";
+      summary += "<h3>Summary of Biopsy Sample takes:</h3>";
       summary += "<table class=\"table\">";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Group Totals (Level B Takes)</th><th scope=\"col\">Biopsies (Level A Takes)</th></tr>";
       Set<String> keys = takesCounts.keySet();

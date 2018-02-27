@@ -13,7 +13,6 @@ import org.ecocean.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.ecocean.CommonConfiguration;
 import org.ecocean.movement.Path;
 import org.ecocean.movement.SurveyTrack;
 
@@ -83,7 +82,7 @@ public class AddSurveyTrackToSurvey extends HttpServlet {
         String vessel = null;
         if (request.getParameter("vessel")!=null) {
           vessel = request.getParameter("vessel");
-          st.setVesselID(locationID);
+          st.setVesselID(vessel);
         }
         
         String effort = null;
@@ -96,9 +95,8 @@ public class AddSurveyTrackToSurvey extends HttpServlet {
           
           Double newValue = oldValue + effNum;
           if (newValue!=null&&!newValue.equals(oldValue)) {
-            Measurement eff = new Measurement("","",newValue,"HHmm","Observed");
-            sv.setEffort(eff);
-            
+            Measurement eff = new Measurement("","",newValue,"Hours","Observed");
+            sv.setEffort(eff);      
           }
         }
         
