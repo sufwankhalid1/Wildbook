@@ -136,9 +136,6 @@ if (request.getParameter("number")!=null) {
 					blocker = "<script>$(document).ready(function() { $.blockUI({ message: '" + cmsg + "' }) });</script>";
 				}
 			}
-
-
-
 		}
 	}
 	catch(Exception e){e.printStackTrace();}
@@ -216,7 +213,7 @@ if (request.getParameter("number")!=null) {
 <script src="//phuonghuynh.github.io/js/bower_components/cafej/src/misc.js"></script>
 <script src="//phuonghuynh.github.io/js/bower_components/cafej/src/micro-observer.js"></script>
 <script src="//phuonghuynh.github.io/js/bower_components/microplugin/src/microplugin.js"></script>
-<script src="javascript/bubbleDiagram/bubble-chart.js"></script>
+<!-- <script src="javascript/bubbleDiagram/bubble-chart.js"></script> -->
 <script src="javascript/bubbleDiagram/encounter-calls.js"></script>
 <script src="javascript/relationshipDiagrams/familyTree.js"></script>
 
@@ -227,6 +224,7 @@ if (request.getParameter("number")!=null) {
 
   $(document).ready( function() {
   	// wildbook.init(function() { doTable(); });
+
     $("#familyDiagramTab").click(function (e) {
       e.preventDefault()
       $("#familyDiagram").show();
@@ -241,7 +239,7 @@ if (request.getParameter("number")!=null) {
       $("#communityTable").show();
       $("#familyDiagramTab").removeClass("active");
       $("#communityTableTab").addClass("active");
-    });
+    });    
 
     $("#cooccurrenceDiagramTab").click(function (e) {
       e.preventDefault()
@@ -794,38 +792,42 @@ $(document).ready(function() {
       </div>
       <%-- End Descriptions --%>
     </div>
-
-    <div class="viewAllImgs" style="
-        position: absolute;
-        right: 15px;
-        bottom: 0px;
-        z-index: 10;
-        color: white;
-        text-shadow:
-        -1px -1px 0 #000,
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-        1px 1px 0 #000;
-    ">
-    <p class="viewAllImgs"><a style="color:white;" href="encounters/thumbnailSearchResults.jsp?individualID=<%=sharky.getIndividualID()%>"><%=props.getProperty("allImages")%></a></p></div>
-
-
-    <div class="slider col-sm-6 center-slider">
+    
+    <% 
+    String imgEncID = "";
+    for (Encounter enJ : sharky.getDateSortedEncounters()) {
+      for (org.ecocean.media.MediaAsset maJ : enJ.getMedia()) {
+        if (maJ.getMetadata() != null) {
+          maJ.getMetadata().getDataAsString();
+          imgEncID = enJ.getCatalogNumber();
+          System.out.println("-------------------------------------------");
+          System.out.println("-------------------------------------------");
+          System.out.println("ImgEncID---------"+imgEncID+"----------");
+          System.out.println("-------------------------------------------");
+          System.out.println("-------------------------------------------");
+        }
+      }
+    }
+    if (imgEncID.size()>0) {
+    %>
+    <div id="imgDiv" class="viewAllImgs">
+      <span id="linkToEnc"><p class="viewAllImgs imgLink"><a href="encounters/encounter.jsp?number=<%=imgEncID%>"><small>Encounter: <%=imgEncID%></small></a></p></span>
+      <span id="linkToAll"><p class="viewAllImgs imgLink"><a href="encounters/thumbnailSearchResults.jsp?individualID=<%=sharky.getIndividualID()%>"><%=props.getProperty("allImages")%></a></p></span>
+    </div>
+    <% 
+    }
+    %>
+    <div class="slider col-sm-6 center-slider view">
       <%-- Get images for slider --%>
       <%
-///note this is very hacky... as jon about it
-for (Encounter enJ : sharky.getDateSortedEncounters()) {
-	for (org.ecocean.media.MediaAsset maJ : enJ.getMedia()) {
-		if (maJ.getMetadata() != null) maJ.getMetadata().getDataAsString();
-	}
-}
+      //note this is very hacky... as jon about it
       ArrayList<JSONObject> photoObjectArray = sharky.getExemplarImages(request);
       String imgurlLoc = "//" + CommonConfiguration.getURLLocation(request);
 
       for (int extraImgNo=0; (extraImgNo<photoObjectArray.size() && extraImgNo<5); extraImgNo++) {
         JSONObject newMaJson = new JSONObject();
         newMaJson = photoObjectArray.get(extraImgNo);
-	String newimgUrl = newMaJson.optString("url", imgurlLoc+"/cust/mantamatcher/img/hero_manta.jpg");
+	      String newimgUrl = newMaJson.optString("url", imgurlLoc+"/cust/mantamatcher/img/hero_manta.jpg");
 
         %>
         <div class="crop-outer">
@@ -1307,7 +1309,9 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
         //ok, let's iterate the social relationships
         %>
         <div class="cooccurrences">
-
+          <p>Co-occurrence  div start!</p>
+          
+          <!--
           <div role="navigation">
             <ul class="nav nav-tabs">
               <li id="cooccurrenceDiagramTab" class="active">
@@ -1328,7 +1332,9 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
                 </div>
               </div>
           </div>
-
+          -->
+          
+          
           <div id="cooccurrenceTable" class="table-responsive mygrid-wrapper-div">
             <table id="coTable" class="table table-striped table-bordered table-sm table-hover">
                 <thead id="coHead"></thead>
