@@ -166,7 +166,6 @@ if (request.getParameter("number")!=null) {
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
   })();
 </script>
-
 <script src="javascript/underscore-min.js"></script>
 <script src="javascript/backbone-min.js"></script>
 <script src="javascript/core.js"></script>
@@ -204,8 +203,7 @@ if (request.getParameter("number")!=null) {
 
 <link rel="stylesheet" type="text/css" href="css/individualStyles.css">
 
-  <link rel="stylesheet" href="css/createadoption.css">
-
+<link rel="stylesheet" href="css/createadoption.css">
 
 <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:200,600,200italic,600italic' rel='stylesheet' type='text/css'>
 <script src="//d3js.org/d3.v3.min.js"></script>
@@ -213,11 +211,9 @@ if (request.getParameter("number")!=null) {
 <script src="//phuonghuynh.github.io/js/bower_components/cafej/src/misc.js"></script>
 <script src="//phuonghuynh.github.io/js/bower_components/cafej/src/micro-observer.js"></script>
 <script src="//phuonghuynh.github.io/js/bower_components/microplugin/src/microplugin.js"></script>
-<!-- <script src="javascript/bubbleDiagram/bubble-chart.js"></script> -->
+<script src="javascript/bubbleDiagram/bubble-chart.js"></script>
 <script src="javascript/bubbleDiagram/encounter-calls.js"></script>
 <script src="javascript/relationshipDiagrams/familyTree.js"></script>
-
-
 
 <script type="text/javascript">
 
@@ -808,7 +804,7 @@ $(document).ready(function() {
         }
       }
     }
-    if (imgEncID.size()>0) {
+    if (imgEncID.length()>0) {
     %>
     <div id="imgDiv" class="viewAllImgs">
       <span id="linkToEnc"><p class="viewAllImgs imgLink"><a href="encounters/encounter.jsp?number=<%=imgEncID%>"><small>Encounter: <%=imgEncID%></small></a></p></span>
@@ -1286,17 +1282,11 @@ $(document).ready(function() {
         <br>
         <%-- Cooccurrence table starts here --%>
         <a name="cooccurrence"></a>
-        <p><strong><%=props.getProperty("cooccurrence")%></strong></p>
-        <p>
-          The coocurrence bubble-chart shows animals sighted with the current selection. The bubble is larger the more times they have been sighted together. 
-          Each bubble contains the database ID of the individual co-sighted, and the number of times. 
-        </p>
-
+        <p><strong>Co-occurrence chart</strong></p>
 
         <script type="text/javascript">
         // <% String individualID = sharky.getIndividualID();%>
         $(document).ready(function() {
-
           getData("<%=individualID%>");
         });
         </script>
@@ -1307,23 +1297,22 @@ $(document).ready(function() {
         if(otherIndies.size()>0){
 
         //ok, let's iterate the social relationships
+        System.out.println("Found "+otherIndies.size()+" indy's re-occurring with this one!");
         %>
         <div class="cooccurrences">
-          <p>Co-occurrence  div start!</p>
-          
-          <!--
-          <div role="navigation">
+
+          <div role="navigation" style="display:none;">
             <ul class="nav nav-tabs">
-              <li id="cooccurrenceDiagramTab" class="active">
-                <a href="#cooccurrenceDiagram"><%=props.getProperty("cooccurrence")%> Diagram</a>
-              </li>
-              <li id="cooccurrenceTableTab">
+              <li id="cooccurrenceTableTab" class="active">
                 <a href="#cooccurrenceTable"><%=props.getProperty("cooccurrence")%> Table</a>
+              </li>
+              <li id="cooccurrenceDiagramTab">
+                <a href="#cooccurrenceDiagram"><%=props.getProperty("cooccurrence")%> Diagram</a>
               </li>
             </ul>
           </div>
-
-          <div id="cooccurrenceDiagram">
+          
+          <div id="cooccurrenceDiagram" style="display:none;">
               <div class="bubbleChart">
                 <div id="buttons" class="btn-group btn-group-sm" role="group">
                   <button type="button" class="btn btn-default" id="zoomIn"><span class="glyphicon glyphicon-plus"></span></button>
@@ -1332,14 +1321,12 @@ $(document).ready(function() {
                 </div>
               </div>
           </div>
-          -->
-          
-          
-          <div id="cooccurrenceTable" class="table-responsive mygrid-wrapper-div">
-            <table id="coTable" class="table table-striped table-bordered table-sm table-hover">
+
+          <div id="cooccurrenceDiagram" class="table-responsive mygrid-wrapper-div">
+              <table id="coTable" class="table table-striped table-bordered table-sm table-hover">
                 <thead id="coHead"></thead>
                 <tbody id="coBody"></tbody>
-            </table>
+              </table>
           </div>
         </div>
 
