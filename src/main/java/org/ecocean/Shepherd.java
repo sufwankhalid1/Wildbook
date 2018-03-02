@@ -2048,7 +2048,6 @@ public class Shepherd {
     return null;
   }
 
-
   public List<SinglePhotoVideo> getAllSinglePhotoVideosForEncounter(String encNum) {
     ArrayList<Annotation> al=getAnnotationsForEncounter(encNum);
     int numAnnots=al.size();

@@ -3,7 +3,7 @@
 javax.jdo.datastore.DataStoreCache, org.datanucleus.jdo.*,javax.jdo.Query,
 org.datanucleus.api.rest.orgjson.JSONObject,
 org.datanucleus.ExecutionContext,
-		 org.joda.time.DateTime,org.ecocean.*,org.ecocean.social.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*,org.ecocean.security.Collaboration, com.google.gson.Gson,
+		 org.joda.time.DateTime,org.ecocean.*,org.ecocean.social.*,org.ecocean.tag.*,org.ecocean.servlet.ServletUtilities,java.io.File, java.util.*, org.ecocean.genetics.*,org.ecocean.security.Collaboration, com.google.gson.Gson,
 org.datanucleus.api.rest.RESTUtils, org.datanucleus.api.jdo.JDOPersistenceManager" %>
 
 
@@ -31,11 +31,9 @@ context=ServletUtilities.getContext(request);
   //String langCode = "en";
   String langCode=ServletUtilities.getLanguageCode(request);
 
+//load our variables for the submit page
 
-
-  //load our variables for the submit page
-
- // props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individuals.properties"));
+// props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individuals.properties"));
   props = ShepherdProperties.getProperties("individuals.properties", langCode,context);
 
 	Properties collabProps = new Properties();
@@ -99,21 +97,22 @@ context=ServletUtilities.getContext(request);
 %>
 
 <%
+MarkedIndividual indy = null;
 if (request.getParameter("number")!=null) {
 	name=request.getParameter("number").trim();
 	myShepherd.beginDBTransaction();
 	try{
 
 		if(myShepherd.isMarkedIndividual(name)){
-			MarkedIndividual indie=myShepherd.getMarkedIndividual(name);
-			Vector myEncs=indie.getEncounters();
+			indy = myShepherd.getMarkedIndividual(name);
+			Vector myEncs=indy.getEncounters();
 			int numEncs=myEncs.size();
 
 
-			boolean visible = indie.canUserAccess(request);
+			boolean visible = indy.canUserAccess(request);
 
 			if (!visible) {
-  			ArrayList<String> uids = indie.getAllAssignedUsers();
+  			ArrayList<String> uids = indy.getAllAssignedUsers();
 				ArrayList<String> possible = new ArrayList<String>();
 				for (String u : uids) {
 					Collaboration c = null;
@@ -309,8 +308,6 @@ if (request.getParameter("number")!=null) {
     });
   });
 
-</script>
-<script>
  // Needed to get language specific values into javascript for table rendering.
  
 var tableDictionary = {}
@@ -491,7 +488,7 @@ $(document).ready(function() {
                   </form>
                   <%-- End edit nickname form --%>
 
-              <%
+            <%
             }
             %>
 
@@ -558,7 +555,18 @@ $(document).ready(function() {
                 <span id="sexError">X</span>
             </div>
           </form>
-          <%-- End edit sex form --%>
+          <%-- End edit sex form --%>            
+          
+          <%-- Extra visiblility for encounter number --%>
+          <%
+            String encCount="0";
+            if(!indy.getEncounters().isEmpty()) {
+              encCount=String.valueOf(indy.getEncounters().size());
+            }
+          %>
+          <p class="noEditText">Encounters: <span id="displayCount"><%=encCount %></span></p>
+          
+          <%-- End counter for encounters --%>
 
           <%
             if(CommonConfiguration.showProperty("showTaxonomy",context)){
@@ -572,6 +580,8 @@ $(document).ready(function() {
             <%
               }
             %>
+
+
 
         </div>
 
@@ -796,11 +806,6 @@ $(document).ready(function() {
         if (maJ.getMetadata() != null) {
           maJ.getMetadata().getDataAsString();
           imgEncID = enJ.getCatalogNumber();
-          System.out.println("-------------------------------------------");
-          System.out.println("-------------------------------------------");
-          System.out.println("ImgEncID---------"+imgEncID+"----------");
-          System.out.println("-------------------------------------------");
-          System.out.println("-------------------------------------------");
         }
       }
     }
@@ -872,6 +877,78 @@ $(document).ready(function() {
       }
       }
       %>
+
+      <!-- Identifying Markers -->
+
+      <%
+        ArrayList<TissueSample> samples = myShepherd.getAllTissueSamplesForMarkedIndividual(indy);
+        ArrayList<MetalTag> mTags = new ArrayList<MetalTag>();
+        ArrayList<SatelliteTag> sTags = new ArrayList<SatelliteTag>();
+        ArrayList<DigitalArchiveTag> dTags = new ArrayList<DigitalArchiveTag>();
+        ArrayList<AcousticTag> aTags = new ArrayList<AcousticTag>();
+        
+        String sampleIDs = "";
+        if (!samples.isEmpty()) {
+          for (TissueSample sample : samples) {
+            sampleIDs += "<li class=\"indyIDItem\">TissueSample: "+sample.getSampleID()+"</li>";
+          }
+        }
+
+        String mTagListItems = "";
+        if (indy.getAllMetalTags()!=null) {
+          mTags = indy.getAllMetalTags();
+          mTagListItems += "<li class=\"indyIDItem\"><strong>Metal Tag ID's</strong></li>";
+          for (MetalTag mTag :  mTags) {
+            mTagListItems += "<li class=\"indyIDItem\">Metal Tag: "+mTag.getId()+"</li>";
+          }
+        }
+        String aTagListItems = "";
+        if (indy.getAllAcousticTags()!=null) {
+          aTags = indy.getAllAcousticTags();
+          aTagListItems += "<li class=\"indyIDItem\"><strong>Acoustic Tag ID's</strong></li>";
+          for (AcousticTag aTag :  aTags) {
+            aTagListItems += "<li class=\"indyIDItem\">Acoustic Tag: "+aTag.getId()+"</li>";
+          }
+        }
+        String sTagListItems = "";
+        if (indy.getAllSatelliteTags()!=null) {
+          sTags = indy.getAllSatelliteTags();
+          sTagListItems += "<li class=\"indyIDItem\"><strong>Satellite Tag ID's</strong></li>";
+          for (SatelliteTag sTag :  sTags) {
+            sTagListItems += "<li class=\"indyIDItem\">Satellite Tag: "+sTag.getId()+"</li>";
+          }
+        }
+        String dTagListItems = "";
+        if (indy.getAllDTags()!=null) {
+          dTags = indy.getAllDTags();     
+          dTagListItems += "<li class=\"indyIDItem\"><strong>DTag ID's</strong></li>";
+          for (DigitalArchiveTag dTag :  dTags) {
+            dTagListItems += "<li class=\"indyIDItem\">DTag: "+dTag.getId()+"</li>";
+          }
+        }
+
+        // If there is no way to get the Biopsy associated with an indy, some horrible hack will need to go here. 
+      %>
+
+      <div id="identifyingMarkers">
+        <p><strong>Identifying Markers</strong></p>
+        <div class="row">
+          <div class="col-md-6">
+            <label>Tag ID's: </label>
+            <ul>
+              <li class="indyIDItem">123-Whale</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <label>Biopsy ID's: </label>
+            <ul>
+              <li class="indyIDItem">DTag-123</li>
+            </ul>
+          </div>
+        </div>  
+      </div>
+      <br/>
+
       <%-- Relationship Graphs --%>
       <div>
         <a name="socialRelationships"></a>
@@ -881,7 +958,6 @@ $(document).ready(function() {
         %>
 
         <input class="btn btn-md" type="button" name="button" id="addRelationshipBtn" value="<%=props.getProperty("addRelationship") %>">
-
 
         <%
         }
@@ -1292,12 +1368,12 @@ $(document).ready(function() {
         </script>
 
         <%
-          List<Map.Entry> otherIndies=myShepherd.getAllOtherIndividualsOccurringWithMarkedIndividual(sharky.getIndividualID());
+          List<Map.Entry> otherIndys=myShepherd.getAllOtherIndividualsOccurringWithMarkedIndividual(sharky.getIndividualID());
 
-        if(otherIndies.size()>0){
+        if(otherIndys.size()>0){
 
         //ok, let's iterate the social relationships
-        System.out.println("Found "+otherIndies.size()+" indy's re-occurring with this one!");
+        System.out.println("Found "+otherIndys.size()+" indy's re-occurring with this one!");
         %>
         <div class="cooccurrences">
 

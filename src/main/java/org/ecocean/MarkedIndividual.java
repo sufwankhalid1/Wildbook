@@ -25,6 +25,7 @@ import java.net.URL;
 
 import org.ecocean.genetics.*;
 import org.ecocean.social.Relationship;
+import org.ecocean.tag.*;
 import org.ecocean.security.Collaboration;
 import org.ecocean.media.MediaAsset;
 import org.ecocean.servlet.ServletUtilities;
@@ -1980,5 +1981,59 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
                 .append("numLocations", numberLocations)
                 .toString();
     }
+
+    public ArrayList<SatelliteTag> getAllSatelliteTags() {
+      ArrayList<SatelliteTag> tags = new ArrayList<>();
+      if (this.getEncounters()!=null) {
+        for (Encounter enc :encounters) {
+          if (enc.getSatelliteTag()!=null) {
+            tags.add(enc.getSatelliteTag());
+          }
+        }
+        return tags;
+      }
+      return null;
+    }
+
+    public ArrayList<DigitalArchiveTag> getAllDTags() {
+      ArrayList<DigitalArchiveTag> tags = new ArrayList<>();
+      if (this.getEncounters()!=null) {
+        for (Encounter enc :encounters) {
+          if (enc.getDTag()!=null) {
+            tags.add(enc.getDTag());
+          }
+        }
+        return tags;
+      }
+      return null;
+    }
+
+    public ArrayList<AcousticTag> getAllAcousticTags() {
+      ArrayList<AcousticTag> tags = new ArrayList<>();
+      if (this.getEncounters()!=null) {
+        for (Encounter enc :encounters) {
+          if (enc.getAcousticTag()!=null) {
+            tags.add(enc.getAcousticTag());
+          }
+        }
+        return tags;
+      }
+      return null;
+    }
+
+    public ArrayList<MetalTag> getAllMetalTags() {
+      ArrayList<MetalTag> tags = new ArrayList<>();
+      if (this.getEncounters()!=null) {
+        for (Encounter enc :encounters) {
+          if (enc.getAcousticTag()!=null) {
+            tags.addAll(enc.getMetalTags());
+          }
+        }
+        return tags;
+      }
+      return null;
+    }
+
+
 
 }
