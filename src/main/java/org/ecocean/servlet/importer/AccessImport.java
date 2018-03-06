@@ -100,7 +100,7 @@ public class AccessImport extends HttpServlet {
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     
-    String dbName = "DUML_MASTER_20171013.mdb";
+    String dbName = "DUML_MASTER_20180301.mdb";
     if (request.getParameter("file") != null) {
       dbName = request.getParameter("file");
     }
@@ -606,7 +606,7 @@ public class AccessImport extends HttpServlet {
       try {
         Double wt = null;
         Measurement wtm = null;
-        if (thisRow.get("WATERTEMP") != null) {
+        if (thisRow.get("WATERTEMP")!=null&&!thisRow.get("WATERTEMP").equals("")&&!thisRow.get("WATERTEMP").equals("n/a")) {
           wt = Double.valueOf(thisRow.get("WATERTEMP").toString());   
           if (wt < 99.9 && wt != null) {
             wtm = new Measurement(newEnc.getCatalogNumber(),"WATERTEMP",wt,"C","");
@@ -1200,6 +1200,7 @@ public class AccessImport extends HttpServlet {
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in SIGHTINGS");
+        out.println("The rest of the info: "+thisRow.toString());
         e.printStackTrace();
       }
       
@@ -1210,6 +1211,7 @@ public class AccessImport extends HttpServlet {
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in SIGHTINGS");
+        out.println("The rest of the info: "+thisRow.toString());
         e.printStackTrace();
       }
       
@@ -1220,6 +1222,7 @@ public class AccessImport extends HttpServlet {
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a ID CODE for row "+i+" in SIGHTINGS");
+        out.println("The rest of the info: "+thisRow.toString());
         e.printStackTrace();  
       }
       
