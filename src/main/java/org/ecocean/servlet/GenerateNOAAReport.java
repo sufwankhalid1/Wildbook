@@ -163,7 +163,9 @@ public class GenerateNOAAReport extends HttpServlet {
     } catch (Exception e) {
       e.printStackTrace();
     }
-
+    if (!satTagOccs.isEmpty()||!dTagOccs.isEmpty()) {
+      report += "<tbody>";
+    }
     Observation tagSpecies = null;
     for (Occurrence occ : satTagOccs) {  
       if (occ.getBaseSatelliteTagArrayList()!=null&&!occ.getBaseSatelliteTagArrayList().isEmpty()) {
@@ -202,7 +204,7 @@ public class GenerateNOAAReport extends HttpServlet {
       }
     }
     if (!satTagOccs.isEmpty()||!dTagOccs.isEmpty()) {
-      report = "<tbody>" + "</tbody>";
+      report += "</tbody>";
     }
     report += "</table>";
 
@@ -285,6 +287,7 @@ public class GenerateNOAAReport extends HttpServlet {
     HashMap<String,ArrayList<String>> takesCounts = new HashMap<>();
     @SuppressWarnings("unchecked")
     Iterator<Occurrence> occs = myShepherd.getAllOccurrences();
+    report += "<tbody>";
     while (occs.hasNext()) {
       Occurrence occ = occs.next();
       long startDate = -999;
@@ -367,9 +370,7 @@ public class GenerateNOAAReport extends HttpServlet {
 
       takesCounts = aggregatePhotoTakes(takesCounts, species, photos, estimate);
     }
-    if (photoIDNum>0) {
-      report = "<tbody>" +report+ "</tbody>";
-    }
+    report += "</tbody>";
     report += "</table>";
     createPhotoIDSummary(takesCounts);
 
@@ -382,6 +383,7 @@ public class GenerateNOAAReport extends HttpServlet {
       summary += "<h3>Summary of Photo ID takes:</h3>";
       summary += "<table id=\"photoIDSummary\" class=\"table\">";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo #&nbsp&nbsp&nbsp</th><th scope=\"col\">Takes (TOTBESTEST)</th></tr>";
+      summary += "<tbody>";
       Set<String> keys = takesCounts.keySet();
       for (String key : keys) {
         summary += "<tr>";
@@ -391,7 +393,7 @@ public class GenerateNOAAReport extends HttpServlet {
         summary += "</tr>";
       }
       summary += "</table>";
-      summary = "<tbody>" +summary+ "</tbody";
+      summary += "</tbody";
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }
@@ -403,9 +405,12 @@ public class GenerateNOAAReport extends HttpServlet {
     if (!dTagOccs.isEmpty()||!satTagOccs.isEmpty()) {
       summary += "<h3>Summary of Tags:</h3>";
       summary += "<table id=\"tagSummary\" class=\"table\">";
+      summary += "<thead>";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
+      summary += "</thead>";
 
       HashMap<String,Integer> dTagBySpecies = new HashMap<>();
+
       for (Occurrence occ : dTagOccs) {
         for (DigitalArchiveTag dTag : occ.getBaseDigitalArchiveTagArrayList()) {
           if (dTag.getObservationByName("Species")!=null) {
@@ -443,7 +448,6 @@ public class GenerateNOAAReport extends HttpServlet {
         }
       }
       summary = buildSummaryString(summary, sTagBySpecies, dTagBySpecies, speciesArr);
-      summary = "<tbody>" +summary+ "</tbody";
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }
@@ -451,6 +455,9 @@ public class GenerateNOAAReport extends HttpServlet {
   }
 
   private String buildSummaryString(String summary, HashMap<String,Integer> sTagsBySpecies, HashMap<String,Integer> dTagsBySpecies, ArrayList<String> speciesArr) {
+    if (!sTagsBySpecies.isEmpty()||!dTagsBySpecies.isEmpty()) {
+      summary += "<tbody>";
+    }
     for (String species : speciesArr) {
 
       //System.out.println("====== Species? "+species);
@@ -476,6 +483,7 @@ public class GenerateNOAAReport extends HttpServlet {
       summary += "</tr>";
       
     }
+    summary += "</tbody>";
     summary += "</table>";
     return summary;
   }
@@ -527,6 +535,9 @@ public class GenerateNOAAReport extends HttpServlet {
     
     long startDate = -999;
     long endDate = -999;
+    if (allSamples.hasNext()) {
+      report += "<tbody>";
+    }
     while (allSamples.hasNext()) {
       TissueSample sample = allSamples.next();
       // Verify ts has the same permit, or use all.
@@ -618,7 +629,7 @@ public class GenerateNOAAReport extends HttpServlet {
       takesCounts = aggregatePhysicalTakes(takesCounts, species, groupSize);
     }
     if (physicalIDNum>0) {
-      report = "<tbody>" +report+ "</tbody";
+      report += "</tbody";
     } 
     report += "</table>";
 
@@ -631,9 +642,12 @@ public class GenerateNOAAReport extends HttpServlet {
     if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
       summary += "<h3>Summary of Biopsy Sample takes:</h3>";
       summary += "<table id=\"biopsySummary\" class=\"table\">";
+      summary += "<thead>";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Group Totals (Level B Takes)</th><th scope=\"col\">Biopsies (Level A Takes)</th></tr>";
+      summary += "</thead>";
       Set<String> keys = takesCounts.keySet();
       System.out.println("Takescounts? "+takesCounts.toString());
+      summary += "</tbody";
       for (String key : keys) {
         summary += "<tr>";
         summary += "<td>"+key+"</td>";
@@ -642,8 +656,8 @@ public class GenerateNOAAReport extends HttpServlet {
         summary += "<td>"+takesCounts.get(key).get(1)+"</td>";
         summary += "</tr>";
       }
+      summary += "</tbody";
       summary += "</table>"; 
-      summary = "<tbody>" +summary+ "</tbody";
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }

@@ -18,6 +18,8 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 
 <script src="../javascript/tablesorter/jquery.tablesorter.js"></script>
 
+<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen">
+
 <div class="container maincontent">
  
 	<h2>NOAA Report Results</h2>
@@ -38,7 +40,7 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 			<p>Report Type: <%= request.getAttribute("reportType") %></p>
 			<a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a>
 
-			<!-- All formatted table output from servlet. -->	
+			<!-- All formatted table output from servlet GenerateNOAAReport.java -->	
 			<% 
 			if (!"".equals(completeSummary)) {
 			%>
