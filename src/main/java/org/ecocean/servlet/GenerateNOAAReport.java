@@ -66,19 +66,25 @@ public class GenerateNOAAReport extends HttpServlet {
     request.setAttribute("returnLoc", "//"+urlLoc+"/generateNOAAReport.jsp");
 
     //int groupTotal = 0;
-    String physicalReport = "<hr><h4>Detail Physical Sample Results:</h4><br/>";
-    physicalReport += "<table class=\"table\">";    
+    String physicalReport = "<hr><h4>Detail Biopsy Sample Results:</h4><br/>";
+    physicalReport += "<table id=\"biopsyReport\" class=\"table\">";    
+    physicalReport += "<thead>";
     physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size (Level B Takes)</th></tr>";
-    
+    physicalReport += "</thead>";
+
     String photoIDReport = "<hr><h4>Detail Photo Sample Results:</h4><br/>";
-    photoIDReport += "<table class=\"table\">"; 
+    photoIDReport += "<table id=\"photoIDReport\" class=\"table\">";
+    photoIDReport += "<thead>";
     photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th><th scope=\"col\">Takes</th></tr>";
+    photoIDReport += "</thead>";
 
     String taggingReport = "<hr><h4>Detail Tag Results:</h4><br/>";
-    taggingReport += "<table class=\"table\">";
+    taggingReport += "<table id=\"tagReport\" class=\"table\">";
+    taggingReport += "<thead>";
     taggingReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Tag Type</th><th scope=\"col\">Tag ID</th></tr>";
+    taggingReport += "</thead>";
 
-    HashMap<String,String> formInput = null;
+    HashMap<String,String> formInput = new HashMap<String,String>();
     try {
       formInput = retrieveFields(request, SEARCH_FIELDS);  
     } catch (Exception e) {
@@ -94,9 +100,6 @@ public class GenerateNOAAReport extends HttpServlet {
     } else {
       physicalReport = physicalSampleReporting(physicalReport,formInput,myShepherd,request); 
       photoIDReport = photoIDReporting(photoIDReport,formInput,myShepherd,request);
-      
-      System.out.println("SatTagOccs: "+satTagOccs.size());
-      System.out.println("DTagOccs: "+dTagOccs.size());
       if (satTagOccs.isEmpty()&&dTagOccs.isEmpty()) {
         taggingReport =  "";
       } else {
@@ -117,6 +120,10 @@ public class GenerateNOAAReport extends HttpServlet {
     request.setAttribute("photoIDNum", String.valueOf(photoIDNum));
     request.setAttribute("tagNum", String.valueOf(tagNum));
     request.setAttribute("result",report);
+
+    request.setAttribute("startDate",formInput.get("startDate"));
+    request.setAttribute("endDate",formInput.get("endDate"));
+
     request.setAttribute("returnUrl","//"+urlLoc+"/reporting/generateNOAAReport.jsp");
     try {
       getServletContext().getRequestDispatcher("/reporting/NOAAReport.jsp").forward(request, response);                
@@ -164,10 +171,14 @@ public class GenerateNOAAReport extends HttpServlet {
         for (SatelliteTag sTag : sTags) {
           tagSpecies = sTag.getObservationByName("Species");
           System.out.println("sTag: "+String.valueOf(sTag));
-          String date = millisToShortDate(occ.getMillis());
-          if (allSpecies||speciesArr.contains(tagSpecies.getValue().toLowerCase())) {
-            row =  buildTagRow(sTag, date);
-            report += row;
+          try {
+            String date = millisToShortDate(occ.getMillis());
+            if (allSpecies||speciesArr.contains(tagSpecies.getValue().toLowerCase())) {
+              row =  buildTagRow(sTag, date);
+              report += row;
+            }
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
           }
         }
       }
@@ -178,13 +189,20 @@ public class GenerateNOAAReport extends HttpServlet {
         for (DigitalArchiveTag dTag : dTags) {
           tagSpecies = dTag.getObservationByName("Species");
           System.out.println("Dtag: "+String.valueOf(dTag));
-          String date = millisToShortDate(occ.getMillis());
-          if (allSpecies||speciesArr.contains(tagSpecies.getValue().toLowerCase())) {
-            row =  buildTagRow(dTag, date);
-            report += row;
+          try {
+            String date = millisToShortDate(occ.getMillis());
+            if (allSpecies||speciesArr.contains(tagSpecies.getValue().toLowerCase())) {
+              row =  buildTagRow(dTag, date);
+              report += row;
+            }
+          } catch (NullPointerException npe) {
+            npe.printStackTrace();
           }
         }
       }
+    }
+    if (!satTagOccs.isEmpty()||!dTagOccs.isEmpty()) {
+      report = "<tbody>" + "</tbody>";
     }
     report += "</table>";
 
@@ -240,7 +258,7 @@ public class GenerateNOAAReport extends HttpServlet {
     }
     
     String row = "<tr>";
-    row += "<td>"+date+"</td>";
+    row += "<td>"+date+"<td>";
     row += "<td>"+speciesStr+"</td>";
     row += "<td>D Tag</td>";
     row += "<td>"+tagID+"</td>";
@@ -349,6 +367,9 @@ public class GenerateNOAAReport extends HttpServlet {
 
       takesCounts = aggregatePhotoTakes(takesCounts, species, photos, estimate);
     }
+    if (photoIDNum>0) {
+      report = "<tbody>" +report+ "</tbody>";
+    }
     report += "</table>";
     createPhotoIDSummary(takesCounts);
 
@@ -359,7 +380,7 @@ public class GenerateNOAAReport extends HttpServlet {
     String summary = "";
     if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
       summary += "<h3>Summary of Photo ID takes:</h3>";
-      summary += "<table class=\"table\">";
+      summary += "<table id=\"photoIDSummary\" class=\"table\">";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo #&nbsp&nbsp&nbsp</th><th scope=\"col\">Takes (TOTBESTEST)</th></tr>";
       Set<String> keys = takesCounts.keySet();
       for (String key : keys) {
@@ -370,6 +391,7 @@ public class GenerateNOAAReport extends HttpServlet {
         summary += "</tr>";
       }
       summary += "</table>";
+      summary = "<tbody>" +summary+ "</tbody";
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }
@@ -380,7 +402,7 @@ public class GenerateNOAAReport extends HttpServlet {
     String summary = "";
     if (!dTagOccs.isEmpty()||!satTagOccs.isEmpty()) {
       summary += "<h3>Summary of Tags:</h3>";
-      summary += "<table class=\"table\">";
+      summary += "<table id=\"tagSummary\" class=\"table\">";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
 
       HashMap<String,Integer> dTagBySpecies = new HashMap<>();
@@ -421,6 +443,7 @@ public class GenerateNOAAReport extends HttpServlet {
         }
       }
       summary = buildSummaryString(summary, sTagBySpecies, dTagBySpecies, speciesArr);
+      summary = "<tbody>" +summary+ "</tbody";
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }
@@ -593,6 +616,9 @@ public class GenerateNOAAReport extends HttpServlet {
       report += "</tr>";
 
       takesCounts = aggregatePhysicalTakes(takesCounts, species, groupSize);
+    }
+    if (physicalIDNum>0) {
+      report = "<tbody>" +report+ "</tbody";
     } 
     report += "</table>";
 
@@ -604,7 +630,7 @@ public class GenerateNOAAReport extends HttpServlet {
     String summary = "";
     if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
       summary += "<h3>Summary of Biopsy Sample takes:</h3>";
-      summary += "<table class=\"table\">";
+      summary += "<table id=\"biopsySummary\" class=\"table\">";
       summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Group Totals (Level B Takes)</th><th scope=\"col\">Biopsies (Level A Takes)</th></tr>";
       Set<String> keys = takesCounts.keySet();
       System.out.println("Takescounts? "+takesCounts.toString());
@@ -617,6 +643,7 @@ public class GenerateNOAAReport extends HttpServlet {
         summary += "</tr>";
       }
       summary += "</table>"; 
+      summary = "<tbody>" +summary+ "</tbody";
     } else {
       summary += "<tr><td>No Results.</td></tr></table>";
     }

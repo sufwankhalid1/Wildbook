@@ -16,6 +16,8 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 
 <jsp:include page="../header.jsp" flush="true"/>
 
+<script src="../javascript/tablesorter/jquery.tablesorter.js"></script>
+
 <div class="container maincontent">
  
 	<h2>NOAA Report Results</h2>
@@ -23,21 +25,18 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 
 		<div class="col-xs-12">	
 
+			<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
 			<%
-			if (reportType.equals("photoID")) {
+			 if (reportType.equals("multiID")) {
 			%>
-				<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
-			<%
-			} else if (reportType.equals("multiID")) {
-			%>
-				<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
 				<p>Number of Biopsy Events: <%= request.getAttribute("physicalIDNum") %></p>
 				<p>Number of Tagging Events: <%= request.getAttribute("tagNum") %></p>
 			<%
 			}
 			%>
+			<p>Date Start: <%= request.getAttribute("startDate") %> End: <%= request.getAttribute("endDate") %> </p>
 			<p>Report Type: <%= request.getAttribute("reportType") %></p>
-			<p><a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a></p>
+			<a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a>
 
 			<!-- All formatted table output from servlet. -->	
 			<% 
@@ -55,6 +54,16 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 		
 		</div>
 	</div>
+	<script>
+		$(document).ready(function(){
+  			$('#biopsyReport').tablesorter();
+			$('#tagReport').tablesorter();
+			$('#photoIDReport').tablesorter();
+			$('#biopsySummary').tablesorter();
+			$('#tagSummary').tablesorter();
+			$('#photoIDReport').tablesorter(); 
+		});
+	</script>
 
 </div>
 
