@@ -934,15 +934,15 @@ $(document).ready(function() {
         <p><strong>Identifying Markers</strong></p>
         <div class="row">
           <div class="col-md-6">
-            <label>Tag ID's: </label>
+            <label>&nbsp;&nbsp;&nbsp;<small>Tag ID's: </small></label>
             <ul>
-              <li class="indyIDItem">123-Whale</li>
+              <li class="indyIDItem">DTag - 10001</li>
             </ul>
           </div>
           <div class="col-md-6">
-            <label>Biopsy ID's: </label>
+            <label>&nbsp;&nbsp;&nbsp;<small>Biopsy ID's: </small></label>
             <ul>
-              <li class="indyIDItem">DTag-123</li>
+              <li class="indyIDItem">AB-10001</li>
             </ul>
           </div>
         </div>  

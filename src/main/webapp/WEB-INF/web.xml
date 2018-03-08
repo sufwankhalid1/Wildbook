@@ -250,7 +250,10 @@
 				/OccurrenceSearchExportMetadataExcel = authc, roles[researcher]
                  /OccurrenceSearchExportGtm = authc, roles[researcher]
 				
-
+        /testNewObjects.jsp = authc
+        /generateNOAAReport.jsp = authc
+        /reporting/generateNOAAReport.jsp = authc
+        /surveys/createSurvey.jsp = authc
             </param-value>
         </init-param>
     </filter>
