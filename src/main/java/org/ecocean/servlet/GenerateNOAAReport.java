@@ -44,6 +44,11 @@ public class GenerateNOAAReport extends HttpServlet {
   private int physicalIDNum = 0;
   private int tagNum = 0;
   private String completeSummary = "";
+
+  private String biopsySummary = "";
+  private String tagSummary = "";
+  private String photoIDSummary = "";  
+
   private ArrayList<Occurrence> satTagOccs = new ArrayList<Occurrence>();
   private ArrayList<Occurrence> dTagOccs = new ArrayList<Occurrence>();
   
@@ -69,19 +74,19 @@ public class GenerateNOAAReport extends HttpServlet {
     String physicalReport = "<hr><h4>Detail Biopsy Sample Results:</h4><br/>";
     physicalReport += "<table id=\"biopsyReport\" class=\"table\">";    
     physicalReport += "<thead>";
-    physicalReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Sample State</th><th scope=\"col\">Group Size (Level B Takes)</th></tr>";
+    physicalReport += "<tr><th class=\"\" scope=\"col\">Date</th><th class=\"\" scope=\"col\">Species</th><th class=\"\" scope=\"col\">Permit Name</th><th class=\"\" scope=\"col\">Sample State</th><th class=\"\" scope=\"col\">Group Size (Level B Takes)</th></tr>";
     physicalReport += "</thead>";
 
     String photoIDReport = "<hr><h4>Detail Photo Sample Results:</h4><br/>";
     photoIDReport += "<table id=\"photoIDReport\" class=\"table\">";
     photoIDReport += "<thead>";
-    photoIDReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Permit Name</th><th scope=\"col\">Photo Number</th><th scope=\"col\">Takes</th></tr>";
+    photoIDReport += "<tr><th class=\"\" scope=\"col\">Date</th><th class=\"\" scope=\"col\">Species</th><th class=\"\" scope=\"col\">Permit Name</th><th class=\"\" scope=\"col\">Photo Number</th><th class=\"\" scope=\"col\">Takes</th></tr>";
     photoIDReport += "</thead>";
 
     String taggingReport = "<hr><h4>Detail Tag Results:</h4><br/>";
     taggingReport += "<table id=\"tagReport\" class=\"table\">";
     taggingReport += "<thead>";
-    taggingReport += "<tr><th scope=\"col\">Date</th><th scope=\"col\">Species</th><th scope=\"col\">Tag Type</th><th scope=\"col\">Tag ID</th></tr>";
+    taggingReport += "<tr><th class=\"\" scope=\"col\">Date</th><th class=\"\" scope=\"col\">Species</th><th class=\"\" scope=\"col\">Tag Type</th><th class=\"\" scope=\"col\">Tag ID</th></tr>";
     taggingReport += "</thead>";
 
     HashMap<String,String> formInput = new HashMap<String,String>();
@@ -115,7 +120,7 @@ public class GenerateNOAAReport extends HttpServlet {
     }
     
     request.setAttribute("reportType",reportType);
-    request.setAttribute("completeSummary",completeSummary);
+    request.setAttribute("completeSummary",photoIDSummary+tagSummary+biopsySummary);
     request.setAttribute("physicalIDNum", String.valueOf(physicalIDNum));
     request.setAttribute("photoIDNum", String.valueOf(photoIDNum));
     request.setAttribute("tagNum", String.valueOf(tagNum));
@@ -136,6 +141,11 @@ public class GenerateNOAAReport extends HttpServlet {
       physicalIDNum = 0;
       tagNum = 0;
       completeSummary = "";
+
+      biopsySummary = "";
+      tagSummary = "";
+      photoIDSummary = "";  
+
       satTagOccs.clear();
       dTagOccs.clear();
     }
@@ -382,7 +392,9 @@ public class GenerateNOAAReport extends HttpServlet {
     if (takesCounts.keySet()!=null&&!takesCounts.keySet().isEmpty()) {
       summary += "<h3>Summary of Photo ID takes:</h3>";
       summary += "<table id=\"photoIDSummary\" class=\"table\">";
-      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Photo #&nbsp&nbsp&nbsp</th><th scope=\"col\">Takes (TOTBESTEST)</th></tr>";
+      summary += "<thead>";
+      summary += "<tr><th class=\"\" scope=\"col\">Species</th><th class=\"\" scope=\"col\">Photo #&nbsp&nbsp&nbsp</th><th class=\"\" scope=\"col\">Takes (TOTBESTEST)</th></tr>";
+      summary += "</thead>";
       summary += "<tbody>";
       Set<String> keys = takesCounts.keySet();
       for (String key : keys) {
@@ -392,12 +404,17 @@ public class GenerateNOAAReport extends HttpServlet {
         summary += "<td>"+takesCounts.get(key).get(1)+"</td>";
         summary += "</tr>";
       }
+      summary += "</tbody>";
       summary += "</table>";
-      summary += "</tbody";
     } else {
-      summary += "<tr><td>No Results.</td></tr></table>";
+      summary += "<table id=\"photoIDSummary\" class=\"table\"><tr><td>No Results.</td></tr></table>";
     }
-    completeSummary += summary; 
+    System.out.println("==================  current completeSummary in createPhotoIDSummary : "+completeSummary);
+
+    System.out.println("==================  NOW ADDING in  createPhotoIDSummary : "+summary);
+    //completeSummary += "<h3>Pre-Addition of Photo-ID Summary</h3";
+    photoIDSummary = summary; 
+    //completeSummary += "<h3>Post-Addition</h3";
   }
 
   private void createTagSummary(ArrayList<String> speciesArr) {  
@@ -406,8 +423,9 @@ public class GenerateNOAAReport extends HttpServlet {
       summary += "<h3>Summary of Tags:</h3>";
       summary += "<table id=\"tagSummary\" class=\"table\">";
       summary += "<thead>";
-      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Sat Tags</th><th scope=\"col\">D Tags</th><th scope=\"col\">Total</th></tr>";
+      summary += "<tr><th class=\"\" scope=\"col\">Species</th><th class=\"\" scope=\"col\">Sat Tags</th><th class=\"\" scope=\"col\">D Tags</th><th class=\"\" scope=\"col\">Total</th></tr>";
       summary += "</thead>";
+      summary += "<tbody>";
 
       HashMap<String,Integer> dTagBySpecies = new HashMap<>();
 
@@ -448,16 +466,19 @@ public class GenerateNOAAReport extends HttpServlet {
         }
       }
       summary = buildSummaryString(summary, sTagBySpecies, dTagBySpecies, speciesArr);
+      summary += "</tbody>";
+      summary += "</table>";
     } else {
-      summary += "<tr><td>No Results.</td></tr></table>";
+      summary += "<table id=\"tagSummary\" class=\"table\"><tr><td>No Results.</td></tr></table>";
     }
-    completeSummary += summary; 
+    System.out.println("==================  current completeSummary in tagSummary : "+completeSummary);
+
+    System.out.println("==================  NOW ADDING in tagSummary : "+summary);
+
+    tagSummary = summary; 
   }
 
   private String buildSummaryString(String summary, HashMap<String,Integer> sTagsBySpecies, HashMap<String,Integer> dTagsBySpecies, ArrayList<String> speciesArr) {
-    if (!sTagsBySpecies.isEmpty()||!dTagsBySpecies.isEmpty()) {
-      summary += "<tbody>";
-    }
     for (String species : speciesArr) {
 
       //System.out.println("====== Species? "+species);
@@ -483,8 +504,6 @@ public class GenerateNOAAReport extends HttpServlet {
       summary += "</tr>";
       
     }
-    summary += "</tbody>";
-    summary += "</table>";
     return summary;
   }
 
@@ -535,9 +554,7 @@ public class GenerateNOAAReport extends HttpServlet {
     
     long startDate = -999;
     long endDate = -999;
-    if (allSamples.hasNext()) {
-      report += "<tbody>";
-    }
+    report += "<tbody>";
     while (allSamples.hasNext()) {
       TissueSample sample = allSamples.next();
       // Verify ts has the same permit, or use all.
@@ -628,9 +645,7 @@ public class GenerateNOAAReport extends HttpServlet {
 
       takesCounts = aggregatePhysicalTakes(takesCounts, species, groupSize);
     }
-    if (physicalIDNum>0) {
-      report += "</tbody";
-    } 
+    report += "</tbody>";
     report += "</table>";
 
     createPhysicalIDSummary(takesCounts);
@@ -643,11 +658,11 @@ public class GenerateNOAAReport extends HttpServlet {
       summary += "<h3>Summary of Biopsy Sample takes:</h3>";
       summary += "<table id=\"biopsySummary\" class=\"table\">";
       summary += "<thead>";
-      summary += "<tr><th scope=\"col\">Species</th><th scope=\"col\">Group Totals (Level B Takes)</th><th scope=\"col\">Biopsies (Level A Takes)</th></tr>";
+      summary += "<tr><th class=\"\" scope=\"col\">Species</th><th class=\"\" scope=\"col\">Group Totals (Level B Takes)</th><th  scope=\"col\">Biopsies (Level A Takes)</th></tr>";
       summary += "</thead>";
       Set<String> keys = takesCounts.keySet();
       System.out.println("Takescounts? "+takesCounts.toString());
-      summary += "</tbody";
+      summary += "<tbody";
       for (String key : keys) {
         summary += "<tr>";
         summary += "<td>"+key+"</td>";
@@ -659,9 +674,12 @@ public class GenerateNOAAReport extends HttpServlet {
       summary += "</tbody";
       summary += "</table>"; 
     } else {
-      summary += "<tr><td>No Results.</td></tr></table>";
+      summary += "<table id=\"biopsySummary\" class=\"table\"><tr><td>No Results.</td></tr></table>";
     }
-    completeSummary += summary; 
+    System.out.println("==================  complete summary in createPhysicalIDSummary() : "+completeSummary);
+
+    System.out.println("==================  complete summary  getting added in createPhysicalIDSummary() : "+summary);
+    biopsySummary += summary; 
   }
 
   //Aggregate actual samples + groupSize.

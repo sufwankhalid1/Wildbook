@@ -1,0 +1,33 @@
+th.header {
+    background-color: #DDEEEE;
+}
+
+th.headerSortUp, th.headerSortDown {
+    background-color: #8DBDD8;
+}
+
+th.header:hover {
+    background-color: #7DBACC;
+}
+
+tbody tr {
+    background-color: #ECECEC;
+}
+
+tbody tr:hover {
+    background-color: #9DCDE8;
+}
+
+
+
+
+/*
+th .headerSortDown {
+
+}
+
+th .headerSortUp {
+
+}
+*/
+

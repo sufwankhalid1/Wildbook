@@ -12,13 +12,12 @@ context=ServletUtilities.getContext(request);
 Shepherd myShepherd=new Shepherd(context);
 String reportType = String.valueOf(request.getAttribute("reportType"));
 String completeSummary = String.valueOf(request.getAttribute("completeSummary"));
+String result = String.valueOf(request.getAttribute("result"));
 %>
 
 <jsp:include page="../header.jsp" flush="true"/>
-
 <script src="../javascript/tablesorter/jquery.tablesorter.js"></script>
-
-<link rel="stylesheet" href="../javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen">
+<link rel="stylesheet" href="../css/reportingStyles.css" type="text/css" media="print, projection, screen">
 
 <div class="container maincontent">
  
@@ -26,7 +25,6 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 	<div class="row">
 
 		<div class="col-xs-12">	
-
 			<p>Number of Photo Collections: <%= request.getAttribute("photoIDNum") %></p>
 			<%
 			 if (reportType.equals("multiID")) {
@@ -36,7 +34,7 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 			<%
 			}
 			%>
-			<p>Date Start: <%= request.getAttribute("startDate") %> End: <%= request.getAttribute("endDate") %> </p>
+			<p>Date Start: <%= request.getAttribute("startDate") %> Date End: <%= request.getAttribute("endDate") %> </p>
 			<p>Report Type: <%= request.getAttribute("reportType") %></p>
 			<a class="btn" href="<%= request.getAttribute("returnUrl") %>">Search Again</a>
 
@@ -44,8 +42,9 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 			<% 
 			if (!"".equals(completeSummary)) {
 			%>
-			<%= request.getAttribute("completeSummary") %>
-			<%= request.getAttribute("result") %>
+			<div id="summary"></div>
+			<br/>
+			<div id="result"></div>
 			<%
 			} else {
 			%>
@@ -53,21 +52,26 @@ String completeSummary = String.valueOf(request.getAttribute("completeSummary"))
 			<%
 			}
 			%>
-		
 		</div>
 	</div>
-	<script>
-		$(document).ready(function(){
+	<script defer> 
+		window.onload = function(){
+
+			$('#summary').html('<%=completeSummary%>');
+			$('#result').html('<%=result%>');
+
+			$('#photoIDReport').tablesorter(); 
   			$('#biopsyReport').tablesorter();
 			$('#tagReport').tablesorter();
-			$('#photoIDReport').tablesorter();
+			$('#photoIDSummary').tablesorter();
 			$('#biopsySummary').tablesorter();
 			$('#tagSummary').tablesorter();
-			$('#photoIDReport').tablesorter(); 
-		});
+
+		};
+
+
+
 	</script>
 
 </div>
-
 <jsp:include page="../footer.jsp" flush="true"/>
-
