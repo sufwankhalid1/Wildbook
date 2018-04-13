@@ -120,6 +120,11 @@ public class SurveyCreate extends HttpServlet {
           sv.setProjectType(surveyType);
         }
 
+        String getsTrack = null;
+        if (request.getParameter("getsTrack")!=null) {
+          getsTrack = request.getParameter("getsTrack");
+        }
+     
         myShepherd.getPM().makePersistent(sv);
         myShepherd.commitDBTransaction();
         
@@ -131,22 +136,9 @@ public class SurveyCreate extends HttpServlet {
             st = createSurveyTrack(request, sv);
             myShepherd.commitDBTransaction();
             st.setParentSurveyID(sv.getID());
-            String vessel = null;
-            if (request.getParameter("vessel")!=null) {
-              vessel = request.getParameter("vessel");
-              st.setVesselID(vessel);
-            }
-            String locationID = null;
-            if (request.getParameter("locationID")!=null) {
-              locationID = request.getParameter("locationID");
-              st.setLocationID(locationID);
-            }
-            String type = null;
-            if (request.getParameter("type")!=null) {
-              type = request.getParameter("type");
-              st.setType(type);
-            }
             sv.addSurveyTrack(st);
+            System.out.println("Created Survey Track : "+st.getID());
+            System.out.println("Did the survey get it? "+sv.getAllSurveyTracks().toString());
           } catch (Exception e) {
             myShepherd.rollbackDBTransaction();
             e.printStackTrace();
@@ -161,6 +153,7 @@ public class SurveyCreate extends HttpServlet {
             myShepherd.rollbackDBTransaction();
             System.out.println("Failed to persist a Path for this survey.");
             e.printStackTrace();
+            
           }
         }
         message += "<p><strong>Success: </strong> A new survey on "+date+" was created.</p>";

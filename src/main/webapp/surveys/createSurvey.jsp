@@ -113,8 +113,9 @@ try {
 							
 							<label><%=props.getProperty("type")%>:</label>
 							<label><small><%=props.getProperty("trackTypes")%></label>
-							<input name="type" title="Survey Type" type="text" class="form-control" id="addTrackInput3" />
-							
+							<input name="type" title="Survey Type" type="text" class="form-control" id="addTrackInput3" />	
+
+							<input name="getsTrack" value="false" type="hidden"  id="addTrackInput4" />
 						</div>
 						
 						<input name="Add Survey Track" type="submit" id="surveyTrackSubmitBtn" value="<%=props.getProperty("submit")%>" class="btn btn-sm editFormBtn" />
@@ -153,12 +154,14 @@ try {
         	$('#hideSurveyTrackBtn').show();
         	$('#trackForm').slideDown();
 			$('#getsTrack').val('true');
+			$('#addTrackInput4').val('true');
         });
         $('#hideSurveyTrackBtn').click(function(){
         	$('#addSurveyTrackBtn').show();
         	$('#hideSurveyTrackBtn').hide();
         	$('#trackForm').slideUp();
 			$('#getsTrack').val('false');
+			$('#addTrackInput4').val('false');
         });
     });    
 </script>
