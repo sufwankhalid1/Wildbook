@@ -205,6 +205,7 @@ if (sv!=null) {
 									</p>
 								<% 	
 								}
+								if (isOwner && CommonConfiguration.isCatalogEditable(context)) {
 								%>
 								<!-- Add another occ to the selected track here... -->
 								<form name="addOcc" action="../AddOccToTrack" method="post" class="addOccToTrack">
@@ -225,6 +226,9 @@ if (sv!=null) {
 										</div>
 										<span><small>Enter an existing Occurrence ID to add it to the selected survey track.</small></span>
 								</form>
+								<%
+								}
+								%>
 						</div>
 					</td>	
 					<td class="lineitem"><%=trkVessel%></td>	
@@ -358,8 +362,6 @@ if (sv!=null) {
 				}
 			} 
 			%>
-			<p><%=props.getProperty("none")%></p>
-			<%}%>
 		<div style="display: none;" id="dialogDPAdd"
 			title="<%=props.getProperty("addDynamicProperty")%>"
 			class="editFormObservation">

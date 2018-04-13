@@ -12,6 +12,7 @@ import java.util.HashSet;
 import org.joda.time.DateTime;
 import java.text.SimpleDateFormat;
 import org.ecocean.media.MediaAsset;
+import org.ecocean.media.AssetStoreType;
 import org.ecocean.security.Collaboration;
 import org.ecocean.media.MediaAsset;
 import javax.servlet.http.HttpServletRequest;
@@ -952,74 +953,5 @@ public class Occurrence extends FoundationalPropertiesBase {
       catch(Exception e){e.printStackTrace();}
       return false;
     }
-    public ArrayList<Observation> getObservationArrayList() {
-      return observations;
-    }
-    public void addObservationArrayList(ArrayList<Observation> arr) {
-      if (observations.isEmpty()) {
-        observations=arr;      
-      } else {
-       observations.addAll(arr); 
-      }
-    }
-    public void addObservation(Observation obs) {
-      boolean found = false;
-      if (observations != null && observations.size() > 0) {
-        for (Observation ob : observations) {
-          if (ob.getName() != null) {
-            if (ob.getName().toLowerCase().trim().equals(obs.getName().toLowerCase().trim())) {
-               found = true;
-               this.removeObservation(obs.getName());
-               observations.add(obs);
-               break;
-            }
-          }
-        } 
-        if (!found) {
-          observations.add(obs);        
-        }
-      } else {
-        observations.add(obs);
-      }
-    }
-    public Observation getObservationByName(String obName) {
-      if (observations != null && observations.size() > 0) {
-        for (Observation ob : observations) {
-          if (ob.getName() != null) {
-            if (ob.getName().toLowerCase().trim().equals(obName.toLowerCase().trim())) {
-              return ob;            
-            }
-          }
-        }
-      }
-      return null;
-    }
-    public Observation getObservationByID(String obId) {
-      if (observations != null && observations.size() > 0) {
-        for (Observation ob : observations) {
-          if (ob.getID() != null && ob.getID().equals(obId)) {
-            return ob;
-          }
-        }
-      }
-      return null;
-    }
-    public void removeObservation(String name) {
-      int counter = 0;
-      if (observations != null && observations.size() > 0) {
-        System.out.println("Looking for the Observation to delete...");
-        for (Observation ob : observations) {
-          if (ob.getName() != null) {
-            if (ob.getName().toLowerCase().trim().equals(name.toLowerCase().trim())) {
-               System.out.println("Match! Trying to delete Observation "+name+" at index "+counter);
-               observations.remove(counter);
-               break;
-            }
-          }
-          counter++;
-        }
-      }  
-    } 
-
 
 }

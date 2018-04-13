@@ -161,7 +161,7 @@ public class SurveyTrack implements java.io.Serializable{
     } 
   }
   
-  public void addMultipleOccurrences(ArrayList<Occurrence> occArray, Shepherd myShepherd) {
+  public void addMultipleOccurrences(ArrayList<Occurrence> occArray) {
     if (occArray.size() >= 1) {
       for (Occurrence occ : occArray) {
         if (!occurrences.contains(occ)) {

@@ -73,7 +73,7 @@ public class AddOccToTrack extends HttpServlet {
     if (occID!=null&&st!=null) {
         try {
             occ = myShepherd.getOccurrence(occID);
-            st.addOccurrence(occ, myShepherd);
+            st.addOccurrence(occ);
         } catch (Exception e) {
             message += "<p><strong>Error: </strong> There was not a occurrence with that ID to retrieve.</p>";
             e.printStackTrace();

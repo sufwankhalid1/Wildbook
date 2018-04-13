@@ -998,7 +998,7 @@ public class AccessImport extends HttpServlet {
               if (occProj != null && project != null)  {
                 if (occProj.toLowerCase().trim().contains(project.toLowerCase().trim()) || project.toLowerCase().trim().contains(occProj.toLowerCase().trim())) {
                   out.println("MATCHED survey to occurrence with Project : "+occProj+" = "+project);
-                  st.addOccurrence(parentOcc,myShepherd);
+                  st.addOccurrence(parentOcc);
                   // add check for if the survey is the same here?  
                   //success++;
                   matched = true;
@@ -1008,7 +1008,7 @@ public class AccessImport extends HttpServlet {
               if (!matched && encLoc != null && surveyArea != null) {
                 if (enc.getLocationID().toLowerCase().trim().contains(surveyArea.toLowerCase().trim()) || surveyArea.toLowerCase().trim().contains(enc.getLocationID().toLowerCase().trim())) {
                   out.println("MATCHED survey to occurrence with Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
-                  st.addOccurrence(parentOcc,myShepherd);
+                  st.addOccurrence(parentOcc);
                   //success++;
                   matched = true;
                   addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
@@ -1017,7 +1017,7 @@ public class AccessImport extends HttpServlet {
               if (!matched && simpleLoc !=null && surveyArea !=null) {  
                 if (simpleLoc.toLowerCase().trim().contains(surveyArea.toLowerCase().trim()) || surveyArea.toLowerCase().trim().contains(simpleLoc.toLowerCase().trim())) {
                   out.println("MATCHED survey to occurrence with SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
-                  st.addOccurrence(parentOcc, myShepherd);
+                  st.addOccurrence(parentOcc);
                   //success++;
                   matched = true;
                   addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
@@ -1040,7 +1040,7 @@ public class AccessImport extends HttpServlet {
                 for (String id : occIds) {
                   Occurrence occ = myShepherd.getOccurrence(id);
                   if (!st.hasOccurrence(occ)) {
-                    st.addOccurrence(occ, myShepherd);
+                    st.addOccurrence(occ);
                     //success++;
                     matched = true;
                     numOneOccs++;
