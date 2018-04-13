@@ -24,8 +24,8 @@ props = ShepherdProperties.getProperties("survey.properties", langCode,context);
 String surveyID = request.getParameter("surveyID").trim();
 Survey sv = null;
 String errors = "";
-String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
-String occLocation = urlLoc + "/occurrence.jsp?number=";
+String urlLocation = "//" + CommonConfiguration.getURLLocation(request);
+String occLocation = urlLocation + "/occurrence.jsp?number=";
 
 boolean isOwner = false;
 if (request.getUserPrincipal()!=null) {
