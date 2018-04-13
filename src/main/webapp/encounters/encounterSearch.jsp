@@ -729,10 +729,9 @@ if(CommonConfiguration.showProperty("showCountry",context)){
 					<input name="observationKey1" type="text" id="observationKey1" value="" placeholder="Observation Name">
 					<input name="observationValue1" type="text" id="observationValue1" value="" placeholder="Observation Value">
 				</p>
-				<div id="additionalObsFields">
-				
-				
-				</div>
+      
+				<div id="additionalObsFields"></div>
+        </br>
 				<input name="numSearchedObs" type="hidden" id="numSearchedObs" value="1" >
 				<input name="AddAnotherObBtn" type="button" id="addAnotherObBtn" value="<%=encprops.getProperty("addAnotherOb")%>" class="btn btn-sm" />				
 			</td>
