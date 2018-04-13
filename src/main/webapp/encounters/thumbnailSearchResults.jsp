@@ -285,7 +285,6 @@ f<%@ page contentType="text/html; charset=utf-8"
         	<jsp:param name="queryString" value="<%=queryString %>" />
         	<jsp:param name="rangeStart" value="<%=startNum %>" />
         	<jsp:param name="rangeEnd" value="<%=endNum %>" />
-
         </jsp:include>
 
 <%

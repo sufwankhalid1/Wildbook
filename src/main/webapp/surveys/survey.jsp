@@ -335,10 +335,14 @@ if (sv!=null) {
 					</div>
 						
 			<%} 
-			if (numObservations == 0) {%>
-				<p><%=props.getProperty("none")%></p>
-			<%}
-			} else {
+				if (numObservations==0) {%>
+				
+					<br/>
+					<p style="margin-top:1em;"><%=props.getProperty("none")%></p>	
+					<br/>
+			<%
+				}
+			} 
 			%>
 			<p><%=props.getProperty("none")%></p>
 			<%}%>
