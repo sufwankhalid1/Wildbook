@@ -912,6 +912,114 @@ public class Occurrence extends FoundationalPropertiesBase {
     public String getSocialMediaQueryCommentRelies(){return socialMediaQueryCommentReplies;};
     public void setSocialMediaQueryCommentReplies(String replies){socialMediaQueryCommentReplies=replies;};
 
+    public boolean hasMediaFromAssetStoreType(AssetStoreType aType){
+      if(getMediaAssetsOfType(aType).size()>0){return true;}
+      return false;
+    }
+    
+    public ArrayList<MediaAsset> getMediaAssetsOfType(AssetStoreType aType){
+      ArrayList<MediaAsset> results=new ArrayList<MediaAsset>();     
+      try{
+        int numEncs=encounters.size();
+        for(int k=0;k<numEncs;k++){
+          
+          ArrayList<MediaAsset> assets=encounters.get(k).getMedia();
+          int numAssets=assets.size();
+          for(int i=0;i<numAssets;i++){
+            MediaAsset ma=assets.get(i);
+            if(ma.getStore().getType()==aType){results.add(ma);}
+          }
+        }
+      }
+      catch(Exception e){e.printStackTrace();}
+      return results;
+    }
+    
+    public boolean hasMediaAssetFromRootStoreType(Shepherd myShepherd, AssetStoreType aType){
+      try{
+        int numEncs=encounters.size();
+        for(int k=0;k<numEncs;k++){
+          
+          ArrayList<MediaAsset> assets=encounters.get(k).getMedia();
+          int numAssets=assets.size();
+          for(int i=0;i<numAssets;i++){
+            MediaAsset ma=assets.get(i);
+            if(ma.getStore().getType()==aType){return true;}
+            if(ma.getParentRoot(myShepherd).getStore().getType()==aType){return true;}
+          }
+        }
+      }
+      catch(Exception e){e.printStackTrace();}
+      return false;
+    }
+    public ArrayList<Observation> getObservationArrayList() {
+      return observations;
+    }
+    public void addObservationArrayList(ArrayList<Observation> arr) {
+      if (observations.isEmpty()) {
+        observations=arr;      
+      } else {
+       observations.addAll(arr); 
+      }
+    }
+    public void addObservation(Observation obs) {
+      boolean found = false;
+      if (observations != null && observations.size() > 0) {
+        for (Observation ob : observations) {
+          if (ob.getName() != null) {
+            if (ob.getName().toLowerCase().trim().equals(obs.getName().toLowerCase().trim())) {
+               found = true;
+               this.removeObservation(obs.getName());
+               observations.add(obs);
+               break;
+            }
+          }
+        } 
+        if (!found) {
+          observations.add(obs);        
+        }
+      } else {
+        observations.add(obs);
+      }
+    }
+    public Observation getObservationByName(String obName) {
+      if (observations != null && observations.size() > 0) {
+        for (Observation ob : observations) {
+          if (ob.getName() != null) {
+            if (ob.getName().toLowerCase().trim().equals(obName.toLowerCase().trim())) {
+              return ob;            
+            }
+          }
+        }
+      }
+      return null;
+    }
+    public Observation getObservationByID(String obId) {
+      if (observations != null && observations.size() > 0) {
+        for (Observation ob : observations) {
+          if (ob.getID() != null && ob.getID().equals(obId)) {
+            return ob;
+          }
+        }
+      }
+      return null;
+    }
+    public void removeObservation(String name) {
+      int counter = 0;
+      if (observations != null && observations.size() > 0) {
+        System.out.println("Looking for the Observation to delete...");
+        for (Observation ob : observations) {
+          if (ob.getName() != null) {
+            if (ob.getName().toLowerCase().trim().equals(name.toLowerCase().trim())) {
+               System.out.println("Match! Trying to delete Observation "+name+" at index "+counter);
+               observations.remove(counter);
+               break;
+            }
+          }
+          counter++;
+        }
+      }  
+    } 
 
 
 }
