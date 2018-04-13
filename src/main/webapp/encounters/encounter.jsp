@@ -4755,7 +4755,7 @@ $(document).ready(function() {
 				<h2>
 					<img align="absmiddle" src="../images/lightning_dynamic_props.gif" />
 					<%=encprops.getProperty("dynamicProperties")%></h2>
-
+					<br/>
 				<%
 					}
 				%>
@@ -4781,9 +4781,12 @@ $(document).ready(function() {
 									System.out.println("Name ??? : "+nm);
 									System.out.println("Value ??? : "+vl);
 				%>
-				<p class="para">
-					<em><%=nm%></em>:
-					<%=vl%>
+				<div class="para observationForm">
+					<em><%=nm%></em>:&nbsp<%=vl%>
+					<!-- first Observation form, modify existing... -->
+					<div style="display: none;" id="dialogDP<%=nm%>" title="<%=encprops.getProperty("set")%> <%=nm%>" class="observationForm modifyObservationForm">
+						<p class="editTextDynamic"><strong><%=encprops.getProperty("set")%> <%=nm%></strong></p>
+						<p class="editTextDynamic"><em><small><%=encprops.getProperty("setDPMessage")%></small></em></p>
 
 					<%
 						

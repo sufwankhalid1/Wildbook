@@ -117,8 +117,8 @@ context=ServletUtilities.getContext(request);
 	if (occ.getSurvey(myShepherd)!=null) {
 		String surveyID = occ.getSurvey(myShepherd).getID();
 	%>	
-		<strong><%=props.getProperty("correspondingSurvey") %>:</strong> 
 			<a href="//<%=CommonConfiguration.getURLLocation(request)%>/surveys/survey.jsp?occID=<%=occ.getPrimaryKeyID()%>&surveyID=<%=surveyID%>"><%=surveyID%></a>			
+		<strong><%=props.getProperty("correspondingSurvey") %>:&nbsp</strong> 
 	<%	
 	} else {
 	%>	
@@ -133,20 +133,13 @@ context=ServletUtilities.getContext(request);
 		String surveyTrackID = occ.getCorrespondingSurveyTrackID();
 	%>
 		<br/>	
-		<strong><%=props.getProperty("correspondingSurveyTrack") %>: <%=surveyTrackID%></strong> 									
+		<strong><%=props.getProperty("correspondingSurveyTrack") %>:&nbsp<%=surveyTrackID%></strong> 									
 	<%	
 	} 
 	%>		
 	</p>
 
 	<!-- Triggers edit survey and track ID form. -->
-	
-	
-	
-	
-	
-	
-	
 	
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -182,14 +175,13 @@ context=ServletUtilities.getContext(request);
                         $("#addOccErrorDiv").hide();
                         $("#addDiv").addClass("has-success");
                         $("#createOccCheck").show();
-                        $("#addSurveyCheck").html("Success! Refresh the page to see your changes.");
-                        $("#displayOccID").html(encounter);
+                        $("#addSurveyCheck").show().text("Success! Refresh the page to see your changes.");
                       })
                       .fail(function(response) {
                         console.log("<small>Failed to add to survey.</small>");
                         $("#addDiv").addClass("has-error");
                         $("#addOccError, #addOccErrorDiv").show();
-                        $("#addSurveyError").html("<small>Failed to add survey and track! Invalid Input. Check to make sure the track/survey has not already been added, or that it exists.</small>");
+                        $("#addSurveyError").show().text("Failed to add survey and track! Make sure it exists.");
                         $("#addOccurrence").show();
                       });
                     });
@@ -216,11 +208,11 @@ context=ServletUtilities.getContext(request);
 								<label><%=props.getProperty("addSurveyTrack")%>: </label><br/>
 								<label><small>Must be defined to link back from Survey.</small></label>
 								<input name="surveyTrackID" id="surveyTrackID" type="text" class="form-control" placeholder="<%=props.getProperty("surveyTrackID")%>" />
+								<label style="display:none;" id="addSurveyCheck"></label>
+								<label style="color:red;" id="addSurveyError"></label>
 							</div>
 							<div class="col-sm-8">
-								<input name="Add" type="submit" id="addOccurrence" value="<%=props.getProperty("submit")%>" class="btn btn-sm editSurveyFormBtn" />
-								<label class="form-control-feedback" id="addSurveyCheck"></label>
-								<label class="form-control-feedback" id="addSurveyError"></label>
+								<input name="Add" type="submit" id="addOccurrence" value="<%=props.getProperty("set")%>" class="btn btn-sm editSurveyFormBtn" />
 							</div>
 						</div>
 					</form>					

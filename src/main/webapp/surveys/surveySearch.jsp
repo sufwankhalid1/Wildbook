@@ -319,10 +319,8 @@ inShepherd.closeDBTransaction();
   myShepherd.rollbackDBTransaction();
 %>
 
-
 <tr>
   <td>
-
 
   </td>
 </tr>
