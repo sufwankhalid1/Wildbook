@@ -50,8 +50,17 @@ for (SurveyTrack trk : trks ) {
 	String markerSet = "";
 	String infoWindowSet = "";
 	System.out.println("Current track: "+trk.getID());
-	ArrayList<Occurrence> occsWithGps = trk.getAllOccurrences();
-	if (occsWithGps!=null) {
+	ArrayList<Occurrence> tempOccs = trk.getAllOccurrences();
+	ArrayList<Occurrence> occsWithGps = new ArrayList<>();
+	if (tempOccs!=null) {
+		for (Occurrence occ : tempOccs) {
+			if (occ.getDecimalLatitude()!=null&&occ.getDecimalLongitude()!=null) {
+				occsWithGps.add(occ);
+			}
+		}
+	}
+	if (occsWithGps.size()>0) {
+		int noGPSOccs = 0;
 		for (Occurrence trackOcc : occsWithGps) {
 			String startTime = null;
 			String endTime = null;
