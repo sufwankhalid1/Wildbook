@@ -668,7 +668,7 @@ $(function() {
 
 
 
-				<script type="text/javascript">
+<script type="text/javascript">
 $(document).ready(function() {
   var buttons = $("#editLocation, #closeEditLocation").on("click", function(){
     buttons.toggle();
@@ -4884,7 +4884,6 @@ $(document).ready(function() {
 							class="btn btn-sm editFormBtn" />
 					</form>
 				</div>
-
 				<!-- Ending Right Column -->
 			</div>
 		</div>
