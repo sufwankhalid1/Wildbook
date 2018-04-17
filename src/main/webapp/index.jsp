@@ -80,7 +80,7 @@ finally{
 <section class="hero container-fluid main-section relative">
     <div class="container relative">
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
-            <h2>Help us protect and study endangered zebra sharks!</h2>
+            <h2>Help us protect and study endangered goliath groupers!</h2>
             <!--
             <button id="watch-movie" class="large light">
 				Watch the movie
@@ -92,7 +92,7 @@ finally{
             </a>
             <br>
             <a href="adoptashark.jsp">
-                <button class="large heroBtn">Adopt a shark<span class="button-icon" aria-hidden="true"></button>
+                <button class="large heroBtn">Adopt a grouper<span class="button-icon" aria-hidden="true"></button>
             </a>
             <br>
         </div>
@@ -105,10 +105,10 @@ finally{
 <section class="container text-center main-section">
 
 	<h2 class="section-header">How it works</h2>
-	<p class="lead">The Wildbook for Zebra Sharks photo-identification library is a visual database of zebra shark (Stegostoma fasciatum) encounters and of individually catalogued zebra sharks. The library is maintained and used by marine biologists to collect and analyze sighting data to learn more about these amazing creatures.</p>
-	<p class="lead">The Wildbook uses photographs of the skin patterning behind the gills of each shark, and any scars, to distinguish between individual animals. Cutting-edge software supports rapid identification using pattern recognition and photo management tools.
+	<p class="lead">The Wildbook for Goliath Groupers photo-identification library is a visual database of goliath groupers (Epinephelus itajara) encounters and of individually catalogued goliath groupers. The library is maintained and used by marine biologists to collect and analyze sighting data to learn more about these amazing creatures.</p>
+	<p class="lead">The Wildbook uses photographs of the patterning, and any scars, to distinguish between individual animals. Cutting-edge software supports rapid identification using pattern recognition and photo management tools.
 
-You too can assist with zebra shark research, by submitting photos and sighting data. The information you submit will be used in mark-recapture studies to help with the global conservation of this endangered species.</p>
+You too can assist with goliath grouper research, by submitting photos and sighting data. The information you submit will be used in mark-recapture studies to help with the global conservation of this endangered species.</p>
 
 	<div id="howtocarousel" class="carousel slide" data-ride="carousel">
 		<ol class="list-inline carousel-indicators slide-nav">
@@ -121,9 +121,9 @@ You too can assist with zebra shark research, by submitting photos and sighting 
 		<div class="carousel-inner text-left">
 			<div class="item active">
 				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-					<h3>Photograph the spots behind the gills</h3>
+					<h3>Photograph the spots on the head</h3>
 					<p class="lead">
-						Each zebra shark has an individual fingerprint: the pattern of spots behind the gills on the left or right sides. Get an image or video of their &ldquo;print&rdquo; and we can match that pattern to others already in the database, or your zebra shark might be completely new to the database.
+						Each goliath grouper has an individual fingerprint: the pattern of spots on the head. Get an image or video of their &ldquo;print&rdquo; and we can match that pattern to others already in the database, or your goliath grouper might be completely new to the database.
 					</p>
 					<p class="lead">
 						<a href="photographing.jsp" title="">See the photography guide</a>
@@ -170,7 +170,7 @@ You too can assist with zebra shark research, by submitting photos and sighting 
 				<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 					<h3>Match Result</h3>
 					<p class="lead">
-						The algorithm (or manual comparison) provides researchers with a ranked selection of possible matches. Researchers will then visually confirm a match to an existing zebra shark in the database, or create a new individual profile.
+						The algorithm (or manual comparison) provides researchers with a ranked selection of possible matches. Researchers will then visually confirm a match to an existing goliath grouper in the database, or create a new individual profile.
 					</p>
 				</div>
 				<div class="col-xs-12 col-sm-4 col-sm-offset-2 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
@@ -348,7 +348,7 @@ You too can assist with zebra shark research, by submitting photos and sighting 
     <section class="container text-center  main-section">
         <div class="row">
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-                <p class="brand-primary"><i><span class="massive"><%=numMarkedIndividuals %></span> identified zebra sharks</i></p>
+                <p class="brand-primary"><i><span class="massive"><%=numMarkedIndividuals %></span> identified goliath groupers</i></p>
             </section>
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
                 <p class="brand-primary"><i><span class="massive"><%=numEncounters %></span> reported sightings</i></p>
@@ -367,7 +367,7 @@ You too can assist with zebra shark research, by submitting photos and sighting 
                 <div class="row">
                       <h1 style="color: #005589;-webkit-text-fill-color: #005589;">Why we do this</h1>
                         <p class="lead">
-                            <i>&ldquo;Wildbook for Zebra Sharks has pioneered the way for a new generation of global scale, collaborative wildlife projects that blend citizen science and computer vision to help researchers get bigger and more detailed pictures of some of the world's most mysterious species.&rdquo;</i> - Jason Holmberg, Information Architect</p>
+                            <i>&ldquo;Wildbook for Goliath Groupers has pioneered the way for a new generation of global scale, collaborative wildlife projects that blend citizen science and computer vision to help researchers get bigger and more detailed pictures of some of the world's most mysterious species.&rdquo;</i> - Jason Holmberg, Information Architect</p>
                         <a href="whoAreWe.jsp" title="">Learn more about the Researchers and Volunteers</a><br>
                         <a href="http://www.wildme.org" title="">Learn more about Wild Me and Wildbook</a>
                     
@@ -387,7 +387,7 @@ You too can assist with zebra shark research, by submitting photos and sighting 
 
         <section class="adopt-section row">
             <div class=" col-xs-12 col-sm-6 col-md-6 col-lg-6">
-                <h3 class="uppercase">Adopt a Zebra Shark</h3>
+                <h3 class="uppercase">Adopt a Goliath Grouper</h3>
                 <ul>
                     <li>Support individual research programs in different regions</li>
 					<li>Receive email updates when we resight your adopted animal</li>
@@ -456,7 +456,7 @@ You too can assist with zebra shark research, by submitting photos and sighting 
 <div class="container-fluid">
     <section class="container main-section">
         <h2 class="section-header">Development</h2>
-        <p class="lead text-center">Wildbook for Zebra Sharks is maintained and developed by <a href="http://www.facebook.com/holmbergius">Jason Holmberg (Information Architect)</a> with significant support and input from the research community. This site is a flagship project of Wild Me's <a href="http://www.wildbook.org">Wildbook</a> open source projects. <a href="http://www.simonjpierce.com/">Dr. Simon Pierce</a> provides scientific oversight and guidance.</p>
+        <p class="lead text-center">Wildbook for Goliath Groupers is maintained and developed by <a href="http://www.facebook.com/holmbergius">Jason Holmberg (Information Architect)</a> with significant support and input from the research community. This site is a flagship project of Wild Me's <a href="http://www.wildbook.org">Wildbook</a> open source projects. <a href="http://www.simonjpierce.com/">Dr. Simon Pierce</a> provides scientific oversight and guidance.</p>
 </section>
 </div>
 
