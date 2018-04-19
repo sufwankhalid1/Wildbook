@@ -23,10 +23,10 @@ String context=ServletUtilities.getContext(request);
 
 Shepherd myShepherd=new Shepherd(context);
 myShepherd.setAction("index.jsp");
-StartupWildbook.ensureAssetStoreExists(request, myShepherd);
+//StartupWildbook.ensureAssetStoreExists(request, myShepherd);
 
-StartupWildbook.ensureProfilePhotoKeywordExists(myShepherd);
-StartupWildbook.ensureTomcatUserExists(myShepherd);
+//StartupWildbook.ensureProfilePhotoKeywordExists(myShepherd);
+//StartupWildbook.ensureTomcatUserExists(myShepherd);
 
 
 %>
@@ -103,6 +103,9 @@ finally{
 </section>
 
 <section class="container text-center main-section">
+
+
+<!-- comment -->
 
 	<h2 class="section-header">How it works</h2>
 	<p class="lead">The Wildbook for Goliath Groupers photo-identification library is a visual database of goliath groupers (Epinephelus itajara) encounters and of individually catalogued goliath groupers. The library is maintained and used by marine biologists to collect and analyze sighting data to learn more about these amazing creatures.</p>
@@ -456,7 +459,7 @@ You too can assist with goliath grouper research, by submitting photos and sight
 <div class="container-fluid">
     <section class="container main-section">
         <h2 class="section-header">Development</h2>
-        <p class="lead text-center">Wildbook for Goliath Groupers is maintained and developed by <a href="http://www.facebook.com/holmbergius">Jason Holmberg (Information Architect)</a> with significant support and input from the research community. This site is a flagship project of Wild Me's <a href="http://www.wildbook.org">Wildbook</a> open source projects. <a href="http://www.simonjpierce.com/">Dr. Simon Pierce</a> provides scientific oversight and guidance.</p>
+        <p class="lead text-center">Wildbook for Goliath Groupers is maintained and developed by <a href="http://www.wildme.org">Jason Holmberg of Wild Me</a> with significant support and input from the research community. </p>
 </section>
 </div>
 
