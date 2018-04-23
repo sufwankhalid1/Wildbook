@@ -82,7 +82,6 @@ public class AccessImport extends HttpServlet {
     doPost(request, response);
   }
 
-
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     context = ServletUtilities.getContext(request);
@@ -100,7 +99,7 @@ public class AccessImport extends HttpServlet {
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     
-    String dbName = "DUML_MASTER_20180301.mdb";
+    String dbName = "DUML_MASTER_20180410.mdb";
     if (request.getParameter("file") != null) {
       dbName = request.getParameter("file");
     }
@@ -110,6 +109,11 @@ public class AccessImport extends HttpServlet {
       dbLocation = request.getParameter("location");
     }
 
+    boolean commit = false;
+    if (request.getParameter("commit") != null) {
+      commit = Boolean.parseBoolean(request.getParameter("commit"));
+    } 
+
     Database db = null;  
     try {
       db =  DatabaseBuilder.open(new File(dbLocation + dbName));
@@ -117,7 +121,6 @@ public class AccessImport extends HttpServlet {
       e.printStackTrace();
       System.out.println("Error grabbing the .mdb file to process.");
     }
-    
     
     out.println("***** Beginning Access Database Import. *****\n");
     
@@ -151,7 +154,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean simpleLocationsDUML = true;
+    boolean simpleLocationsDUML = false;
     if (simpleLocationsDUML) {
       try {
         out.flush();
@@ -164,7 +167,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.flush();
@@ -177,7 +180,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = true;
+    boolean effortTableSwitch = false;
     if (effortTableSwitch) {
       try {
         out.flush();
@@ -189,7 +192,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.flush();
@@ -226,125 +229,78 @@ public class AccessImport extends HttpServlet {
     
     int newOccs = 0;
     int newEncs = 0;
-    
-    int locations = 0;
     int dates = 0;
     int projects = 0;
-    int lats = 0;
-    int lons = 0;
     int endTimes = 0;
     int sightNos = 0;
-    
-    int noLocChildren = 0;
     
     ArrayList<String> columnMasterList = getColumnMasterList(table);
        
     Row thisRow = null;
     Encounter newEnc = null;
-    int totalInSightingsArray = 0;
-    int allRows = table.getRowCount();
-    for (int i=0;i<allRows;i++) {
+    for (int i=0;i<table.getRowCount();i++) {
       newEnc = new Encounter();
-      myShepherd.beginDBTransaction();
-      newEnc.setCatalogNumber(Util.generateUUID());
-      myShepherd.getPM().makePersistent(newEnc);
-      myShepherd.commitDBTransaction();
+      myShepherd.storeNewEncounter(newEnc, Util.generateUUID());
       myShepherd.beginDBTransaction();
       try {
         thisRow = table.getNextRow();
-        if (thisRow==null) {
-          continue;
-        }
+        // If we can't have a row, skip it. 
+        if (thisRow==null) {continue;}
       } catch (IOException io) {
         io.printStackTrace();
         out.println("!!!!!!!!!!!!!! Could not get next Row in DUML table...");
       }
-      //Might as well give it an ID here.
       newEnc.setDWCDateAdded();
-      newEnc.setDWCDateLastModified();
       newEnc.setState("approved");
       
-      // Get the date. 
-      //out.println("---------------- ROW : "+i); 
+      String date = null;
       try {
-        String date = null;
-        String startTime = null;
         if (thisRow.get("DATE") != null) {
-          if (thisRow.get("StartTime") != null) {
-            startTime = thisRow.get("StartTime").toString();
-          }
           date = thisRow.get("DATE").toString();   
-          if (startTime==null) {
-            out.println("No startTime found in DUML Access table for Date : "+date+" SightNo : "+thisRow.get("SIGHTNO"));
-          } 
-          String verbatimDate = processDateString(date, startTime);
-          
-          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm a yyyy");
-          
-          newEnc.setVerbatimEventDate(dateTime.toString());          
+          columnMasterList.remove("DATE");  
+          String startTime = thisRow.get("StartTime").toString();
+          columnMasterList.remove("StartTime");
+
+          DateTime dateTime = dateStringToDateTime(processDateString(date, startTime), "EEE MMM dd hh:mm a yyyy");
+
+          newEnc.setVerbatimEventDate(processDateString(date, startTime));          
           newEnc.setDateInMilliseconds(dateTime.getMillis());  
           dates += 1;
-          //out.println("--- StartTime: "+startTime);
-          //out.println("--------------------------------------- .getDate() produces....  "+newEnc.getDate());
-          //  out.println("--- ++++++++ ENTIRE ROW STRING :"+thisRow.toString()+"\n\n");
-          if (columnMasterList.contains("DATE") || columnMasterList.contains("StartTime")) {
-            columnMasterList.remove("DATE");  
-            columnMasterList.remove("StartTime");
-          }
         } 
         // Lets crush that into a DateTime for milli's and stuff.. 
       } catch (Exception e) {
-        out.println(thisRow.toString());
-        out.println("!!!!!!!!!!!!!! Could not process a date for row "+i+" in DUML");
-        out.println("What is this horrible date? : "+thisRow.get("DATE"));
+        out.println("!!!!!!!!!!!!!! Could not process a date for row "+i+" in DUML: "+thisRow.toString());
         e.printStackTrace();
         errors +=1;
       }
       
-      //get the End Date
       try {
         String et = null;
-        String date = null;
         if (thisRow.get("EndTime") != null) {
-          date = thisRow.get("DATE").toString();
           et = thisRow.get("EndTime").toString();
-          String dateString = processDateString(date, et);
-          DateTime dateTime = dateStringToDateTime(dateString, "EEE MMM dd hh:mm a yyyy");
+          DateTime dateTime = dateStringToDateTime(processDateString(date, et), "EEE MMM dd hh:mm a yyyy");
           newEnc.setEndDateInMilliseconds(dateTime.getMillis());
           endTimes += 1;
-          //out.println("---------------- End Time : "+et);
-          if (columnMasterList.contains("EndTime")) {
-            columnMasterList.remove("EndTime");
-          }
+          columnMasterList.remove("EndTime");
         }
       } catch (Exception e) {
-        //out.println("!!!!!!!!!!!!!! Could not process an endTime for row "+i+" in DUML");
         out.println("Here's the offending date : "+thisRow.get("EndTime").toString());
         e.printStackTrace();
         errors +=1;
       }
       
-      // Get SIGHTNO... 
-      
       try {
-        String sn = null;
         if (thisRow.get("SIGHTNO") != null) {
-          sn = thisRow.get("SIGHTNO").toString();
-          //out.println("SN ---------------- "+sn);
+          String sn = thisRow.get("SIGHTNO").toString();
+          columnMasterList.remove("SIGHTNO");
           if (sn.contains("-") && sn.contains("0")) {
-            //out.println("SN2 ---------------- "+sn);
             sn = sn.replace("0", "");
             sn = sn.replace("-", "");
-          }
-          if (sn.contains("-")) {
+          } else if (sn.contains("-")) {
             sn = sn.replace("-", "");
           }
-          newEnc.setSightNo(sn);    
+          newEnc.setSightNo(sn.toUpperCase().trim());    
           sightNos += 1;
-          //out.println("---------------- SIGHTNO : "+sn);
-          if (columnMasterList.contains("SIGHTNO")) {
-            columnMasterList.remove("SIGHTNO");
-          }
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in DUML");
@@ -352,21 +308,13 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      //get the Location
       try {
-        String location = null;
         if (thisRow.get("Location") != null) {
-          location = thisRow.get("Location").toString();          
+          String location = thisRow.get("Location").toString();          
+          columnMasterList.remove("Location");
           newEnc.setVerbatimLocality(location);    
-          // newEnc.setLocationID(location);
           newEnc.setLocation(location);
           newEnc.setLocationID(location);
-          locations += 1;
-          
-          //out.println("---------------- Location : "+location);
-          if (columnMasterList.contains("Location")) {
-            columnMasterList.remove("Location");
-          }
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a location for row "+i+" in DUML");
@@ -374,17 +322,12 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      //get the Project
       try {
-        String project = null;
         if (thisRow.get("Project") != null) {
-          project = thisRow.get("Project").toString();          
-          //out.println("---------------- Project : "+project);
+          String project = thisRow.get("Project").toString();          
+          columnMasterList.remove("Project");
           newEnc.setSubmitterProject(project);    
           projects += 1;
-          if (columnMasterList.contains("Project")) {
-            columnMasterList.remove("Project");
-          }
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a project for row "+i+" in DUML");
@@ -392,21 +335,16 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      // Get the Species ID
       try {
-        String speciesID = null;
         if (thisRow.get("SPECIES_ID") != null) {
-          speciesID = thisRow.get("SPECIES_ID").toString();          
-          //out.println("---------------- Species_ID : "+speciesID);
+          String speciesID = thisRow.get("SPECIES_ID").toString();          
+          columnMasterList.remove("SPECIES_ID");
           String[] binomialName = speciesID.trim().split(" ");
           if (binomialName.length>1) {
             newEnc.setGenus(binomialName[0]);
             newEnc.setSpecificEpithet(binomialName[1]);            
           } else {
             newEnc.setSpecificEpithet(speciesID);
-          }
-          if (columnMasterList.contains("SPECIES_ID")) {
-            columnMasterList.remove("SPECIES_ID");
           }
         }
       } catch (Exception e) {
@@ -415,17 +353,12 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      // Get the Behavior
       try {
-        String behavior = null;
         if (thisRow.get("BEHAV STATE") != null) {
-          behavior = thisRow.get("BEHAV STATE").toString();          
-          //out.println("---------------- Behavior : "+behavior);
+          String behavior = thisRow.get("BEHAV STATE").toString();          
+          columnMasterList.remove("BEHAV STATE");
           if (Double.parseDouble(behavior) < 9.99) {
             newEnc.setBehavior(behavior);            
-          }
-          if (columnMasterList.contains("BEHAV STATE")) {
-            columnMasterList.remove("BEHAV STATE");
           }
         }
       } catch (Exception e) {
@@ -434,17 +367,11 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      // Get the Comments
       try {
-        String comments = null;
         if (thisRow.get("COMMENTS") != null) {
-          comments = thisRow.get("COMMENTS").toString();          
-          //out.println("---------------- Comments : "+comments);
+          String comments = thisRow.get("COMMENTS").toString();          
+          columnMasterList.remove("COMMENTS");
           newEnc.setComments(comments);    
-          comments += 1;
-          if (columnMasterList.contains("COMMENTS")) {
-            columnMasterList.remove("COMMENTS");
-          }
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process comments for row "+i+" in DUML");
@@ -452,18 +379,13 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      // Get the maximum depth.
       try {
-        String depth = null;
         if (thisRow.get("DEPTH") != null) {
-          depth = thisRow.get("DEPTH").toString();          
-          //out.println("---------------- DEPTH : "+depth);
+          String depth = thisRow.get("DEPTH").toString();          
+          columnMasterList.remove("DEPTH");
           Double depthLong = Double.parseDouble(depth);
           if (depthLong < 9.99) {
             newEnc.setMaximumDepthInMeters(depthLong);                
-          }
-          if (columnMasterList.contains("DEPTH")) {
-            columnMasterList.remove("DEPTH");
           }
         }
       } catch (Exception e) {
@@ -472,19 +394,15 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      // Get the decimal latitude..
       try {
-        String lat = null;
         if (thisRow.get("LAT") != null) {
-          lat = thisRow.get("LAT").toString();          
-          //out.println("---------------- Lat : "+lat);
-          //Double latDouble = Double.parseDouble(lat);
+          String lat = thisRow.get("LAT").toString();          
           BigDecimal bd = new BigDecimal(lat);
           Double db = bd.doubleValue();
           DecimalFormat df = new DecimalFormat("#.######");
           db = Double.valueOf(df.format(db));
-          newEnc.setDecimalLatitude(db);    
-          lats += 1;
+          newEnc.setDecimalLatitude(db);
+          columnMasterList.remove("LAT");    
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a LAT for row "+i+" in DUML");
@@ -492,19 +410,15 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      // Get the decimal longitude..
       try {
-        String lon = null;
         if (thisRow.get("LONG") != null) {
-          lon = thisRow.get("LONG").toString();          
-          //out.println("---------------- Lon : "+lon);
-          //Double lonDouble = Double.parseDouble(lon);
+          String lon = thisRow.get("LONG").toString();          
           BigDecimal bd = new BigDecimal(lon);
           Double db = bd.doubleValue();
           DecimalFormat df = new DecimalFormat("#.######");
           db = Double.valueOf(df.format(db));
           newEnc.setDecimalLongitude(db);    
-          lons += 1;
+          columnMasterList.remove("LONG");
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a LONG for row "+i+" in DUML");
@@ -512,67 +426,45 @@ public class AccessImport extends HttpServlet {
         errors +=1;
       }
       
-      // Get the ending decimal latitude..
       try {
-        String lat = null;
-        if (thisRow.get("END LAT") != null && !thisRow.get("END LAT").equals("null")) {
-          lat = thisRow.get("END LAT").toString();          
-          //out.println("---------------- END LAT : "+lat);
-          
-          if (lat != null && !lat.equals("null") && !lat.equals("")) {
-            //Double latDouble = Double.parseDouble(lat);
-            BigDecimal bd = new BigDecimal(lat);
-            Double db = bd.doubleValue(); 
-            newEnc.setEndDecimalLatitude(db);    
-          }
-          if (columnMasterList.contains("END LAT")) {
-            columnMasterList.remove("END LAT");
-          }
+        if (thisRow.get("END LAT") != null) {
+          String lat = thisRow.get("END LAT").toString();          
+          BigDecimal bd = new BigDecimal(lat);
+          Double db = bd.doubleValue(); 
+          newEnc.setEndDecimalLatitude(db);    
+          columnMasterList.remove("END LAT");
         }
       } catch (Exception e) {
         out.println("!!!!!!!!!!!!!! Could not process a END LAT for row "+i+" in DUML");
-        //e.printStackTrace();
-        //errors +=1;
+        e.printStackTrace();
       }
       
-      // Get the ending decimal longitude..
       try {
         String lon = null;
-        if (thisRow.get("END LONG") != null && !thisRow.get("END LONG").equals("null")) {
+        if (thisRow.get("END LONG") != null) {
           lon = thisRow.get("END LONG").toString();          
-          //out.println("---------------- END LON : "+lon);
-          if (lon != null && !lon.equals("null") && !lon.equals("")) {
-            //Double lonDouble = Double.parseDouble(lon);
-            BigDecimal bd = new BigDecimal(lon);
-            Double db = bd.doubleValue();    
-            newEnc.setEndDecimalLongitude(db);               
-          }
-          if (columnMasterList.contains("END LONG")) {
-            columnMasterList.remove("END LONG");
-          }
+          BigDecimal bd = new BigDecimal(lon);
+          Double db = bd.doubleValue();    
+          newEnc.setEndDecimalLongitude(db);               
+          columnMasterList.remove("END LONG");
         }
-      } catch (Exception e) {
-         
+      } catch (Exception e) { 
         out.println("!!!!!!!!!!!!!! Could not process a END LONG for row "+i+" in DUML");
         //e.printStackTrace();
         //errors +=1;
       }
       
-      //Beauscale Measurement
       try {
-       Double bs = null;
-       Measurement bsm = null;
-       if (thisRow.getDouble("BEAUSCALE") != null) {
-         bs = thisRow.getDouble("BEAUSCALE");
-         if (bs < 9.0 && bs != null) {
-           bsm = new Measurement(newEnc.getCatalogNumber(),"BEAUSCALE",bs,"","");
-           bsm.setDatasetName("BEAUSCALE");
-           bsm.setEventStartDate(newEnc.getDate());
-           myShepherd.getPM().makePersistent(bsm);
-           columnMasterList.remove("BEAUSCALE");
-           newEnc.setMeasurement(bsm, myShepherd);           
-         }
-         //out.println("---------------- BEAUSCALE : "+bsm.getValue());
+        if (thisRow.getDouble("BEAUSCALE") != null) {
+          Double bs = thisRow.getDouble("BEAUSCALE");
+          if (bs < 9.0 && bs != null) {
+            Measurement bsm = new Measurement(newEnc.getCatalogNumber(),"BEAUSCALE",bs,"","");
+            bsm.setDatasetName("BEAUSCALE");
+            bsm.setEventStartDate(newEnc.getDate());
+            myShepherd.getPM().makePersistent(bsm);
+            newEnc.setMeasurement(bsm, myShepherd);           
+            columnMasterList.remove("BEAUSCALE");
+          }
        } 
       } catch (Exception e) {
         errors +=1;
@@ -580,39 +472,31 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!! Could not process a BEAUSCALE measurement for row "+i+" in DUML");
       }
       
-      //Salinity Measurement
       try {
-       Double sl = null;
-       Measurement slm = null;
-       if (thisRow.getDouble("SALINITY") != null) {
-         sl = thisRow.getDouble("SALINITY");
-         if (sl < 9.99 && sl != null) {
-           slm = new Measurement(newEnc.getCatalogNumber(),"SALINITY",sl,"","");
-           slm.setDatasetName("SALINITY");
-           slm.setEventStartDate(newEnc.getDate());
-           myShepherd.getPM().makePersistent(slm);
-           columnMasterList.remove("SALINITY");
-           newEnc.setMeasurement(slm, myShepherd);           
-         }
-         //out.println("---------------- BEAUSCALE : "+bsm.getValue());
-       } 
+        if (thisRow.getDouble("SALINITY") != null) {
+          Double sl = thisRow.getDouble("SALINITY");
+          if (sl < 9.99 && sl != null) {
+            Measurement slm = new Measurement(newEnc.getCatalogNumber(),"SALINITY",sl,"","");
+            slm.setDatasetName("SALINITY");
+            slm.setEventStartDate(newEnc.getDate());
+            myShepherd.getPM().makePersistent(slm);
+            columnMasterList.remove("SALINITY");
+            newEnc.setMeasurement(slm, myShepherd);           
+          }
+        } 
       } catch (Exception e) {
         errors +=1;
         e.printStackTrace();
-        out.println("!!!!!!!!!!!!!! Could not process a BEAUSCALE measurement for row "+i+" in DUML");
+        out.println("!!!!!!!!!!!!!! Could not process a Salinity measurement for row "+i+" in DUML");
       }
       
-      //WaterTemp Measurement
       try {
-        Double wt = null;
-        Measurement wtm = null;
         if (thisRow.get("WATERTEMP")!=null&&!thisRow.get("WATERTEMP").equals("")&&!thisRow.get("WATERTEMP").equals("n/a")) {
-          wt = Double.valueOf(thisRow.get("WATERTEMP").toString());   
+          Double wt = Double.valueOf(thisRow.get("WATERTEMP").toString());   
           if (wt < 99.9 && wt != null) {
-            wtm = new Measurement(newEnc.getCatalogNumber(),"WATERTEMP",wt,"C","");
+            Measurement wtm = new Measurement(newEnc.getCatalogNumber(),"WATERTEMP",wt,"C","");
             wtm.setDatasetName("WATERTEMP");
             wtm.setEventStartDate(newEnc.getDate());
-            //out.println("---------------- WATERTEMP TEST STRING: "+wt.toString());
             myShepherd.getPM().makePersistent(wtm);
             columnMasterList.remove("WATERTEMP");
             newEnc.setMeasurement(wtm, myShepherd);            
@@ -626,96 +510,68 @@ public class AccessImport extends HttpServlet {
       
       try {
         ArrayList<Encounter> duplicateEncs = new ArrayList<Encounter>();
-        String sightNo = newEnc.getSightNo().toUpperCase().trim();
+        String sightNo = newEnc.getSightNo();
         String dateForKey = newEnc.getDate().substring(0,11).trim();
         String pairKey = sightNo + dateForKey;
         int duplicates = 0;
-        try {
-          if (duplicatePairsMap.containsKey(pairKey)) {
-            duplicates = duplicatePairsMap.get(pairKey).intValue();
-            totalInSightingsArray += duplicates;
-          } else {
-            duplicates = 1;
-          }
-        } catch (Exception e) {
-          e.printStackTrace(out);
-          out.println("Failed to retrieve duplicate number for pairKey : "+pairKey);
+
+        //This is the result of looking through SIGHTINGS and adding up the number of indy ID's seen at a certain time and SightNo
+        //It is a way of creating a minimum number of encounters for this occurrence. 
+        if (duplicatePairsMap.containsKey(pairKey)) {
+          duplicates = duplicatePairsMap.get(pairKey).intValue();
+        } else {
+          duplicates = 1;
         }
         
         out.println("Creating "+duplicates+" encounters for the occurrence with this date/number match.");
         while (duplicateEncs.size() < duplicates ) {
-          Encounter dup = (Encounter) deepCopy(newEnc);
-          //out.println("Copy Location : "+dup.getLocation());
-          dup.setCatalogNumber(Util.generateUUID());
           if (!duplicateEncs.contains(newEnc)) {
             duplicateEncs.add(newEnc);
           } else {
-            duplicateEncs.add(dup);
+            Encounter duplicate = (Encounter) deepCopy(newEnc);      
+            myShepherd.storeNewEncounter(duplicate, Util.generateUUID());
+            myShepherd.commitDBTransaction();
+            myShepherd.beginDBTransaction();
+            duplicateEncs.add(duplicate);
+            newEncs++;
           }
         }
         
-        Occurrence occ = null;
-        boolean hasLocs = true;
-        if (duplicateEncs.size() > 0) {
-          for (Encounter dups : duplicateEncs) {
-            if (newEnc.getLocation()==null&&hasLocs==true) {
-              //out.println("This encounter did not recieve a location and has "+duplicateEncs.size()+" children.");
-              noLocChildren += duplicateEncs.size();
-              hasLocs = false;
-            } else {
-              hasLocs = true;
-            }
-            try {
-              myShepherd.getPM().makePersistent(dups);  
-              myShepherd.commitDBTransaction();
-              myShepherd.beginDBTransaction();
-              newEncs += 1;
-            } catch (Exception e) {
-              out.println("Failed to store new Encounter with catalog number : "+dups.getCatalogNumber());
-              e.printStackTrace();
-            }        
-          }          
-          try {
-            occ = new Occurrence(Util.generateUUID(), duplicateEncs.get(0));
-            myShepherd.getPM().makePersistent(occ);  
-            // What the heck, where did this come from? It's the method that add all the remaining columns as observations, of course!
-            processRemainingColumnsAsObservations(occ,columnMasterList,thisRow);
-            
-            setGpsData(occ);
-            
-            duplicateEncs.get(0).setOccurrenceID(occ.getOccurrenceID());
-            myShepherd.commitDBTransaction();
-            myShepherd.beginDBTransaction();
-            newOccs +=1;
-          } catch (Exception e) {
-            e.printStackTrace(out);
-            out.println("Failed to create and store an occurrence for this sighting number.");
-          }
+        Occurrence occ = new Occurrence(Util.generateUUID(), duplicateEncs.get(0));   
+        try {
+          myShepherd.getPM().makePersistent(occ);  
+          System.out.println("Making Occurrence... ");
+          processRemainingColumnsAsObservations(occ,columnMasterList,thisRow);
+          setGpsData(occ);
+          duplicateEncs.get(0).setOccurrenceID(occ.getOccurrenceID());
+          myShepherd.commitDBTransaction();
+          myShepherd.beginDBTransaction();
+          newOccs +=1;
+        } catch (Exception e) {
+          e.printStackTrace(out);
+          out.println("Failed to create and store an occurrence for this sighting number.");
         }
                 
         if (duplicateEncs.size() > 1) {
-          for (int dups=1;dups<duplicateEncs.size();dups++) {
-            occ.addEncounter(duplicateEncs.get(dups));
-            duplicateEncs.get(dups).setOccurrenceID(occ.getOccurrenceID());
-            myShepherd.commitDBTransaction();
-            myShepherd.beginDBTransaction();
+          int num = 0;
+          while (occ.getNumberEncounters() < duplicateEncs.size()) {
+            Encounter enc = duplicateEncs.get(num);
+            enc.setOccurrenceID(occ.getOccurrenceID());
+            occ.addEncounter(enc);
+            num++;
+            System.out.println("Occ getNumEncounters()??? : "+occ.getNumberEncounters());
           }
         }        
       } catch (Exception e) {
         e.printStackTrace(out); 
       }
     }         
-    out.println("There are a total of "+totalInSightingsArray+" valid sightings (have a date and sighting number) to match against.");
     
     out.println("Created "+newEncs+" new Encounters and "+newOccs+" new Occurrences.");
-    out.println("\n\n************** LAT's vs rows: "+lats+"/"+table.getRowCount());
-    out.println("************** LONG's vs rows: "+lons+"/"+table.getRowCount());
-    out.println("************** Locations vs rows: "+locations+"/"+table.getRowCount());
     out.println("************** Dates vs rows: "+dates+"/"+table.getRowCount());
     out.println("************** Projects vs rows: "+projects+"/"+table.getRowCount());
     out.println("************** EndTimes vs rows: "+endTimes+"/"+table.getRowCount());
     out.println("************** SIGHTNOS vs rows: "+sightNos+"/"+table.getRowCount());
-    out.println("!!!!!!!!!!!!!! Child Encounters without location to match by: "+noLocChildren);
     if (errors > 0) {
       out.println("!!!!!!!!!!!!!!  You got "+errors+" problems and all of them are because of your code.   !!!!!!!!!!!!!!\n\n");
     } 
