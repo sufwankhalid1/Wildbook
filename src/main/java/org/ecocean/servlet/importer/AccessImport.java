@@ -154,7 +154,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean simpleLocationsDUML = false;
+    boolean simpleLocationsDUML = true;
     if (simpleLocationsDUML) {
       try {
         out.flush();
@@ -235,7 +235,7 @@ public class AccessImport extends HttpServlet {
     int sightNos = 0;
     
     ArrayList<String> columnMasterList = getColumnMasterList(table);
-       
+    
     Row thisRow = null;
     Encounter newEnc = null;
     for (int i=0;i<table.getRowCount();i++) {
@@ -260,9 +260,9 @@ public class AccessImport extends HttpServlet {
           columnMasterList.remove("DATE");  
           String startTime = thisRow.get("StartTime").toString();
           columnMasterList.remove("StartTime");
-
+          
           DateTime dateTime = dateStringToDateTime(processDateString(date, startTime), "EEE MMM dd hh:mm a yyyy");
-
+          
           newEnc.setVerbatimEventDate(processDateString(date, startTime));          
           newEnc.setDateInMilliseconds(dateTime.getMillis());  
           dates += 1;
@@ -465,7 +465,7 @@ public class AccessImport extends HttpServlet {
             newEnc.setMeasurement(bsm, myShepherd);           
             columnMasterList.remove("BEAUSCALE");
           }
-       } 
+        } 
       } catch (Exception e) {
         errors +=1;
         e.printStackTrace();
@@ -514,7 +514,7 @@ public class AccessImport extends HttpServlet {
         String dateForKey = newEnc.getDate().substring(0,11).trim();
         String pairKey = sightNo + dateForKey;
         int duplicates = 0;
-
+        
         //This is the result of looking through SIGHTINGS and adding up the number of indy ID's seen at a certain time and SightNo
         //It is a way of creating a minimum number of encounters for this occurrence. 
         if (duplicatePairsMap.containsKey(pairKey)) {
@@ -609,9 +609,9 @@ public class AccessImport extends HttpServlet {
   
   private void processRemainingColumnsAsObservations(Object obj, ArrayList<String> columnMasterList, Row thisRow) {
     //Lets grab every other little thing in the Column master list and try to process it without the whole thing blowing up.
-    // Takes an Encounter, or an Occurrence! Whoa! Even a TissueSample! 
+    //Takes an Encounter, or an Occurrence! Whoa! Even a TissueSample! 
     
-    // Lets make this work for the new obs added to the DataCollectionEvent...
+    //Lets make this work for the new obs added to the DataCollectionEvent...
     Encounter enc = null;
     Occurrence occ = null;
     TissueSample ts = null;
@@ -1024,11 +1024,7 @@ public class AccessImport extends HttpServlet {
   
   private void processSightings(Table table, Shepherd myShepherd) {
     out.println("Sightings Table has "+table.getRowCount()+" Rows!");    
-    String date = null;
-    String sightNo = null;
-    String idCode = null;
     
-    MarkedIndividual indy = null;
     
     int noEnc = 0;
     int addedToExisting = 0;
@@ -1037,6 +1033,8 @@ public class AccessImport extends HttpServlet {
     
     Row thisRow = null;
     for (int i=0;i<table.getRowCount();i++) {
+      
+      MarkedIndividual indy = null;
       try {
         thisRow = table.getNextRow();
         rowsProcessed += 1;
@@ -1045,114 +1043,119 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!! Could not get next Row in SIGHTINGS table...");
       }
       
+      String date = null;
+      DateTime dateTime = null;
       try {
         if (thisRow.get("DATE") != null) {
           date = thisRow.get("DATE").toString();          
-          
           String verbatimDate = date.substring(0, 11) + date.substring(date.length() - 5);
-          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
+          dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
           date = dateTime.toString().substring(0,10);
           //out.println("---------------- DATE : "+date);
         }
       } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in SIGHTINGS");
-        out.println("The rest of the info: "+thisRow.toString());
+        out.println("!!!!!!!!!!!!!! Could not process a DATE for row "+i+" in SIGHTINGS"+thisRow.toString());
         e.printStackTrace();
       }
       
+      String sightNo = null;
       try {
         if (thisRow.get("SIGHTNO") != null) {
           sightNo = thisRow.get("SIGHTNO").toString();          
           //out.println("---------------- SIGHTNO : "+sightNo);          
         }
       } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in SIGHTINGS");
-        out.println("The rest of the info: "+thisRow.toString());
+        out.println("!!!!!!!!!!!!!! Could not process a SIGHTNO for row "+i+" in SIGHTINGS"+thisRow.toString());
         e.printStackTrace();
       }
       
+      String idCode = null;
       try {
         if (thisRow.get("id_code") != null) {
           idCode = thisRow.get("id_code").toString().trim();          
           //out.println("---------------- ID CODE : "+idCode);          
         }
       } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process a ID CODE for row "+i+" in SIGHTINGS");
-        out.println("The rest of the info: "+thisRow.toString());
+        out.println("!!!!!!!!!!!!!! Could not process a ID CODE for row "+i+" in SIGHTINGS"+thisRow.toString());
         e.printStackTrace();  
       }
       
-      // Each sightNo/date pair should have only one encounter with information relevant to all encounters on this occurrence.
-      // We need to see how many rows there are on the sightings table that contain this pair, and make a deep copy of the 
-      // encounter for each.
-      ArrayList<Encounter> encs = null;
+      ArrayList<Encounter> encs = new ArrayList<>();
       try {
         encs = myShepherd.getEncounterArrayWithShortDate(date);
-        if (encs != null) {
-          if (encs.size() == 0) {
-            noEnc +=1;            
-            failedEncs.add(sightNo+date);
-            System.out.println("No Encounter for this date! "+date);
-            //continue;
-          } else {
-            for (int e=0;e<encs.size();e++) {
-              if (!encs.get(e).getSightNo().equals(sightNo)) {
-                encs.remove(encs.get(e));
-              }
-            }    
-            //System.out.println("There be "+encs.size()+" Encs for this pair.");            
-          }
+        if (encs.isEmpty()) {
+          // Code to create Occurrence, Enc, then Indy for a Sightings entry that retrieves none.
+          myShepherd.beginDBTransaction();
+          Encounter enc = new Encounter(); 
+          myShepherd.storeNewEncounter(enc, Util.generateUUID());
+          myShepherd.beginDBTransaction();
+          enc.setSightNo(sightNo);
+          enc.setDateInMilliseconds(dateTime.getMillis());
+          Occurrence occ = new Occurrence(Util.generateUUID(), enc);
+          myShepherd.storeNewOccurrence(occ);
+          myShepherd.beginDBTransaction();
+          occ.setDateTime(dateTime);
+          Observation occForOrphanIndy = new Observation("Sourced From Orphan Sightings Entry", "TRUE", "Occurrence", occ.getOccurrenceID()); 
+          myShepherd.getPM().makePersistent(occForOrphanIndy);
+          myShepherd.beginDBTransaction();
+          Observation encForOrphanIndy = new Observation("Sourced From Orphan Sightings Entry", "TRUE", "Encounter", enc.getCatalogNumber()); 
+          myShepherd.getPM().makePersistent(encForOrphanIndy);
+          myShepherd.beginDBTransaction();
+          encs.add(enc);
+          noEnc++;            
+          System.out.println("No Encounter for this date! Creating a new Occ-->Encounter "+date);
+        } else {
+          for (int e=0;e<encs.size();e++) {
+            if (!encs.get(e).getSightNo().equals(sightNo)) {
+              encs.remove(encs.get(e));
+            }
+          }            
         }
       } catch (Exception e) {
         e.printStackTrace();
-        System.out.println("Failed to retrieve an encounter list for ID Number : "+idCode);
+        System.out.println("Failed to retrieve an encounter list or create a new one for ID Number : "+idCode);
       }
-      try {
-        if (encs != null) {
-          for (int j=0;j<encs.size();j++) {
-            Encounter enc = encs.get(j);
-            if (!enc.hasMarkedIndividual() && idCode != null && !idCode.equals("")) {
-              try {
-                if (!myShepherd.isMarkedIndividual(idCode)) {
-                  System.out.println("Making new Indy With ID code  : "+idCode);
-                  indy = new MarkedIndividual(idCode, enc);
-                  enc.assignToMarkedIndividual(indy.getIndividualID());
-                  myShepherd.getPM().makePersistent(indy);
-                  myShepherd.commitDBTransaction();
-                  myShepherd.beginDBTransaction();
-                  newEnc += 1;
-                  break;
-                } else {
-                  indy = myShepherd.getMarkedIndividual(idCode);
-                  indy.addEncounter(enc, context);
-                  enc.assignToMarkedIndividual(indy.getIndividualID());
-                  myShepherd.commitDBTransaction();
-                  myShepherd.beginDBTransaction();
-                  //System.out.println("Adding enc to existing Indy : "+indy.getIndividualID()+" New ID : "+idCode);
-                  addedToExisting += 1; 
-                  break;
-                }
-              } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Failed to persist a new Indy for ID Number : "+idCode +" and shortDate "+date);
+      if (encs != null) {
+        for (int j=0;j<encs.size();j++) {
+          Encounter enc = encs.get(j);
+          if (!enc.hasMarkedIndividual() && idCode != null && !idCode.equals("")) {
+            try {
+              if (!myShepherd.isMarkedIndividual(idCode)) {
+                System.out.println("Making new Indy With ID code  : "+idCode);
+                indy = new MarkedIndividual(idCode, enc);
+                enc.assignToMarkedIndividual(indy.getIndividualID());
+                myShepherd.storeNewMarkedIndividual(indy);
+                myShepherd.beginDBTransaction();
+                newEnc += 1;
+                break;
+              } else {
+                indy = myShepherd.getMarkedIndividual(idCode);
+                indy.addEncounter(enc, context);
+                enc.assignToMarkedIndividual(indy.getIndividualID());
+                myShepherd.commitDBTransaction();
+                myShepherd.beginDBTransaction();
+                //System.out.println("Adding enc to existing Indy : "+indy.getIndividualID()+" New ID : "+idCode);
+                addedToExisting += 1; 
+                break;
               }
-            }             
-          }        
-        } else {
-          myShepherd.rollbackDBTransaction();
-          continue;
-        }         
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+            } catch (Exception e) {
+              e.printStackTrace();
+              System.out.println("Failed to persist a new Indy for ID Number : "+idCode +" and shortDate "+date);
+            }
+          }             
+        }        
+      } else {
+        myShepherd.rollbackDBTransaction();
+        continue;
+      }         
     }
-    System.out.println("Dates without attached encounters : "+failedEncs);
+    System.out.println("Created a new Object tree for: "+failedEncs+" Encounters.");
     System.out.println("No Encounters to retrieve for date : "+noEnc);
     System.out.println("New Indy created for this encounter sighting number pair : "+newEnc);
     System.out.println("Existing Indy's added to encounters from lists retrieved by date  : "+addedToExisting);
     System.out.println("Rows Processed : "+rowsProcessed);
   }
-  // Okay, lets try this again.
+
   private void processBiopsyTable(Table table,Shepherd myShepherd,Table tableDUML) {
     
     ArrayList<String> columnMasterList = getColumnMasterList(table);
@@ -1591,30 +1594,19 @@ public class AccessImport extends HttpServlet {
     
     try {
       Iterator<Encounter> encs = myShepherd.getAllEncountersNoQuery();
-      int hits = 0;
       while (encs.hasNext()) {
         Encounter enc = encs.next();
         String location = enc.getLocation();
-        //out.println("Location from Enc : "+location);
-        //Run Through and see if there is a simple locations equivalent for this entry..
-        try {
-          if (simpleLocationsDUML.containsKey(location)) {
-            hits += 1;
-            String value = simpleLocationsDUML.get(location);
-            Observation simpleLoc = new Observation("simpleLocation",value,"Encounter", enc.getCatalogNumber());
-            myShepherd.beginDBTransaction();
-            myShepherd.getPM().makePersistent(simpleLoc);
-            myShepherd.commitDBTransaction();
-            enc.addObservation(simpleLoc);
-            //out.println("Added simpleLoc "+value+" to this Encounter.");
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
+        if (simpleLocationsDUML.containsKey(location)) {
+          String value = simpleLocationsDUML.get(location);
+          Observation simpleLoc = new Observation("simpleLocation",value,"Encounter", enc.getCatalogNumber());
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(simpleLoc);
+          myShepherd.commitDBTransaction();
+          enc.addObservation(simpleLoc);
+          //out.println("Added simpleLoc "+value+" to this Encounter.");
         }
-        
       }
-      //out.println("Encounters with a simpleLoc added: "+hits);
-      
     } catch (Exception e) {
       e.printStackTrace();
     }
