@@ -192,7 +192,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = false;
+    boolean biopsyTableSwitch = true;
     if (biopsyTableSwitch) {
       try {
         out.flush();
@@ -687,9 +687,9 @@ public class AccessImport extends HttpServlet {
 
     System.out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
     ArrayList<String> failArray = new ArrayList<String>();
+    ArrayList<String> oneOccs = new ArrayList<String>();
     int success = 0;
     int rowNum = 0;
-    int numNoEncs = 0;
     int numOneOccs = 0;
     int matchingFrom = table.getRowCount();
     Row thisRow = null;
@@ -756,8 +756,7 @@ public class AccessImport extends HttpServlet {
           }
         }
       } catch (Exception e) {
-        out.println("!!!!!!!!!!!!!! Could not process SurveyHrs and create a measurement for row "+i+" in EFFORT");
-        out.println(thisRow.toString());
+        out.println("!!!!!!!!!!!!!! Could not process SurveyHrs and create a measurement for row "+i+" in EFFORT"+thisRow.toString());
         e.printStackTrace();
       }
       
@@ -827,13 +826,8 @@ public class AccessImport extends HttpServlet {
       ArrayList<Encounter> encsOnThisDate = null;
       boolean matched = false;
       try {
-        if (hadSighting) {
-          
+        if (hadSighting) {  
             encsOnThisDate = myShepherd.getEncounterArrayWithShortDate(date);
-            //out.println("Can we find an enc for this Survey and Track? We have "+encsOnThisDate.size()+" encs to check.");
-            if (encsOnThisDate.isEmpty()) {
-              numNoEncs++;
-            }
             for (Encounter enc : encsOnThisDate) {
               String encLoc = null;
               if (enc.getLocation()!=null) {
@@ -854,7 +848,6 @@ public class AccessImport extends HttpServlet {
                 if (enc.getLocationID().toLowerCase().trim().contains(surveyArea.toLowerCase().trim()) || surveyArea.toLowerCase().trim().contains(enc.getLocationID().toLowerCase().trim())) {
                   out.println("MATCHED survey to occurrence with Location : "+enc.getLocationID()+" = "+st.getLocationID()+" Project : "+enc.getSubmitterProject()+" = "+sv.getProjectName());
                   st.addOccurrence(parentOcc);
-                  //success++;
                   matched = true;
                   addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 } 
@@ -863,7 +856,6 @@ public class AccessImport extends HttpServlet {
                 if (simpleLoc.toLowerCase().trim().contains(surveyArea.toLowerCase().trim()) || surveyArea.toLowerCase().trim().contains(simpleLoc.toLowerCase().trim())) {
                   out.println("MATCHED survey to occurrence with SimpleLocation/SurveyArea : "+simpleLoc+" = "+st.getLocationID());
                   st.addOccurrence(parentOcc);
-                  //success++;
                   matched = true;
                   addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 } 
@@ -871,44 +863,39 @@ public class AccessImport extends HttpServlet {
               if (occProj != null && project != null)  {
                 if (occProj.toLowerCase().trim().contains(project.toLowerCase().trim()) || project.toLowerCase().trim().contains(occProj.toLowerCase().trim())) {
                   out.println("MATCHED survey to occurrence with Project : "+occProj+" = "+project);
-                  st.addOccurrence(parentOcc);
-                  // add check for if the survey is the same here?  
-                  //success++;
+                  st.addOccurrence(parentOcc);  
                   matched = true;
                   addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 }
               } 
             }
-          }
-          if (!matched) {
-            // We are recording success badly. The below code should add the occurrence to the survey if there is only one.
-            // We should count this as a success as well. 
-            ArrayList<String> occIds = new ArrayList<String>(); 
-            if (hadSighting&&encsOnThisDate!=null&&encsOnThisDate.size()>0) {
-              for (Encounter enc :encsOnThisDate) {
-                String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
-                if (!occIds.contains(id)) {
-                  occIds.add(id);
+            if (!matched) {
+              ArrayList<String> occIds = new ArrayList<String>(); 
+              if (hadSighting&&encsOnThisDate!=null&&encsOnThisDate.size()>0) {
+                for (Encounter enc :encsOnThisDate) {
+                  String id = myShepherd.getOccurrence(enc.getOccurrenceID()).getOccurrenceID();
+                  if (!occIds.contains(id)) {
+                    occIds.add(id);
+                  }
                 }
-              }
-              if (!occIds.isEmpty()&&occIds.size()==1) {
-                for (String id : occIds) {
-                  Occurrence occ = myShepherd.getOccurrence(id);
-                  if (!st.hasOccurrence(occ)) {
-                    st.addOccurrence(occ);
-                    //success++;
-                    matched = true;
-                    numOneOccs++;
-                    out.println("This day had one occurrence. Adding. SurveyID: "+sv.getID());
+                if (!occIds.isEmpty()&&occIds.size()==1) {
+                  for (String id : occIds) {
+                    Occurrence occ = myShepherd.getOccurrence(id);
+                    if (!st.hasOccurrence(occ)) {
+                      st.addOccurrence(occ);
+                      matched = true;
+                      numOneOccs++;
+                      out.println("This day had one occurrence, but was not added. SurveyID: "+sv.getID());
+                    }
                   }
                 }
               }
             }
-          }
-          if (matched) {
-            success++;
-          } else {
-            failArray.add("\nUnmatched row #"+i+" Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
+            if (matched) {
+              success++;
+            } else {
+              failArray.add("\nUnmatched row #"+i+" Date : "+date+", Survey Area : "+surveyArea+", Project : "+project);
+            }
           }
           processRemainingColumnsAsObservations(sv, columnMasterList, thisRow);
           determineStartAndEndTime(sv);
@@ -918,10 +905,10 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace(out);
       }
     }
-    out.println("+++++++++++++ There were "+success+" surveys out of "+matchingFrom+" needed that recieved at least one occurrence. +++++++++++++");
+    out.println("+++++++++++++ There were "+success+" out of "+matchingFrom+" surveys matched to an occurrence that had a 'Total Sightings' number >0. +++++++++++++");
     //out.println("+++++++++++++ There were "+matchedNum+" out of "+matchingFrom+" effort table entries associated with at least one sighting. ++++++++++++");
-    out.println("+++++++++++++ There were "+numNoEncs+" lines in EFFORT containing a date not shared by any saved encounter/occurrence. +++++++++++++");
-    out.println("+++++++++++++ There were "+numOneOccs+" Survey/Occs associated because there was only one occ on that day, the survey had at least one, and there was no other matching data.+++++++++++++");
+    //out.println("+++++++++++++ There were "+numNoEncs+" lines in EFFORT containing a date not shared by any saved encounter/occurrence. +++++++++++++");
+    out.println("+++++++++++++ There were "+numOneOccs+" surveys that could not be matched using project, survey area or location but had a date that only matched one occurrence.+++++++++++++");
     //out.println("+++++++++++++ There were "+noProjectOrLocation+" Encounters pulled up by date that contained no Project or Location data. (Could be multiple pulls of same encounter) +++++++++++++");
     for (String fail : failArray) {
       out.println(fail);
@@ -1384,7 +1371,6 @@ public class AccessImport extends HttpServlet {
               ts.addObservation(dateTimeOb);
             }
 
-            // This does exactly what it sounds like it does.
             processRemainingColumnsAsObservations(ts, columnMasterList, thisRow);
             
             if (thisRow.get("Conf_sex") != null) {  
