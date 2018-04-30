@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.amazonaws.services.cloudwatch.model.transform.EnableAlarmActionsRequestMarshaller;
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
@@ -226,7 +227,6 @@ public class AccessImport extends HttpServlet {
     out.println("DUML Table has "+table.getRowCount()+" Rows!\n");
     
     int errors = 0;
-    
     int newOccs = 0;
     int newEncs = 0;
     int dates = 0;
@@ -543,6 +543,7 @@ public class AccessImport extends HttpServlet {
           System.out.println("Making Occurrence... ");
           processRemainingColumnsAsObservations(occ,columnMasterList,thisRow);
           setGpsData(occ);
+          occ.setSightNo(sightNo);
           duplicateEncs.get(0).setOccurrenceID(occ.getOccurrenceID());
           myShepherd.commitDBTransaction();
           myShepherd.beginDBTransaction();
@@ -573,7 +574,7 @@ public class AccessImport extends HttpServlet {
     out.println("************** EndTimes vs rows: "+endTimes+"/"+table.getRowCount());
     out.println("************** SIGHTNOS vs rows: "+sightNos+"/"+table.getRowCount());
     if (errors > 0) {
-      out.println("!!!!!!!!!!!!!!  You got "+errors+" problems and all of them are because of your code.   !!!!!!!!!!!!!!\n\n");
+      out.println("!!!!!!!!!!!!!!  Errors: "+errors+".   !!!!!!!!!!!!!!\n\n");
     } 
     out.println("--------------================  REMAINING COLUMNS : "+columnMasterList+"  ================--------------\n\n");
     out.println("******* !!!! TOTALLY CRUSHED IT !!!! *******\n\n");
@@ -687,7 +688,6 @@ public class AccessImport extends HttpServlet {
 
     System.out.println("Effort Table has "+table.getRowCount()+" Rows!\n");
     ArrayList<String> failArray = new ArrayList<String>();
-    ArrayList<String> oneOccs = new ArrayList<String>();
     int success = 0;
     int rowNum = 0;
     int numOneOccs = 0;
@@ -1091,8 +1091,6 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace();  
       }
 
-
-      
       ArrayList<Encounter> encs = new ArrayList<>();
       try {
         encs = myShepherd.getEncounterArrayWithShortDate(date);
@@ -1202,14 +1200,13 @@ public class AccessImport extends HttpServlet {
       String date = null;
       String time = null;
       String sightNo = null;
+      String idCode = null;
       try {
-        if (thisRow.get("date") != null && thisRow.get("sight_no") != null && thisRow.get("Time") != null) {
-          
+        if (thisRow.get("date") != null && thisRow.get("sight_no") != null && thisRow.get("Time") != null) { 
           date = thisRow.get("date").toString(); 
           time = thisRow.get("Time").toString();
           sightNo = thisRow.get("sight_no").toString().trim(); 
-          //columnMasterList.remove("date");
-          //columnMasterList.remove("Time");
+          idCode = thisRow.get("id_code").toString();
           columnMasterList.remove("sight_no");
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
@@ -1222,38 +1219,35 @@ public class AccessImport extends HttpServlet {
         out.println("**********  Failed to grab date and time info from biopsy table.");
       }
       Occurrence occ = null;
-      //Encounter thisEnc = null;
+      Encounter thisEnc = null;
+
+      // Here, instead of matching to an Occurrence, we must find an Encounter or create one. 
       try {
         ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
         if (!encArr.isEmpty()&&date!=null) {
+
           out.println("Iterating through array of "+encArr.size()+" encounters to find a  match...");
           for (Encounter enc : encArr) {
             if (enc.getSightNo().equals(sightNo)) {
               occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-              //thisEnc = enc;
-              out.println("------ MATCH! "+sightNo+" = "+enc.getSightNo()+" Breaking the loop. ------");
-              break;
+              out.println("-- Looking for IDCODE match... IDCODE: "+idCode+" INDY ID: "+enc.getIndividualID()+" --");
+              if (enc.getIndividualID().equals(idCode)) {
+                out.println("------ MATCH! "+idCode+" = "+enc.getIndividualID()+" Breaking the loop. ------");
+                thisEnc = enc;
+                break;
+              }
+            } else {
+              encArr.remove(enc);
             }
           }
         }
       } catch (Exception e) {
         e.printStackTrace();
         out.println("Failed to retrieve Occurrence for this encounter. The date I used to retrieve the EncArr was : "+date);
-        out.println("Trying to get an occ by date alone...");
-        if (date!=null) {
-          ArrayList<Occurrence> occArr = myShepherd.getOccurrenceArrayWithShortDate(date);
-          if (occArr!=null) {
-            if (occArr.size()==1) {
-              occ = occArr.get(0);
-            } else {
-              out.println("Got too many results to decide.");
-            }                      
-          }
-        }
       }
       if (occ != null) {
         //out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
-        boolean created = processBiopsyRow(thisRow, occ, myShepherd, columnMasterList); 
+        boolean created = processBiopsyRow(thisRow, thisEnc, myShepherd, columnMasterList); 
         if (created) {
           success += 1;          
         }
@@ -1263,15 +1257,15 @@ public class AccessImport extends HttpServlet {
     out.println("Successfully created "+success+" tissue samples."); 
   }
   
-  private boolean processBiopsyRow(Row thisRow, Occurrence occ, Shepherd myShepherd, ArrayList<String> columnMasterList) {
+  private boolean processBiopsyRow(Row thisRow, Encounter enc, Shepherd myShepherd, ArrayList<String> columnMasterList) {
     String sampleId = null;
     // The name sampleID is kinda deceptive for internal wildbook purposes. This ID is only unique for successful biopsy attempts..
     // Unsuccessful biopsys are still recorded as a TissueSample object, as requested. It belongs in the STATE column of the sample.
     TissueSample ts = null;
     try {
-      if (occ != null) { 
+      if (enc != null) { 
         try {
-          ts = new TissueSample(occ.getOccurrenceID(), Util.generateUUID() );
+          ts = new TissueSample(enc.getCatalogNumber(), Util.generateUUID() );
           // And load it up.
           try {
             if (!myShepherd.getPM().currentTransaction().isActive()) {
@@ -1342,7 +1336,7 @@ public class AccessImport extends HttpServlet {
               ts.addObservation(idOb);     
             } 
 
-            processTags(thisRow, myShepherd, occ);
+            processTags(thisRow, myShepherd, enc);
             columnMasterList.remove("DTAG_ID");
             columnMasterList.remove("SatTag_ID");
             
@@ -1376,7 +1370,7 @@ public class AccessImport extends HttpServlet {
             if (thisRow.get("Conf_sex") != null) {  
               // One of the fields will be a SexAnalysis/BiologicalMeasurement stored on the tissue sample.
               sex = thisRow.getString("Conf_sex").toString();
-              SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,occ.getPrimaryKeyID(),sampleID);
+              SexAnalysis sexAnalysis = new SexAnalysis(Util.generateUUID(), sex,enc.getPrimaryKeyID(),sampleID);
               myShepherd.getPM().makePersistent(sexAnalysis);
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
@@ -1385,15 +1379,15 @@ public class AccessImport extends HttpServlet {
             myShepherd.getPM().makePersistent(ts);
             myShepherd.commitDBTransaction();
             myShepherd.beginDBTransaction();
-            occ.addBaseTissueSample(ts);
+            enc.addBaseTissueSample(ts);
             columnMasterList.remove("Conf_sex");
           } catch (Exception e) {
             e.printStackTrace();
-            out.println("\n Failed to save created tissue sample to occurrence.");
+            out.println("\n Failed to save created tissue sample to enccounter.");
           }
                
           myShepherd.commitDBTransaction();
-          System.out.println("Created a Tissue Sample for Occ"+occ.getPrimaryKeyID());
+          System.out.println("Created a Tissue Sample for Enc"+enc.getPrimaryKeyID());
           return true;
         } catch (Exception e) {
           e.printStackTrace();
@@ -1401,18 +1395,18 @@ public class AccessImport extends HttpServlet {
         }        
       }        
     } catch (Exception e) {  
-      out.println("\nFailed to validate Occ ID : "+occ.getPrimaryKeyID()+" and sampleID : "+sampleId+" for TissueSample creation."); 
+      out.println("\nFailed to validate Occ ID : "+enc.getPrimaryKeyID()+" and sampleID : "+sampleId+" for TissueSample creation."); 
     }
-    occ.getBaseTissueSampleArrayList().toString();
+    enc.getBaseTissueSampleArrayList().toString();
     return false;
   }
   
-  private void processTags(Row thisRow, Shepherd myShepherd, Occurrence occ) {
+  private void processTags(Row thisRow, Shepherd myShepherd, Encounter enc) {
     String satTagID = null;
     String dTagID = null;
     String species = null;
     if (thisRow.get("SatTag_ID") != null || thisRow.get("DTAG_ID") != null) { 
-      if (occ != null) {
+      if (enc != null) {
         try {
           System.out.println("Gonna try to make a tag for this Enc.");
           if (thisRow.get("SatTag_ID") != null) {
@@ -1430,8 +1424,8 @@ public class AccessImport extends HttpServlet {
             st.setId(Util.generateUUID());
             st.addObservation(tagID);
             st.addObservation(speciesOb);
-            occ.addBaseSatelliteTag(st);
-            System.out.println("Created a SatTag for occurrence "+occ.getPrimaryKeyID());
+            enc.addBaseSatelliteTag(st);
+            System.out.println("Created a SatTag for occurrence "+enc.getPrimaryKeyID());
           }
           if (thisRow.get("DTAG_ID") != null) {
             dTagID = thisRow.get("DTAG_ID").toString();
@@ -1447,8 +1441,8 @@ public class AccessImport extends HttpServlet {
             dt.setId(Util.generateUUID());
             dt.addObservation(tagID);
             dt.addObservation(speciesOb);
-            occ.addBaseDigitalArchiveTag(dt);
-            System.out.println("Created a DTag for occurrence "+occ.getPrimaryKeyID());
+            enc.addBaseDigitalArchiveTag(dt);
+            System.out.println("Created a DTag for occurrence "+enc.getPrimaryKeyID());
           }       
         } catch (Exception e) {
           e.printStackTrace();

@@ -111,6 +111,8 @@ public class Occurrence extends FoundationalPropertiesBase {
   private String weather;
   private String wind;
 
+  private String sightNo;
+
   //empty constructor used by the JDO enhancer
   public Occurrence(){}
 
@@ -952,6 +954,16 @@ public class Occurrence extends FoundationalPropertiesBase {
       }
       catch(Exception e){e.printStackTrace();}
       return false;
+    }
+
+
+    public void setSightNo(String sn) {
+      if(sightNo!=null){sightNo = sn;}
+      else{sightNo=null;}
+    }
+  
+    public String getSightNo() {
+      return sightNo;
     }
 
 }

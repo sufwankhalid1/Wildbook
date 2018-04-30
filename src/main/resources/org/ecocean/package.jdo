@@ -199,6 +199,9 @@
         <column name="PRIMARYKEYID"/>
       </field>
 
+      <field name="sightNo" persistence-modifier="persistent">
+        <column length="512"/>
+      </field>
 
       <field name="encounters" persistence-modifier="persistent" default-fetch-group="true">
      
