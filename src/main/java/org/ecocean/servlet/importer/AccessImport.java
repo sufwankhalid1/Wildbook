@@ -140,7 +140,7 @@ public class AccessImport extends HttpServlet {
     
     
     // These switches allow you to work on different tables without doing the whole import a bunch of times.
-    boolean dumlTableSwitch = true;
+    boolean dumlTableSwitch = false;
     if (dumlTableSwitch) {    
       try {
         out.flush();
@@ -155,7 +155,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean simpleLocationsDUML = true;
+    boolean simpleLocationsDUML = false;
     if (simpleLocationsDUML) {
       try {
         out.flush();
@@ -168,7 +168,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    boolean sightingsTableSwitch = true;
+    boolean sightingsTableSwitch = false;
     if (sightingsTableSwitch) {
       try {
         out.flush();
@@ -181,7 +181,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = true;
+    boolean effortTableSwitch = false;
     if (effortTableSwitch) {
       try {
         out.flush();
@@ -205,6 +205,20 @@ public class AccessImport extends HttpServlet {
         out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
       }      
     }
+
+    boolean allTagsSwitch = true;
+    if (allTagsSwitch) {
+      try {
+        out.flush();
+        out.println("********************* Let's process the All_Tags_Summary Table!\n");
+        processAllTagsTable(db.getTable("All_Tags_Summary"), myShepherd);
+      } catch (Exception e) {
+        out.println(e);
+        e.printStackTrace();
+        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
+      }      
+    }
+
     myShepherd.commitDBTransaction();
     myShepherd.closeDBTransaction();
     out.close();
@@ -616,6 +630,8 @@ public class AccessImport extends HttpServlet {
     Encounter enc = null;
     Occurrence occ = null;
     TissueSample ts = null;
+    SatelliteTag st = null;
+    DigitalArchiveTag dat = null;
     Survey sv = null;
     String id = null;
     if (obj.getClass().getSimpleName().equals("Encounter")) {
@@ -633,6 +649,14 @@ public class AccessImport extends HttpServlet {
     if (obj.getClass().getSimpleName().equals("Survey")) {
       sv = (Survey) obj;
       id = ((Survey) obj).getID();
+    }
+    if (obj.getClass().getSimpleName().equals("SatelliteTag")) {
+      st = (SatelliteTag) obj;
+      id = ((SatelliteTag) obj).getId();
+    }
+    if (obj.getClass().getSimpleName().equals("DigitalArchiveTag")) {
+      dat = (DigitalArchiveTag) obj;
+      id = ((DigitalArchiveTag) obj).getId();
     }
     
     ArrayList<Observation> newObs = new ArrayList<Observation>();
@@ -667,6 +691,14 @@ public class AccessImport extends HttpServlet {
         }
         if (sv != null) {
           sv.addBaseObservationArrayList(newObs); 
+          //ts.getBaseObservationArrayList().toString();
+        }
+        if (st != null) {
+          st.setAllObservations(newObs); 
+          //ts.getBaseObservationArrayList().toString();
+        }
+        if (sv != null) {
+          dat.setAllObservations(newObs); 
           //ts.getBaseObservationArrayList().toString();
         }
         //out.println("YEAH!!! added "+newObs.size()+" observations to "+obj.getClass().getSimpleName()+" "+id+" : ");
@@ -1451,6 +1483,85 @@ public class AccessImport extends HttpServlet {
       } else {
         System.out.println("Didn't find an encounter to add this tag ");
       }           
+    }
+  }
+
+  private void processAllTagsTable(Table table, Shepherd myShepherd) {
+
+    System.out.println("Lets process the All_Tags_Summary table");
+    ArrayList<String> columnMasterList = getColumnMasterList(table);
+    Row thisRow = null;
+    for (int i=0;i<table.getRowCount();i++) {
+
+      try {
+        thisRow = table.getNextRow();
+      } catch (IOException io) {
+        io.printStackTrace();
+      }
+      
+      String dateString = null;
+      String sightNo = null;
+      String idCode = null;
+      SatelliteTag satTag = null;
+      DigitalArchiveTag dTag = null;
+      try {
+        Date date = thisRow.getDate("date");
+        dateString = date.toString();
+
+        sightNo = thisRow.getString("sight_no");
+        idCode = thisRow.getString("id_code");
+        String tagType = thisRow.getString("TagType");
+        String tagVersion = thisRow.getString("TagVersion");
+
+        String tagId = thisRow.getString("Tag_ID");
+        columnMasterList.remove("Tag_ID");
+
+        String Species_id = thisRow.getString("Species_id");
+
+        if (tagType!=null&&tagType.equals("DTag")) {
+          dTag = new DigitalArchiveTag();
+          dTag.setId(Util.generateUUID());
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(dTag);
+          myShepherd.commitDBTransaction();
+          dTag.setDTagID(tagId);
+
+          processRemainingColumnsAsObservations(dTag, columnMasterList, thisRow);
+  
+        }
+  
+        if (tagType!=null&&tagType.equals("SatTag")) {
+          satTag = new SatelliteTag();
+          satTag.setId(Util.generateUUID());
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(satTag);
+          myShepherd.commitDBTransaction();
+          satTag.setName(tagId);
+  
+          processRemainingColumnsAsObservations(satTag, columnMasterList, thisRow);
+  
+        }
+      } catch (NullPointerException npe) {
+        npe.printStackTrace();
+        out.println("!!!!!!!!!!!!!! NPE processing All_Tags_Summary Access Row #"+i);
+      }
+
+      ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(dateString);
+      System.out.println("Got "+encs.size()+" encounters to check for matching Individual ID on tag... Looking for SN: "+sightNo+" and ID: "+idCode);
+      for (Encounter enc : encs) {
+
+        System.out.println("SightNo? "+enc.getSightNo()+" IndyID? "+enc.getIndividualID());
+        // We have a tag and a date, match to sightNo, then add to indy or create new indy. 
+        if (enc.getSightNo().equals(sightNo)&&enc.getIndividualID().equals(idCode)) {
+          System.out.println("Match Success!");
+          if (dTag!=null) {
+            enc.addBaseDigitalArchiveTag(dTag);
+          }
+          if (satTag!=null) {
+            enc.addBaseSatelliteTag(satTag);
+          }
+        }
+      }
     }
   }
   
