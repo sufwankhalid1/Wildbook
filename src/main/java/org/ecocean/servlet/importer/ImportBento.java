@@ -116,6 +116,16 @@ public class ImportBento extends HttpServlet {
             // TODO - Make sure these are deleted when file makes it to final destination.
             folderVessel = "images";
             folderDate = "temp";
+          } else if (fileName.toUpperCase().endsWith("GPX")) {
+            String splitter = null;
+            splitter = fileName.replace(" ", "_");
+            splitter = fileName.replace(".gpx",""); 
+            splitter = fileName.replace(".GPX", "").trim();
+            folderDate = splitter.substring(0, 9).replace("_", "");
+            String[] folderNameArr = splitter.split("_");
+            folderVessel = folderNameArr[folderNameArr.length-1].replace("_", "");
+            folderVessel = "images";
+            folderDate = "temp/gpx";
           }
           
           String noDots = " style=\"list-style:none;\" ";

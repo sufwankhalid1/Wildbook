@@ -23,14 +23,22 @@ Shepherd myShepherd=new Shepherd(context);
 		<h2>Upload Bento and Image Files</h2>
 		<hr>
 			<form action="ImportBento" method="post" enctype="multipart/form-data" name="ImportBento">
-				<p>
-			    	<label>Excel and CSV files</label>
-			    	<input class="fileInput" type="file" name="bentoFile" multiple/>
+					
+					<p>
+			    	<label>CSV files</label>
+			    	<input class="fileInput" type="file" name="bentoFile" accept=".xlsx" multiple/>
 			    </p>
+
 			    <p>
 			    	<label>Image Files</label>
-			    	<input class="fileInput" type="file" name="imageFile" multiple/>
+			    	<input class="fileInput" type="file" name="imageFile" accept=".jpg,.jpeg,.png,.gif,.svg" multiple/>
 			    </p>
+
+					<p>
+			    	<label>GPX Files</label>
+			    	<input class="fileInput" type="file" name="gpxFile" accept=".gpx" multiple/>
+			    </p>
+
 			    <input id="importButton" type="submit" />
 			</form>
 		</div>
