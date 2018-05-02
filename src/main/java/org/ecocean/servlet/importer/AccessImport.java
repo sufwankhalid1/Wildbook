@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.amazonaws.services.cloudwatch.model.transform.EnableAlarmActionsRequestMarshaller;
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
@@ -140,7 +140,7 @@ public class AccessImport extends HttpServlet {
     
     
     // These switches allow you to work on different tables without doing the whole import a bunch of times.
-    boolean dumlTableSwitch = false;
+    boolean dumlTableSwitch = true;
     if (dumlTableSwitch) {    
       try {
         out.flush();
@@ -155,7 +155,7 @@ public class AccessImport extends HttpServlet {
       }
     }  
     
-    boolean simpleLocationsDUML = false;
+    boolean simpleLocationsDUML = true;
     if (simpleLocationsDUML) {
       try {
         out.flush();
@@ -168,7 +168,7 @@ public class AccessImport extends HttpServlet {
       }
     }
     
-    boolean sightingsTableSwitch = false;
+    boolean sightingsTableSwitch = true;
     if (sightingsTableSwitch) {
       try {
         out.flush();
@@ -181,7 +181,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = false;
+    boolean effortTableSwitch = true;
     if (effortTableSwitch) {
       try {
         out.flush();
@@ -210,8 +210,8 @@ public class AccessImport extends HttpServlet {
     if (allTagsSwitch) {
       try {
         out.flush();
-        out.println("********************* Let's process the All_Tags_Summary Table!\n");
-        processAllTagsTable(db.getTable("All_Tags_Summary"), myShepherd);
+        out.println("********************* Let's process the All_Tag_Summary Table!\n");
+        processAllTagsTable(db.getTable("All_Tag_Summary"), myShepherd);
       } catch (Exception e) {
         out.println(e);
         e.printStackTrace();
@@ -1162,7 +1162,14 @@ public class AccessImport extends HttpServlet {
       }
       if (encs.isEmpty()) {
         continue;
-      }         
+      }     
+      Iterator<MarkedIndividual> allIndysIter = myShepherd.getAllMarkedIndividuals();
+      Map<String,MarkedIndividual> indys = new HashMap<>();
+      while (allIndysIter.hasNext()) {
+        MarkedIndividual tempIndy = allIndysIter.next();
+        indys.put(tempIndy.getIndividualID(), tempIndy);
+      }      
+
       for (int j=0;j<encs.size();j++) {
         Encounter enc = encs.get(j);
         if (!enc.hasMarkedIndividual()) {
@@ -1182,16 +1189,17 @@ public class AccessImport extends HttpServlet {
           enc.addObservation(tempIDOb);
 
           try {
-            if (!myShepherd.isMarkedIndividual(idCode)) {
+            if (!indys.keySet().contains(idCode)) {
               System.out.println("Making new Indy With ID code  : "+idCode);
               indy = new MarkedIndividual(idCode, enc);
               enc.assignToMarkedIndividual(indy.getIndividualID());
               myShepherd.storeNewMarkedIndividual(indy);
               myShepherd.beginDBTransaction();
+              indys.put(idCode, indy);
               newEnc += 1;
               break;
             } else {
-              indy = myShepherd.getMarkedIndividual(idCode);
+              indy = indys.get(idCode);
               indy.addEncounter(enc, context);
               enc.assignToMarkedIndividual(indy.getIndividualID());
               myShepherd.commitDBTransaction();
@@ -1216,7 +1224,7 @@ public class AccessImport extends HttpServlet {
 
   private void processBiopsyTable(Table table,Shepherd myShepherd,Table tableDUML) {
     
-    ArrayList<String> columnMasterList = getColumnMasterList(table);
+    //out.println("Columns for this table : "+columnMasterList.toString());
     int success = 0;
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
     Row thisRow = null;
@@ -1229,6 +1237,8 @@ public class AccessImport extends HttpServlet {
         out.println("\n!!!!!!!!!!!!!! Could not get next Row in Biopsy Sample table...\n");
       }
       
+      ArrayList<String> columnMasterList = getColumnMasterList(table);
+      
       String date = null;
       String time = null;
       String sightNo = null;
@@ -1238,13 +1248,15 @@ public class AccessImport extends HttpServlet {
           date = thisRow.get("date").toString(); 
           time = thisRow.get("Time").toString();
           sightNo = thisRow.get("sight_no").toString().trim(); 
-          idCode = thisRow.get("id_code").toString();
-          columnMasterList.remove("sight_no");
+          if (thisRow.get("id_code")!=null) {
+            idCode = thisRow.get("id_code").toString();
+          }
+          //columnMasterList.remove("sight_no");
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
           DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
           date = dateTime.toString().substring(0,10);      
-          //out.println("Simple Date for this biopsy : "+date);
+          out.println("Date for this biopsy : "+date);
         }
       } catch (Exception e) {
         e.printStackTrace(out);
@@ -1257,25 +1269,22 @@ public class AccessImport extends HttpServlet {
       try {
         ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
         if (!encArr.isEmpty()&&date!=null) {
-
           out.println("Iterating through array of "+encArr.size()+" encounters to find a  match...");
           for (Encounter enc : encArr) {
             if (enc.getSightNo().equals(sightNo)) {
               occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-              out.println("-- Looking for IDCODE match... IDCODE: "+idCode+" INDY ID: "+enc.getIndividualID()+" --");
+              out.println("-- Looking for IDCODE match... IDCODE: "+idCode+" INDY ID: "+enc.getIndividualID()+" ");
               if (enc.getIndividualID().equals(idCode)) {
                 out.println("------ MATCH! "+idCode+" = "+enc.getIndividualID()+" Breaking the loop. ------");
                 thisEnc = enc;
                 break;
               }
-            } else {
-              encArr.remove(enc);
             }
           }
         }
       } catch (Exception e) {
         e.printStackTrace();
-        out.println("Failed to retrieve Occurrence for this encounter. The date I used to retrieve the EncArr was : "+date);
+        System.out.println("Failed to retrieve Occurrence for this encounter. The date I used to retrieve the EncArr was : "+date);
       }
       if (occ != null) {
         //out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
@@ -1429,7 +1438,6 @@ public class AccessImport extends HttpServlet {
     } catch (Exception e) {  
       out.println("\nFailed to validate Occ ID : "+enc.getPrimaryKeyID()+" and sampleID : "+sampleId+" for TissueSample creation."); 
     }
-    enc.getBaseTissueSampleArrayList().toString();
     return false;
   }
   
@@ -1511,12 +1519,12 @@ public class AccessImport extends HttpServlet {
         sightNo = thisRow.getString("sight_no");
         idCode = thisRow.getString("id_code");
         String tagType = thisRow.getString("TagType");
-        String tagVersion = thisRow.getString("TagVersion");
+        //String tagVersion = thisRow.getString("TagVersion");
+        //String Species_id = thisRow.getString("Species_id");
 
         String tagId = thisRow.getString("Tag_ID");
         columnMasterList.remove("Tag_ID");
 
-        String Species_id = thisRow.getString("Species_id");
 
         if (tagType!=null&&tagType.equals("DTag")) {
           dTag = new DigitalArchiveTag();
