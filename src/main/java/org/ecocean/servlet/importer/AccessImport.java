@@ -181,7 +181,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = true;
+    boolean effortTableSwitch = false;
     if (effortTableSwitch) {
       try {
         out.flush();
@@ -193,7 +193,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = true;
+    boolean biopsyTableSwitch = false;
     if (biopsyTableSwitch) {
       try {
         out.flush();
@@ -206,7 +206,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
 
-    boolean allTagsSwitch = true;
+    boolean allTagsSwitch = false;
     if (allTagsSwitch) {
       try {
         out.flush();
@@ -697,7 +697,7 @@ public class AccessImport extends HttpServlet {
           st.setAllObservations(newObs); 
           //ts.getBaseObservationArrayList().toString();
         }
-        if (sv != null) {
+        if (dat != null) {
           dat.setAllObservations(newObs); 
           //ts.getBaseObservationArrayList().toString();
         }
@@ -892,7 +892,7 @@ public class AccessImport extends HttpServlet {
                   addSurveyAndTrackIDToOccurrence(enc,sv,st,myShepherd);
                 } 
               }                                         
-              if (occProj != null && project != null)  {
+              if (!matched && occProj != null && project != null)  {
                 if (occProj.toLowerCase().trim().contains(project.toLowerCase().trim()) || project.toLowerCase().trim().contains(occProj.toLowerCase().trim())) {
                   out.println("MATCHED survey to occurrence with Project : "+occProj+" = "+project);
                   st.addOccurrence(parentOcc);  
@@ -1063,8 +1063,10 @@ public class AccessImport extends HttpServlet {
       DateTime dateTime = null;
       try {
         if (thisRow.get("DATE") != null) {
-          date = thisRow.get("DATE").toString();          
-          String verbatimDate = date.substring(0, 11) + date.substring(date.length() - 5);
+          String dateField = thisRow.get("DATE").toString();          
+          System.out.println("-- DateField: "+dateField);
+          String verbatimDate = dateField.substring(0, 11) + dateField.substring(dateField.length() - 5);
+          System.out.println("-- Verbatim Date: "+verbatimDate);
           dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd yyyy");
           date = dateTime.toString().substring(0,10);
         }
@@ -1172,7 +1174,7 @@ public class AccessImport extends HttpServlet {
 
       for (int j=0;j<encs.size();j++) {
         Encounter enc = encs.get(j);
-        if (!enc.hasMarkedIndividual()) {
+        if (!enc.hasMarkedIndividual()&&idCode!=null) {
      
           Observation qualityOb = new Observation("QUALITY", quality, "Encounter", enc.getCatalogNumber());
           myShepherd.storeNewObservation(qualityOb);
@@ -1274,7 +1276,8 @@ public class AccessImport extends HttpServlet {
             if (enc.getSightNo().equals(sightNo)) {
               occ = myShepherd.getOccurrence(enc.getOccurrenceID());
               out.println("-- Looking for IDCODE match... IDCODE: "+idCode+" INDY ID: "+enc.getIndividualID()+" ");
-              if (enc.getIndividualID().equals(idCode)) {
+              String indyID = enc.getIndividualID();
+              if (indyID!=null&&indyID.equals(idCode)) {
                 out.println("------ MATCH! "+idCode+" = "+enc.getIndividualID()+" Breaking the loop. ------");
                 thisEnc = enc;
                 break;
@@ -1535,7 +1538,6 @@ public class AccessImport extends HttpServlet {
           dTag.setDTagID(tagId);
 
           processRemainingColumnsAsObservations(dTag, columnMasterList, thisRow);
-  
         }
   
         if (tagType!=null&&tagType.equals("SatTag")) {
@@ -1547,14 +1549,17 @@ public class AccessImport extends HttpServlet {
           satTag.setName(tagId);
   
           processRemainingColumnsAsObservations(satTag, columnMasterList, thisRow);
-  
         }
       } catch (NullPointerException npe) {
         npe.printStackTrace();
         out.println("!!!!!!!!!!!!!! NPE processing All_Tags_Summary Access Row #"+i);
       }
 
-      ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(dateString);
+      DateTime dateTime = dateStringToDateTime(dateString, "EEE MMM dd hh:mm:ss z yyyy");
+      DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy");
+      String shortDate = dtf.print(dateTime); 
+
+      ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(shortDate);
       System.out.println("Got "+encs.size()+" encounters to check for matching Individual ID on tag... Looking for SN: "+sightNo+" and ID: "+idCode);
       for (Encounter enc : encs) {
 
