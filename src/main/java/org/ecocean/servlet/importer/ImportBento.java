@@ -2,7 +2,6 @@ package org.ecocean.servlet.importer;
 
 import java.io.*;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import com.opencsv.*;
@@ -113,7 +112,11 @@ public class ImportBento extends HttpServlet {
             String[] folderNameArr = splitter.split("_");
             folderVessel = folderNameArr[folderNameArr.length-1].replace("_", "");
           } else if (fileName.toUpperCase().endsWith("JPG")) {
+
             // TODO - Make sure these are deleted when file makes it to final destination.
+            // I mean, or not. We could always punt this saving action till later when we actually make
+            // media assets. Maybe that would be better.  
+
             folderVessel = "images";
             folderDate = "temp";
           } else if (fileName.toUpperCase().endsWith("GPX")) {
@@ -182,18 +185,18 @@ public class ImportBento extends HttpServlet {
 
   private void newFileImportSwitchboard(ArrayList<File> files, Shepherd myShepherd) {
 
+    Map<String,ArrayList<File>> canProcess = new HashMap<>();
+    canProcess = checkDependantFilePresence(canProcess, files);
+
+    // We might not be able to just iterate through this. There might need to be a round of orgranization.
+    // Look for each, order them and if there is a missing componant kick the user to an error. 
+
     for (File file : files) {
       String fileName = standardizeFilename(file.getName());
       String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
       System.out.println("=========================== FILENAME: "+fileName);
 
-      if (fileName.endsWith("biopsy.csv")) {
-        try  {
-          //processBentoBiopsy(file, myShepherd);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
+      //This can be processed with no other files present.
       HashMap<String,HashSet<Survey>> svMap = new HashMap<String,HashSet<Survey>>();
       if (fileName.endsWith("effort.csv")) {
         try  {
@@ -216,6 +219,35 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
+
+      //Dependent on effort file.
+      HashMap<String,HashSet<Observation>> obMap = new HashMap<String,HashSet<Observation>>();
+      if (fileName.endsWith(("survey_log.csv"))||fileName.endsWith(("surveylog.csv"))) {
+        try  {
+          // You gonna need to send in the Surveys, or check the keys and send in one in order to make the obs proper.
+          // Grab the fileKey, check for a matching survey.
+          HashSet<Survey> parentSurveys = svMap.get(fileKey);
+          SurveyLogProcessor slp = new SurveyLogProcessor();
+          ArrayList<Observation> obArr = slp.getLogEntriesFromFile(file, parentSurveys, myShepherd);
+          if (obArr!=null&&!obArr.isEmpty()) {
+            for (Observation ob : obArr) {
+              if (obMap.get(fileName)!=null) {
+                HashSet<Observation> obs = obMap.get(fileName);
+                obs.add(ob);
+                myShepherd.storeNewObservation(ob);
+              } else {
+                HashSet<Observation> newEntry = new HashSet<>();
+                newEntry.add(ob);
+                obMap.put(fileKey, newEntry);
+              }
+            }
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+
+      // Could be present by itself, if just entering photoID. 
       HashMap<String,HashSet<Occurrence>> occMap = new HashMap<String,HashSet<Occurrence>>();
       if (fileName.endsWith("sightings.csv")) {
         try  {
@@ -238,32 +270,17 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
-      HashMap<String,HashSet<Observation>> obMap = new HashMap<String,HashSet<Observation>>();
-      if (fileName.endsWith(("survey_log.csv"))||fileName.endsWith(("surveylog.csv"))) {
-        try  {
-          // You gonna need to send in the Surveys, or check the keys and send in one in order to make the obs proper.
-          // Grab the fileKey, check for a matching survey.
-          HashSet<Survey> parentSurveys = svMap.get(fileKey);
 
-          SurveyLogProcessor slp = new SurveyLogProcessor();
-          ArrayList<Observation> obArr = slp.getLogEntriesFromFile(file, parentSurveys, myShepherd);
-          if (obArr!=null&&!obArr.isEmpty()) {
-            for (Observation ob : obArr) {
-              if (obMap.get(fileName)!=null) {
-                HashSet<Observation> obs = obMap.get(fileName);
-                obs.add(ob);
-                myShepherd.storeNewObservation(ob);
-              } else {
-                HashSet<Observation> newEntry = new HashSet<>();
-                newEntry.add(ob);
-                obMap.put(fileKey, newEntry);
-              }
-            }
-          }
+      // Dependant on sightings, effort.
+      if (fileName.endsWith("biopsy.csv")) {
+        try  {
+          //processBentoBiopsy(file, myShepherd);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
+
+      // Dependant on sightings, effort.
       if (fileName.endsWith("dtag_tag.csv")) {
         try  {
           //processBentoDTag(file, myShepherd);
@@ -271,6 +288,8 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
+
+      // Dependant on sightings, effort.
       if (fileName.endsWith("sattagging_tag.csv")) {
         try  {
           //processBentoSatTag(file, myShepherd);
@@ -278,6 +297,8 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
+
+      // Dependant on sightings, effort and satTag OR dTag.
       if (fileName.endsWith("focalfollow.csv")) {
         try  {
           //processBentoFocalFollow(file, myShepherd);
@@ -285,13 +306,8 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
-      if (fileName.endsWith("dtag_tag.csv")) {
-        try  {
-          //processBentoDTag(file, myShepherd);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
+
+      // I don't have any real life examples of this. 
       if (fileName.endsWith("playback.csv")) {
         try  {
           //processBentoPlayback(file, myShepherd);
@@ -299,6 +315,8 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
+
+      // Dependant on sightings. 
       if (fileName.endsWith(".jpg")||fileName.endsWith(".png")) {
         try  {
           //createMediaAsset(file, myShepherd);
@@ -314,19 +332,31 @@ public class ImportBento extends HttpServlet {
     result = result.replace(" ", "_");
     return result;
   }
+
+  private Map<String,ArrayList<File>> checkDependantFilePresence(Map<String,ArrayList<File>> canProcess, ArrayList<File> files) {
+    Map<String,ArrayList<File>> newCanProcess = new HashMap<String,ArrayList<File>>();
+    // NOTICE - all image files held in Map under "image" key. 
+    String[] acceptedFileNames = {"effort", "sightings", "survey_log", "dtag_tag", "sattagging_tag", "focalfollows", "playback", "image"};
+
+    for (File file : files) {
+      ArrayList<File> temp = null;
+      String inputFileName = standardizeFilename(file.getName()).replace(".csv", "");
+      for (String acceptedName : acceptedFileNames) {
+        if (inputFileName.endsWith(acceptedName)) {
+          temp = new ArrayList<>();
+          if (canProcess.get(acceptedName)==null) {
+            temp.add(file);
+            newCanProcess.put(acceptedName, temp);
+          } else {
+            temp = canProcess.get(acceptedName);
+            temp.add(file);
+            newCanProcess.put(acceptedName, temp);
+          }
+        }
+      }
+    }
+    return newCanProcess;
+  }
 }
 
-/* So we need to deal with potentially a large amount 
-of mixed up files from different days and surveys. 
-
-Perhaps we can organize these files into a HashMap where
-identifying traits like date are the key, and an array 
-of files is the value.  
-
-Iterate through all key pairs.
-
-Drop the array of files into the switchboard.
-
-Start with survey log and effort files, work up the chain. Tags last.
-*/
 
