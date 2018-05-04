@@ -181,7 +181,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean effortTableSwitch = false;
+    boolean effortTableSwitch = true;
     if (effortTableSwitch) {
       try {
         out.flush();
@@ -193,7 +193,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
     
-    boolean biopsyTableSwitch = false;
+    boolean biopsyTableSwitch = true;
     if (biopsyTableSwitch) {
       try {
         out.flush();
@@ -206,7 +206,7 @@ public class AccessImport extends HttpServlet {
       }      
     }
 
-    boolean allTagsSwitch = false;
+    boolean allTagsSwitch = true;
     if (allTagsSwitch) {
       try {
         out.flush();
@@ -1194,11 +1194,12 @@ public class AccessImport extends HttpServlet {
             if (!indys.keySet().contains(idCode)) {
               System.out.println("Making new Indy With ID code  : "+idCode);
               indy = new MarkedIndividual(idCode, enc);
-              enc.assignToMarkedIndividual(indy.getIndividualID());
               myShepherd.storeNewMarkedIndividual(indy);
               myShepherd.beginDBTransaction();
+              enc.assignToMarkedIndividual(indy.getIndividualID());
               indys.put(idCode, indy);
               newEnc += 1;
+              out.println("New Indy got Name: "+indy.getIndividualID());
               break;
             } else {
               indy = indys.get(idCode);
@@ -1207,6 +1208,7 @@ public class AccessImport extends HttpServlet {
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
               //System.out.println("Adding enc to existing Indy : "+indy.getIndividualID()+" New ID : "+idCode);
+              out.println("This existing indy got another encounter: "+indy.getIndividualID());
               addedToExisting += 1; 
               break;
             }
@@ -1245,6 +1247,9 @@ public class AccessImport extends HttpServlet {
       String time = null;
       String sightNo = null;
       String idCode = null;
+
+      DateTime dateTime = null;
+
       try {
         if (thisRow.get("date") != null && thisRow.get("sight_no") != null && thisRow.get("Time") != null) { 
           date = thisRow.get("date").toString(); 
@@ -1256,7 +1261,7 @@ public class AccessImport extends HttpServlet {
           //columnMasterList.remove("sight_no");
           
           String verbatimDate = date.substring(0, 11) + time.substring(11, time.length() - 5) + date.substring(date.length() - 5);
-          DateTime dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
+          dateTime = dateStringToDateTime(verbatimDate, "EEE MMM dd hh:mm:ss z yyyy");
           date = dateTime.toString().substring(0,10);      
           out.println("Date for this biopsy : "+date);
         }
@@ -1264,39 +1269,75 @@ public class AccessImport extends HttpServlet {
         e.printStackTrace(out);
         out.println("**********  Failed to grab date and time info from biopsy table.");
       }
-      Occurrence occ = null;
       Encounter thisEnc = null;
 
       // Here, instead of matching to an Occurrence, we must find an Encounter or create one. 
       try {
-        ArrayList<Encounter> encArr = myShepherd.getEncounterArrayWithShortDate(date);
+        ArrayList<Encounter> tempEncArr = myShepherd.getEncounterArrayWithShortDate(date);
+        List<Encounter> encArr = new ArrayList<>();
+        for (Encounter enc : tempEncArr) {
+          if (enc.getSightNo().equals(sightNo)) {
+            encArr.add(enc);
+          }
+        }
         if (!encArr.isEmpty()&&date!=null) {
           out.println("Iterating through array of "+encArr.size()+" encounters to find a  match...");
-          for (Encounter enc : encArr) {
-            if (enc.getSightNo().equals(sightNo)) {
-              occ = myShepherd.getOccurrence(enc.getOccurrenceID());
-              out.println("-- Looking for IDCODE match... IDCODE: "+idCode+" INDY ID: "+enc.getIndividualID()+" ");
-              String indyID = enc.getIndividualID();
-              if (indyID!=null&&indyID.equals(idCode)) {
-                out.println("------ MATCH! "+idCode+" = "+enc.getIndividualID()+" Breaking the loop. ------");
-                thisEnc = enc;
-                break;
-              }
+          for (int j=0;j<encArr.size(); j++) {
+            Encounter enc = encArr.get(j);
+            if (idCode==null||(j==encArr.size()-1&&thisEnc==null)) {
+              //If we don't have an indy ID, just make a new encounter. We cant associate to an existing enc, but we know this is the occ. 
+              out.println("------ IDCODE: "+idCode+" &&  INDY ID: "+enc.getIndividualID()+" Making a new Encounter for this Biopsy because there was none present with that IDCode or lack thereof. ------");
+              Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
+              thisEnc = new Encounter();
+              myShepherd.storeNewEncounter(thisEnc, Util.generateUUID());
+              thisEnc.setSightNo(sightNo);
+              occ.addEncounter(thisEnc);
+              thisEnc.setOccurrenceID(occ.getOccurrenceID());
+              break;
+            }
+            //out.println("-- Looking for IDCODE match... IDCODE: "+idCode+" INDY ID: "+enc.getIndividualID()+" HAS MarkedIndidvidual: "+enc.hasMarkedIndividual());
+            String indyID = enc.getIndividualID();
+            if (indyID!=null&&indyID.equals(idCode)) {
+              out.println("------ MATCH! "+idCode+" = "+enc.getIndividualID()+" Breaking the loop. ------");
+              thisEnc = enc;
+              break;
             }
           }
+        }
+        if (encArr.isEmpty()) {
+          thisEnc = new Encounter();
+          myShepherd.storeNewEncounter(thisEnc, Util.generateUUID());
+          thisEnc.setSightNo(sightNo);
+          thisEnc.setDateInMilliseconds(dateTime.getMillis());
+          Occurrence occ = new Occurrence(Util.generateUUID(), thisEnc);
+          myShepherd.storeNewOccurrence(occ);
+          occ.setSightNo(sightNo);
+          occ.setDateTime(dateTime);
+          thisEnc.setOccurrenceID(occ.getOccurrenceID());
+          if (idCode!=null) {
+            MarkedIndividual mi = null;
+            try {
+              mi = myShepherd.getMarkedIndividual(idCode);
+            } catch (NullPointerException npe) {
+              npe.printStackTrace();
+            }
+            if (mi==null) {
+              mi = new MarkedIndividual(idCode, thisEnc);
+              myShepherd.storeNewMarkedIndividual(mi);
+            } 
+            thisEnc.setIndividualID(mi.getIndividualID());
+          } 
         }
       } catch (Exception e) {
         e.printStackTrace();
         System.out.println("Failed to retrieve Occurrence for this encounter. The date I used to retrieve the EncArr was : "+date);
       }
-      if (occ != null) {
-        //out.println("Found a date match for this biopsy! Occurrence:"+occ.getPrimaryKeyID()+". Processing Biopsy...");
+      if (thisEnc != null) {
         boolean created = processBiopsyRow(thisRow, thisEnc, myShepherd, columnMasterList); 
         if (created) {
           success += 1;          
         }
       }
-       
     } 
     out.println("Successfully created "+success+" tissue samples."); 
   }
@@ -1310,7 +1351,6 @@ public class AccessImport extends HttpServlet {
       if (enc != null) { 
         try {
           ts = new TissueSample(enc.getCatalogNumber(), Util.generateUUID() );
-          // And load it up.
           try {
             if (!myShepherd.getPM().currentTransaction().isActive()) {
               myShepherd.beginDBTransaction();
@@ -1341,10 +1381,10 @@ public class AccessImport extends HttpServlet {
             }
             
             String indy = null;
-            columnMasterList.remove("Photo-ID_Code");
-            if (thisRow.get("Photo-ID_Code") != null) {
-              indy = thisRow.getString("Photo-ID_Code").toString();
-              Observation indyID = new Observation("IndyID", indy, "TissueSample", ts.getSampleID());   
+            columnMasterList.remove("id_code");
+            if (thisRow.get("id_code") != null) {
+              indy = thisRow.getString("id_code").toString();
+              Observation indyID = new Observation("id_code", indy, "TissueSample", ts.getSampleID());   
               myShepherd.getPM().makePersistent(indyID);
               myShepherd.commitDBTransaction();
               myShepherd.beginDBTransaction();
@@ -1355,7 +1395,6 @@ public class AccessImport extends HttpServlet {
             if (thisRow.get("Group_Size") != null) {
               String sizeString = thisRow.getString("Group_Size").toString();
               String cleanSizeString = "";
-              // Get the garbage out. Only taking lower bound estimate. 
               for (int i=0;i<sizeString.length();i++) {
                 if (Character.isDigit(sizeString.charAt(i))) {
                   cleanSizeString += sizeString.charAt(i);
@@ -1448,53 +1487,51 @@ public class AccessImport extends HttpServlet {
     String satTagID = null;
     String dTagID = null;
     String species = null;
-    if (thisRow.get("SatTag_ID") != null || thisRow.get("DTAG_ID") != null) { 
-      if (enc != null) {
-        try {
-          System.out.println("Gonna try to make a tag for this Enc.");
-          if (thisRow.get("SatTag_ID") != null) {
-            satTagID = thisRow.get("SatTag_ID").toString();
-            species = thisRow.get("Species_ID").toString(); 
-            SatelliteTag st = new SatelliteTag();
-            Observation tagID = new Observation("Tag_ID",satTagID,"SatelliteTag",st.getId());
-            Observation speciesOb = new Observation("Species",species,"SatelliteTag",st.getId());
-            myShepherd.beginDBTransaction();
-            myShepherd.getPM().makePersistent(tagID);
-            myShepherd.beginDBTransaction();
-            myShepherd.getPM().makePersistent(speciesOb);
-            myShepherd.commitDBTransaction();
-            st.setName(satTagID);
-            st.setId(Util.generateUUID());
-            st.addObservation(tagID);
-            st.addObservation(speciesOb);
-            enc.addBaseSatelliteTag(st);
-            System.out.println("Created a SatTag for occurrence "+enc.getPrimaryKeyID());
-          }
-          if (thisRow.get("DTAG_ID") != null) {
-            dTagID = thisRow.get("DTAG_ID").toString();
-            DigitalArchiveTag dt = new DigitalArchiveTag();
-            Observation tagID = new Observation("Tag_ID",satTagID,"SatelliteTag",dt.getId());
-            Observation speciesOb = new Observation("Species",species,"SatelliteTag",dt.getId());
-            myShepherd.beginDBTransaction();
-            myShepherd.getPM().makePersistent(tagID);
-            myShepherd.beginDBTransaction();
-            myShepherd.getPM().makePersistent(speciesOb);
-            myShepherd.commitDBTransaction();
-            dt.setDTagID(dTagID);
-            dt.setId(Util.generateUUID());
-            dt.addObservation(tagID);
-            dt.addObservation(speciesOb);
-            enc.addBaseDigitalArchiveTag(dt);
-            System.out.println("Created a DTag for occurrence "+enc.getPrimaryKeyID());
-          }       
-        } catch (Exception e) {
-          e.printStackTrace();
-          out.println("Caught exception while creating tags for biopsy.");
+    if (enc != null) {
+      try {
+        System.out.println("Gonna try to make a tag for this Enc.");
+        if (thisRow.get("SatTag_ID") != null) {
+          satTagID = thisRow.get("SatTag_ID").toString();
+          species = thisRow.get("Species_ID").toString(); 
+          SatelliteTag st = new SatelliteTag();
+          Observation tagID = new Observation("Tag_ID",satTagID,"SatelliteTag",st.getId());
+          Observation speciesOb = new Observation("Species",species,"SatelliteTag",st.getId());
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(tagID);
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(speciesOb);
+          myShepherd.commitDBTransaction();
+          st.setName(satTagID);
+          st.setId(Util.generateUUID());
+          st.addObservation(tagID);
+          st.addObservation(speciesOb);
+          enc.addBaseSatelliteTag(st);
+          System.out.println("Created a SatTag for occurrence "+enc.getPrimaryKeyID());
+        }
+        if (thisRow.get("DTAG_ID") != null) {
+          dTagID = thisRow.get("DTAG_ID").toString();
+          DigitalArchiveTag dt = new DigitalArchiveTag();
+          Observation tagID = new Observation("Tag_ID",satTagID,"SatelliteTag",dt.getId());
+          Observation speciesOb = new Observation("Species",species,"SatelliteTag",dt.getId());
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(tagID);
+          myShepherd.beginDBTransaction();
+          myShepherd.getPM().makePersistent(speciesOb);
+          myShepherd.commitDBTransaction();
+          dt.setDTagID(dTagID);
+          dt.setId(Util.generateUUID());
+          dt.addObservation(tagID);
+          dt.addObservation(speciesOb);
+          enc.addBaseDigitalArchiveTag(dt);
+          System.out.println("Created a DTag for occurrence "+enc.getPrimaryKeyID());
         }       
-      } else {
-        System.out.println("Didn't find an encounter to add this tag ");
-      }           
-    }
+      } catch (Exception e) {
+        e.printStackTrace();
+        out.println("Caught exception while creating tags for biopsy.");
+      }       
+    } else {
+      System.out.println("Didn't find an encounter to add this tag ");
+    }           
   }
 
   private void processAllTagsTable(Table table, Shepherd myShepherd) {
@@ -1527,7 +1564,6 @@ public class AccessImport extends HttpServlet {
 
         String tagId = thisRow.getString("Tag_ID");
         columnMasterList.remove("Tag_ID");
-
 
         if (tagType!=null&&tagType.equals("DTag")) {
           dTag = new DigitalArchiveTag();
