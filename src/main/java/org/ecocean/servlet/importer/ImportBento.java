@@ -191,6 +191,9 @@ public class ImportBento extends HttpServlet {
     // We might not be able to just iterate through this. There might need to be a round of orgranization.
     // Look for each, order them and if there is a missing componant kick the user to an error. 
 
+    // TODO: Remove all reference to "file" and have each section below grab the relevent files from the Map we just packed.
+    // Get it outta da 4 loop.
+
     for (File file : files) {
       String fileName = standardizeFilename(file.getName());
       String fileKey = fileName.split("_")[0]+fileName.split("_")[1];

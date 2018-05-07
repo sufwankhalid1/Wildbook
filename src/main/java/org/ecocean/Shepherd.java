@@ -177,11 +177,11 @@ public class Shepherd {
   }
 
 
-  public void storeNewOccurrence(Occurrence enc) {
+  public void storeNewOccurrence(Occurrence occ) {
       //enc.setOccurrenceID(uniqueID);
       beginDBTransaction();
       try {
-        pm.makePersistent(enc);
+        pm.makePersistent(occ);
         commitDBTransaction();
       } catch (Exception e) {
         rollbackDBTransaction();

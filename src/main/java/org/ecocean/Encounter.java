@@ -531,8 +531,9 @@ public class Encounter extends FoundationalPropertiesBase {
   
   // Gets and sets SIGHTNO for Occurance cross referencing. (Read Lab)
   public void setSightNo(String sn) {
-    if(sightNo!=null){sightNo = sn;}
-    else{sightNo=null;}
+    if (sn!=null&&!sn.equals("")) {
+      sightNo = sn;
+    } 
   }
 
   public String getSightNo() {

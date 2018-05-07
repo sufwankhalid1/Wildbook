@@ -958,8 +958,9 @@ public class Occurrence extends FoundationalPropertiesBase {
 
 
     public void setSightNo(String sn) {
-      if(sightNo!=null){sightNo = sn;}
-      else{sightNo=null;}
+      if (sn!=null&&!sn.equals("")) {
+        sightNo = sn;
+      } 
     }
   
     public String getSightNo() {

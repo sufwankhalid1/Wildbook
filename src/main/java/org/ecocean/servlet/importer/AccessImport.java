@@ -215,7 +215,7 @@ public class AccessImport extends HttpServlet {
       } catch (Exception e) {
         out.println(e);
         e.printStackTrace();
-        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process BiopsySamples table!!!");
+        out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Could not process All_Tag_Summary table!!!");
       }      
     }
 
@@ -1233,6 +1233,7 @@ public class AccessImport extends HttpServlet {
     out.println("Biopsy Samples Table has "+table.getRowCount()+" Rows!");
     Row thisRow = null;
     
+    ArrayList<String> columnMasterList = getColumnMasterList(table);
     for (int i=0;i<table.getRowCount();i++) {
       try {
         thisRow = table.getNextRow();
@@ -1240,8 +1241,7 @@ public class AccessImport extends HttpServlet {
         io.printStackTrace();
         out.println("\n!!!!!!!!!!!!!! Could not get next Row in Biopsy Sample table...\n");
       }
-      
-      ArrayList<String> columnMasterList = getColumnMasterList(table);
+
       
       String date = null;
       String time = null;
@@ -1317,7 +1317,9 @@ public class AccessImport extends HttpServlet {
           if (idCode!=null) {
             MarkedIndividual mi = null;
             try {
-              mi = myShepherd.getMarkedIndividual(idCode);
+              if (myShepherd.isMarkedIndividual(idCode)) {
+                mi = myShepherd.getMarkedIndividual(idCode);
+              }
             } catch (NullPointerException npe) {
               npe.printStackTrace();
             }
@@ -1536,9 +1538,14 @@ public class AccessImport extends HttpServlet {
 
   private void processAllTagsTable(Table table, Shepherd myShepherd) {
 
-    System.out.println("Lets process the All_Tags_Summary table");
+    System.out.println("Lets process the All_Tags_Summary table: "+table.getRowCount()+" Rows.");
     ArrayList<String> columnMasterList = getColumnMasterList(table);
     Row thisRow = null;
+
+    int matchedNum = 0;
+    int createdNum = 0;
+    int createdIndyNum = 0;
+
     for (int i=0;i<table.getRowCount();i++) {
 
       try {
@@ -1592,26 +1599,93 @@ public class AccessImport extends HttpServlet {
       }
 
       DateTime dateTime = dateStringToDateTime(dateString, "EEE MMM dd hh:mm:ss z yyyy");
-      DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy");
+      DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
       String shortDate = dtf.print(dateTime); 
 
       ArrayList<Encounter> encs = myShepherd.getEncounterArrayWithShortDate(shortDate);
       System.out.println("Got "+encs.size()+" encounters to check for matching Individual ID on tag... Looking for SN: "+sightNo+" and ID: "+idCode);
+      
+      boolean matched = false;
+      String fallbackOccID = null;
       for (Encounter enc : encs) {
+        //System.out.println("SightNo? "+enc.getSightNo()+" IndyID? "+enc.getIndividualID());
 
-        System.out.println("SightNo? "+enc.getSightNo()+" IndyID? "+enc.getIndividualID());
-        // We have a tag and a date, match to sightNo, then add to indy or create new indy. 
-        if (enc.getSightNo().equals(sightNo)&&enc.getIndividualID().equals(idCode)) {
-          System.out.println("Match Success!");
-          if (dTag!=null) {
-            enc.addBaseDigitalArchiveTag(dTag);
+
+        if (enc.getSightNo()!=null&&enc.getSightNo().equals(sightNo)) {
+          //While we are iterating through, lets see if we can just get an occurrence for this day. Might need to fall back on 
+          //it later when constructing a new Enc if the we can't fid a match. 
+          if (enc.getOccurrenceID()!=null) {
+            fallbackOccID = enc.getOccurrenceID();
           }
-          if (satTag!=null) {
-            enc.addBaseSatelliteTag(satTag);
+
+          if (enc.getIndividualID()!=null&&enc.getIndividualID().equals(idCode)) {
+            System.out.println("Match Success!");
+            if (dTag!=null) {
+              enc.addBaseDigitalArchiveTag(dTag);
+              matchedNum++;
+              matched = true;
+              break;
+            }
+            if (satTag!=null) {
+              enc.addBaseSatelliteTag(satTag);
+              matchedNum++;
+              matched = true;
+              break;
+            }
           }
         }
       }
+      if (!matched) {
+        System.out.println("No encounter was found to match this tag to. Let's make one!");
+        Occurrence occ = null;
+        Encounter enc = new Encounter();
+        myShepherd.storeNewEncounter(enc, Util.generateUUID());
+        if (fallbackOccID!=null) {
+          occ = myShepherd.getOccurrence(fallbackOccID);
+        } 
+        if (occ==null) {
+          occ = new Occurrence(Util.generateUUID(), enc);
+          myShepherd.storeNewOccurrence(occ);
+        }
+        if (sightNo!=null) {
+          try {
+            occ.setSightNo(sightNo);
+            enc.setSightNo(sightNo);
+          } catch (NullPointerException npe) {
+            out.println("SightNo was not present for this row?? Or it's bad??? : "+thisRow.toString());
+            npe.printStackTrace();
+          }
+        }
+        enc.setDateInMilliseconds(dateTime.getMillis());
+        occ.setDateTime(dateTime);
+        if (dTag!=null) {
+          enc.addBaseDigitalArchiveTag(dTag);
+          System.out.println("Success! Added DTag.");
+        }
+        if (satTag!=null) {
+          enc.addBaseSatelliteTag(satTag);
+          System.out.println("Success! Added SatTag.");
+        }
+        // Jeez... Should we make an indy here too? Probably. If there isn't an Indy already matching the name, which is most of the time. 
+        createdNum++;
+        if (idCode!=null) {
+          MarkedIndividual mi = null;
+          if (myShepherd.isMarkedIndividual(idCode)) {
+            mi = myShepherd.getMarkedIndividual(idCode);
+          } else {
+            mi = new MarkedIndividual(idCode, enc);
+            myShepherd.storeNewMarkedIndividual(mi);
+            System.out.println("Made a new Marked individual named "+idCode+" as well.");
+            createdIndyNum++;
+          }
+          mi.addEncounter(enc, context);
+          enc.assignToMarkedIndividual(mi.getIndividualID());
+        }
+      }
     }
+    System.out.println("------ Matched Tags: "+matchedNum);
+    System.out.println("------ Created new encounters: "+createdNum);
+    System.out.println("------ Created new Individuals: "+createdIndyNum);
   }
   
   private void buildEncounterDuplicationMap(Table table, Shepherd myShepherd) {
