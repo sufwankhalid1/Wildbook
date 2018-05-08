@@ -893,40 +893,35 @@ $(document).ready(function() {
             sampleIDs += "<li class=\"indyIDItem\">TissueSample: "+sample.getSampleID()+"</li>";
           }
         }
-
-        String mTagListItems = "";
-        if (indy.getAllMetalTags()!=null) {
+        String tagListItems = "";
+        if (indy.getAllMetalTags()!=null&&indy.getAllMetalTags().size()>0) {
           mTags = indy.getAllMetalTags();
-          mTagListItems += "<li class=\"indyIDItem\"><strong>Metal Tag ID's</strong></li>";
-          for (MetalTag mTag :  mTags) {
-            mTagListItems += "<li class=\"indyIDItem\">Metal Tag: "+mTag.getId()+"</li>";
+          tagListItems += "<li class=\"indyIDItem\"><strong>Metal Tag ID's</strong></li>";
+          for (MetalTag mTag : mTags) {
+            tagListItems += "<li class=\"indyIDItem\">Metal Tag: "+mTag.getId()+"</li>";
           }
         }
-        String aTagListItems = "";
-        if (indy.getAllAcousticTags()!=null) {
+        if (indy.getAllAcousticTags()!=null&&indy.getAllAcousticTags().size()>0) {
           aTags = indy.getAllAcousticTags();
-          aTagListItems += "<li class=\"indyIDItem\"><strong>Acoustic Tag ID's</strong></li>";
-          for (AcousticTag aTag :  aTags) {
-            aTagListItems += "<li class=\"indyIDItem\">Acoustic Tag: "+aTag.getId()+"</li>";
+          tagListItems += "<li class=\"indyIDItem\"><strong>Acoustic Tag ID's</strong></li>";
+          for (AcousticTag aTag : aTags) {
+            tagListItems += "<li class=\"indyIDItem\">Acoustic Tag: "+aTag.getId()+"</li>";
           }
         }
-        String sTagListItems = "";
-        if (indy.getAllSatelliteTags()!=null) {
+        if (indy.getAllSatelliteTags()!=null&&indy.getAllSatelliteTags().size()>0) {
           sTags = indy.getAllSatelliteTags();
-          sTagListItems += "<li class=\"indyIDItem\"><strong>Satellite Tag ID's</strong></li>";
-          for (SatelliteTag sTag :  sTags) {
-            sTagListItems += "<li class=\"indyIDItem\">Satellite Tag: "+sTag.getId()+"</li>";
+          tagListItems += "<li class=\"indyIDItem\"><strong>Satellite Tag ID's</strong></li>";
+          for (SatelliteTag sTag : sTags) {
+            tagListItems += "<li class=\"indyIDItem\">Satellite Tag: "+sTag.getId()+"</li>";
           }
         }
-        String dTagListItems = "";
-        if (indy.getAllDTags()!=null) {
+        if (indy.getAllDTags()!=null&&indy.getAllDTags().size()>0) {
           dTags = indy.getAllDTags();     
-          dTagListItems += "<li class=\"indyIDItem\"><strong>DTag ID's</strong></li>";
-          for (DigitalArchiveTag dTag :  dTags) {
-            dTagListItems += "<li class=\"indyIDItem\">DTag: "+dTag.getId()+"</li>";
+          tagListItems += "<li class=\"indyIDItem\"><strong>DTag ID's</strong></li>";
+          for (DigitalArchiveTag dTag : dTags) {
+            tagListItems += "<li class=\"indyIDItem\">DTag: "+dTag.getId()+"</li>";
           }
         }
-
         // If there is no way to get the Biopsy associated with an indy, some horrible hack will need to go here. 
       %>
 
@@ -936,13 +931,33 @@ $(document).ready(function() {
           <div class="col-md-6">
             <label>&nbsp;&nbsp;&nbsp;<small>Tag ID's: </small></label>
             <ul>
-              <li class="indyIDItem">DTag - 10001</li>
+              <% 
+              if (tagListItems.length()>0) {
+              %>
+                <%=tagListItems%>
+              <%
+              } else {
+              %>
+                <li class="indyIDItem"><strong>No Tags.</strong></li>
+              <%
+              }
+              %>
             </ul>
           </div>
           <div class="col-md-6">
-            <label>&nbsp;&nbsp;&nbsp;<small>Biopsy ID's: </small></label>
+            <label>&nbsp;&nbsp;&nbsp;<small>Biopsy ID's:</small></label>
             <ul>
-              <li class="indyIDItem">AB-10001</li>
+              <% 
+              if (sampleIDs.length()>0) {
+              %>
+                <%=sampleIDs%>
+              <%
+              } else {
+              %>
+                <li class="indyIDItem"><strong>No Tissue Samples.</strong></li>
+              <%
+              }
+              %>
             </ul>
           </div>
         </div>  
