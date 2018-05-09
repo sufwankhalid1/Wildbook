@@ -1134,7 +1134,7 @@ public class AccessImport extends HttpServlet {
           myShepherd.beginDBTransaction();
           Encounter enc = new Encounter(); 
           myShepherd.storeNewEncounter(enc, Util.generateUUID());
-          newEnc.setDWCDateAdded();
+          enc.setDWCDateAdded();
           myShepherd.beginDBTransaction();
           enc.setSightNo(sightNo);
           enc.setDateInMilliseconds(dateTime.getMillis());
@@ -1292,7 +1292,7 @@ public class AccessImport extends HttpServlet {
               Occurrence occ = myShepherd.getOccurrence(enc.getOccurrenceID());
               thisEnc = new Encounter();
               myShepherd.storeNewEncounter(thisEnc, Util.generateUUID());
-              newEnc.setDWCDateAdded();
+              thisEnc.setDWCDateAdded();
               thisEnc.setSightNo(sightNo);
               occ.addEncounter(thisEnc);
               thisEnc.setOccurrenceID(occ.getOccurrenceID());
@@ -1310,7 +1310,7 @@ public class AccessImport extends HttpServlet {
         if (encArr.isEmpty()) {
           thisEnc = new Encounter();
           myShepherd.storeNewEncounter(thisEnc, Util.generateUUID());
-          newEnc.setDWCDateAdded();
+          thisEnc.setDWCDateAdded();
           thisEnc.setSightNo(sightNo);
           thisEnc.setDateInMilliseconds(dateTime.getMillis());
           Occurrence occ = new Occurrence(Util.generateUUID(), thisEnc);
@@ -1644,7 +1644,7 @@ public class AccessImport extends HttpServlet {
         Occurrence occ = null;
         Encounter enc = new Encounter();
         myShepherd.storeNewEncounter(enc, Util.generateUUID());
-        newEnc.setDWCDateAdded();
+        enc.setDWCDateAdded();
         if (fallbackOccID!=null) {
           occ = myShepherd.getOccurrence(fallbackOccID);
         } 

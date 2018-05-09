@@ -26,7 +26,7 @@ Shepherd myShepherd=new Shepherd(context);
 					
 					<p>
 			    	<label>CSV files</label>
-			    	<input class="fileInput" type="file" name="bentoFile" accept=".xlsx" multiple/>
+			    	<input class="fileInput" type="file" name="bentoFile" accept=".csv" multiple/>
 			    </p>
 
 			    <p>

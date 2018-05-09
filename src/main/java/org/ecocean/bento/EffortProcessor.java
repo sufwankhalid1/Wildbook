@@ -58,6 +58,7 @@ public class EffortProcessor extends BentoProcessor {
                 String[] dataRow = rows.next();
                 sv = processColumns(columnNameArr, dataRow);
                 if (sv!=null) {
+                    myShepherd.storeNewSurvey(sv);
                     svs.add(sv);
                 }
             }

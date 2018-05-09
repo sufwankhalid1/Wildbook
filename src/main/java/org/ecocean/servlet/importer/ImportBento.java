@@ -83,7 +83,9 @@ public class ImportBento extends HttpServlet {
       upload.setFileSizeMax(1024*1024*50);
       upload.setSizeMax(1024*1024*150);
       
-      List<FileItem> items = null;
+      List<FileItem> images = new ArrayList<>();
+      List<FileItem> items = new ArrayList<>();
+      List<File> files =new ArrayList<>();
       try {
         items = upload.parseRequest(request);
       } catch (FileUploadException e) {
@@ -96,14 +98,17 @@ public class ImportBento extends HttpServlet {
           
           String fieldName = fileItem.getFieldName();
           String fileName = fileItem.getName();
-          String contentType = fileItem.getContentType();
-          boolean inMemory = fileItem.isInMemory();
-          
           System.out.println("====== Fieldname : "+fieldName+" Filename : "+fileName+" =======");
+
+          String extension = fileName.split(".")[fileName.split(".").length-1].toUpperCase();
+          final String[] imageExtensions = {"JPG", "JPEG", "PNG", "BMP", "GIF", "MOV", "WMV", "AVI", "MP4", "MPG"};
+          //String contentType = fileItem.getContentType();
+          //boolean inMemory = fileItem.isInMemory();
           
           String folderDate = null;
           String folderVessel = null;
-          if (fileName.toUpperCase().endsWith("XLSX")||fileName.toUpperCase().endsWith("CSV")) {
+          boolean isImage = false;
+          if (extension.equals("XLSX")||extension.equals("CSV")) {
             String splitter = null;
             splitter = fileName.replace(" ", "_");
             splitter = fileName.replace(".xlsx",""); 
@@ -111,15 +116,14 @@ public class ImportBento extends HttpServlet {
             folderDate = splitter.substring(0, 9).replace("_", "");
             String[] folderNameArr = splitter.split("_");
             folderVessel = folderNameArr[folderNameArr.length-1].replace("_", "");
-          } else if (fileName.toUpperCase().endsWith("JPG")) {
+          } else if (Arrays.asList(imageExtensions).contains(extension)) {
 
-            // TODO - Make sure these are deleted when file makes it to final destination.
-            // I mean, or not. We could always punt this saving action till later when we actually make
-            // media assets. Maybe that would be better.  
+            isImage = true;
+            images.add(fileItem);
+            folderVessel = "";
+            folderDate = "";
 
-            folderVessel = "images";
-            folderDate = "temp";
-          } else if (fileName.toUpperCase().endsWith("GPX")) {
+          } else if (extension.equals("GPX")) {
             String splitter = null;
             splitter = fileName.replace(" ", "_");
             splitter = fileName.replace(".gpx",""); 
@@ -134,7 +138,8 @@ public class ImportBento extends HttpServlet {
           String noDots = " style=\"list-style:none;\" ";
           File uploadedFile = null;
           File uploadDir = null;
-          if (fileName!=null&&folderDate!=null&&folderVessel!=null) {
+
+          if (fileName!=null&&folderDate!=null&&folderVessel!=null&&!isImage) {
             try {
               uploadDir = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderVessel+"/"+folderDate+"/");
               System.out.println("Still uploadDir ? "+uploadDir.toString());
@@ -144,27 +149,29 @@ public class ImportBento extends HttpServlet {
               uploadedFile = new File(System.getProperty("catalina.base")+"/webapps/wildbook_data_dir/bento_sheets/"+folderVessel+"/"+folderDate+"/"+fileName);
               if (!uploadedFile.isDirectory()) {
                 fileItem.write(uploadedFile);
+                files.add(uploadedFile);
                 message += "<li"+noDots+"><strong>Saved</strong> "+fileName+"</li>";                
               } else {
-                message = "<li"+noDots+">I cannot upload merely a directory.</li>";
+                message = "<li"+noDots+">I cannot upload a directory, please select files.</li>";
               }
+
               //Here is where we put the file into the hashmap based on the leading info - date and vessel.
-              try {
-                String[] splitFilename = fileName.split("_");
-                String surveyKey = splitFilename[0] + splitFilename[1];
-                if (surveyFiles.containsKey(surveyKey)) {
-                  System.out.println("Added to key in survey Array: "+surveyKey);
-                  surveyFiles.get(surveyKey).add(uploadedFile);
-                } else {
-                  System.out.println("New key in survey Array: "+surveyKey);
-                  ArrayList<File> arr = new ArrayList<>();
-                  arr.add(uploadedFile);
-                  surveyFiles.put(surveyKey, arr);
-                }
-              } catch (Exception e) {
-                System.out.println("Could not process filename prior to import: "+fileName);
-                e.printStackTrace();
-              }
+              //try {
+              //  String[] splitFilename = fileName.split("_");
+              //  String surveyKey = splitFilename[0] + splitFilename[1];
+              //  if (surveyFiles.containsKey(surveyKey)) {
+              //    System.out.println("Added to key in survey Array: "+surveyKey);
+              //    surveyFiles.get(surveyKey).add(uploadedFile);
+              //  } else {
+              //     System.out.println("New key in survey Array: "+surveyKey);
+              //    ArrayList<File> arr = new ArrayList<>();
+              //    arr.add(uploadedFile);
+              //    surveyFiles.put(surveyKey, arr);
+              //  }
+              //} catch (Exception e) {
+              //  System.out.println("Could not process filename prior to import: "+fileName);
+              //  e.printStackTrace();
+              //}
             } catch (Exception e) {
               message += "<li "+noDots+"><strong>Error</strong> "+fileName+".<br><small>The filename was in the wrong format, or the file was invalid.</small></li>";
               e.printStackTrace();
@@ -172,10 +179,8 @@ public class ImportBento extends HttpServlet {
           }
         }
       }
-    }
-    Set<String> keys = surveyFiles.keySet();
-    for (String key : keys) {
-      newFileImportSwitchboard(surveyFiles.get(key), myShepherd);
+      //Okay, so we now have a system to work through our files in the correct order. Where did these surveyFiles come from...
+      newFileImportSwitchboard(files, images, myShepherd);
     }
     myShepherd.closeDBTransaction();
     request.setAttribute("result", message);
@@ -183,97 +188,48 @@ public class ImportBento extends HttpServlet {
     getServletContext().getRequestDispatcher("/bentoUploadResult.jsp").forward(request, response);
   } 
 
-  private void newFileImportSwitchboard(ArrayList<File> files, Shepherd myShepherd) {
+  private void newFileImportSwitchboard(List<File> files, List<FileItem> images, Shepherd myShepherd) {
 
     Map<String,ArrayList<File>> canProcess = new HashMap<>();
     canProcess = checkDependantFilePresence(canProcess, files);
 
-    // We might not be able to just iterate through this. There might need to be a round of orgranization.
-    // Look for each, order them and if there is a missing componant kick the user to an error. 
 
-    // TODO: Remove all reference to "file" and have each section below grab the relevent files from the Map we just packed.
-    // Get it outta da 4 loop.
+    //Why not just make sure we store these surveys in the effort processor...
+    List<Survey> svArr = new ArrayList<>();
+    for (File file : canProcess.get("effort")) {
+      try  {
+        EffortProcessor ep = new EffortProcessor();
+        svArr.addAll(ep.getSurveysFromFile(file, myShepherd));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
 
-    for (File file : files) {
+    List<Observation> svObArr = new ArrayList<>();
+    HashSet<Survey> svHash = new HashSet<>(svArr);
+    for (File file : canProcess.get("survey_log")) {
+      try  {
+        SurveyLogProcessor slp = new SurveyLogProcessor();
+        svObArr.addAll(slp.getLogEntriesFromFile(file, svHash, myShepherd));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    // Could be present by itself, if just entering photoID. 
+    ArrayList<Occurrence> occArr = new ArrayList<>();
+    for (File file : canProcess.get("sightings")) {
+      try  {
+        SightingsProcessor slp = new SightingsProcessor();
+        occArr.addAll(slp.getOccurrencesFromFile(file, myShepherd));
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    } 
+
+    for (File file : canProcess.get("biopsy")) {
       String fileName = standardizeFilename(file.getName());
       String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
-      System.out.println("=========================== FILENAME: "+fileName);
-
-      //This can be processed with no other files present.
-      HashMap<String,HashSet<Survey>> svMap = new HashMap<String,HashSet<Survey>>();
-      if (fileName.endsWith("effort.csv")) {
-        try  {
-          EffortProcessor ep = new EffortProcessor();
-          ArrayList<Survey> svArr = ep.getSurveysFromFile(file, myShepherd);
-          if (svArr!=null&&!svArr.isEmpty()) {
-            for (Survey sv : svArr) {
-              if (svMap.get(fileName)!=null) {
-                HashSet<Survey> svs = svMap.get(fileName);
-                svs.add(sv);
-              } else {
-                HashSet<Survey> newEntry = new HashSet<>();
-                newEntry.add(sv);
-                svMap.put(fileKey, newEntry);
-              }
-              myShepherd.storeNewSurvey(sv);
-            }
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-
-      //Dependent on effort file.
-      HashMap<String,HashSet<Observation>> obMap = new HashMap<String,HashSet<Observation>>();
-      if (fileName.endsWith(("survey_log.csv"))||fileName.endsWith(("surveylog.csv"))) {
-        try  {
-          // You gonna need to send in the Surveys, or check the keys and send in one in order to make the obs proper.
-          // Grab the fileKey, check for a matching survey.
-          HashSet<Survey> parentSurveys = svMap.get(fileKey);
-          SurveyLogProcessor slp = new SurveyLogProcessor();
-          ArrayList<Observation> obArr = slp.getLogEntriesFromFile(file, parentSurveys, myShepherd);
-          if (obArr!=null&&!obArr.isEmpty()) {
-            for (Observation ob : obArr) {
-              if (obMap.get(fileName)!=null) {
-                HashSet<Observation> obs = obMap.get(fileName);
-                obs.add(ob);
-                myShepherd.storeNewObservation(ob);
-              } else {
-                HashSet<Observation> newEntry = new HashSet<>();
-                newEntry.add(ob);
-                obMap.put(fileKey, newEntry);
-              }
-            }
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-
-      // Could be present by itself, if just entering photoID. 
-      HashMap<String,HashSet<Occurrence>> occMap = new HashMap<String,HashSet<Occurrence>>();
-      if (fileName.endsWith("sightings.csv")) {
-        try  {
-          SightingsProcessor sp = new SightingsProcessor();
-          ArrayList<Occurrence> occArr = sp.getOccurrencesFromFile(file, myShepherd);
-          if (occArr!=null&&!occArr.isEmpty()) {
-            for (Occurrence occ : occArr) {
-              if (occMap.get(fileName)!=null) {
-                HashSet<Occurrence> occs = occMap.get(fileName);
-                occs.add(occ);
-              } else {
-                HashSet<Occurrence> newEntry = new HashSet<>();
-                newEntry.add(occ);
-                occMap.put(fileKey, newEntry);
-              }
-              myShepherd.storeNewOccurrence(occ);
-            }
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-
       // Dependant on sightings, effort.
       if (fileName.endsWith("biopsy.csv")) {
         try  {
@@ -282,52 +238,62 @@ public class ImportBento extends HttpServlet {
           e.printStackTrace();
         }
       }
+    }
 
+    for (File file : canProcess.get("dtag_tag")) {
+      String fileName = standardizeFilename(file.getName());
+      String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
       // Dependant on sightings, effort.
-      if (fileName.endsWith("dtag_tag.csv")) {
-        try  {
-          //processBentoDTag(file, myShepherd);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-
-      // Dependant on sightings, effort.
-      if (fileName.endsWith("sattagging_tag.csv")) {
-        try  {
-          //processBentoSatTag(file, myShepherd);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-
-      // Dependant on sightings, effort and satTag OR dTag.
-      if (fileName.endsWith("focalfollow.csv")) {
-        try  {
-          //processBentoFocalFollow(file, myShepherd);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-
-      // I don't have any real life examples of this. 
-      if (fileName.endsWith("playback.csv")) {
-        try  {
-          //processBentoPlayback(file, myShepherd);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-
-      // Dependant on sightings. 
-      if (fileName.endsWith(".jpg")||fileName.endsWith(".png")) {
-        try  {
-          //createMediaAsset(file, myShepherd);
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
+      try  {
+        //processBentoDTag(file, myShepherd);
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }
+
+    for (File file : canProcess.get("sattagging_tag")) {
+      String fileName = standardizeFilename(file.getName());
+      String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
+      try  {
+        //processBentoSatTag(file, myShepherd);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+      // Dependant on sightings, effort.
+
+    // Dependant on sightings, effort and satTag OR dTag.
+    for (File file : canProcess.get("focalfollows")) {
+      String fileName = standardizeFilename(file.getName());
+      String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
+      try  {
+        //processBentoFocalFollow(file, myShepherd);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    // I don't have any real life examples of this. 
+    for (File file : canProcess.get("playback")) {
+      String fileName = standardizeFilename(file.getName());
+      String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
+      try  {
+        //processBentoPlayback(file, myShepherd);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    // Dependant on sightings. 
+    for (File file : canProcess.get("biopsy")) {
+      String fileName = standardizeFilename(file.getName());
+      String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
+      try  {
+        //createMediaAsset(file, myShepherd);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }  
   }
 
   private String standardizeFilename(String filename) {
@@ -336,10 +302,10 @@ public class ImportBento extends HttpServlet {
     return result;
   }
 
-  private Map<String,ArrayList<File>> checkDependantFilePresence(Map<String,ArrayList<File>> canProcess, ArrayList<File> files) {
+  private Map<String,ArrayList<File>> checkDependantFilePresence(Map<String,ArrayList<File>> canProcess, List<File> files) {
     Map<String,ArrayList<File>> newCanProcess = new HashMap<String,ArrayList<File>>();
     // NOTICE - all image files held in Map under "image" key. 
-    String[] acceptedFileNames = {"effort", "sightings", "survey_log", "dtag_tag", "sattagging_tag", "focalfollows", "playback", "image"};
+    final String[] acceptedFileNames = {"effort", "sightings", "survey_log", "dtag_tag", "sattagging_tag", "focalfollows", "playback", "image"};
 
     for (File file : files) {
       ArrayList<File> temp = null;

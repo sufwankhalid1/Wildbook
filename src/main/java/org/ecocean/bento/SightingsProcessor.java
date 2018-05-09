@@ -59,21 +59,22 @@ public class SightingsProcessor extends BentoProcessor {
         boolean isValid = checkRequiredColumns(columnNameArr, REQUIRED_COLUMNS);
 
         if (isValid) {
-            ArrayList<Occurrence> svs = new ArrayList<>();
+            ArrayList<Occurrence> occs = new ArrayList<>();
             // Row zero for column names.
             int count = 0;
             while (rows.hasNext()) {
                 count++;
                 System.out.println("=========== Making occurrence #"+count+" from bento!");
-                Occurrence sv = null;
+                Occurrence occ = null;
                 String[] dataRow = rows.next();
-                sv = processColumns(columnNameArr, dataRow);
-                if (sv!=null) {
-                    svs.add(sv);
+                occ = processColumns(columnNameArr, dataRow);
+                if (occ!=null) {
+                    myShepherd.storeNewOccurrence(occ);
+                    occs.add(occ);
                 }
             }
-            if (!svs.isEmpty()) {
-                return svs;
+            if (!occs.isEmpty()) {
+                return occs;
             }
         }
         return null;
@@ -149,8 +150,6 @@ public class SightingsProcessor extends BentoProcessor {
         }
         return occ;
     }
-
-
 
     public int getNumEncounters() {
         int num = 0;
