@@ -489,8 +489,7 @@ function FSControl(controlDiv, map) {
 				$('#numSearchedObs').val(num); 
 				num++;		
 			});
-		});
-	});
+	  });
 </script>
   	
 

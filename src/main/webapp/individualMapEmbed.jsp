@@ -99,7 +99,7 @@ context=ServletUtilities.getContext(request);
     <script type="text/javascript">
       function initialize() {
         var center = new google.maps.LatLng(0,0);
-        var mapZoom = 1;
+        var mapZoom = 12;
     	  var bounds = new google.maps.LatLngBounds();
         var map = new google.maps.Map(document.getElementById('map_canvas'), {
           zoom: mapZoom,
