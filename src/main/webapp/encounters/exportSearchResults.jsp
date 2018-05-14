@@ -140,6 +140,8 @@
 		
 		<p>CRC Excel Matching Summary <a href="//<%=CommonConfiguration.getURLLocation(request)%>/CRCExportReport?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
 		</p>
+
+		<p>Export ALL Data: <a href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportAllData?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a><br />
 		
 		<p><%=map_props.getProperty("exportedOBIS")%>: <a href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportExcelFile?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a><br />
 		<%=map_props.getProperty("exportedOBISLocales")%>: <a href="//<%=CommonConfiguration.getURLLocation(request)%>/EncounterSearchExportExcelFile?<%=request.getQueryString()%>&locales=trues"><%=map_props.getProperty("clickHere")%></a>
