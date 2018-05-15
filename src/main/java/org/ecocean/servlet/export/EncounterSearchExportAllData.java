@@ -108,17 +108,20 @@ public class EncounterSearchExportAllData extends HttpServlet{
 
       //let's write out headers for the OBIS export file
         WritableWorkbook workbookAllData = Workbook.createWorkbook(excelFile);
-        WritableSheet sheet = workbookAllData.createSheet("Enounter Data", 0);
-        WritableSheet observations = workbookAllData.createSheet("Enounter Observations", 0);
+        WritableSheet sheet = workbookAllData.createSheet("Encounter Data", 0);
+        WritableSheet observations = workbookAllData.createSheet("Observations", 1);
 
         //Gets all observations, creates a header on a second sheet for all unique, all encounters
         Iterator<Encounter> encs = rEncounters.iterator();
         List<String> obLabels = new ArrayList<>();
+        Label encID = new Label(0, 0, "encounterID");
+        observations.addCell(encID);
+        obLabels.add("encounterID");
+        int obHeaderNum = 1;
         while (encs.hasNext()) {
           Encounter enc = encs.next();
           ArrayList<Observation> encObs = enc.getBaseObservationArrayList();
-          System.out.println("Observations from enc: "+encObs.toString());
-          int obHeaderNum = 0;
+          //System.out.println("Observations from enc: "+encObs.toString());
           for (Observation ob : encObs) {
             if (!obLabels.contains(ob.getName())) {
                 Label obLabel = new Label(obHeaderNum, 0, ob.getName());
@@ -164,7 +167,7 @@ public class EncounterSearchExportAllData extends HttpServlet{
         Label label16 = new Label(16, 0, "location");
         sheet.addCell(label16);
         Label label17 = new Label(17, 0, "locationCode");
-        sheet.addCell(label17);
+        sheet.addCell(label17); 
         Label label18 = new Label(18, 0, "sex");
         sheet.addCell(label18);
         Label label19 = new Label(19, 0, "submitterOrganization");
@@ -256,11 +259,11 @@ public class EncounterSearchExportAllData extends HttpServlet{
             //Iterate through arraylist of observation labels and check if each enc has any.
             //We will add add the encNo first, even though the row numbers should match.
             Label encNo = new Label(0, count, enc.getCatalogNumber());
-            sheet.addCell(encNo);
-            for (int j=1;j<obLabels.size(); j++) {
+            observations.addCell(encNo);
+            for (int j=0;j<obLabels.size(); j++) {
               if (enc.getObservationByName(obLabels.get(j))!=null) {
                 String obValue = enc.getObservationByName(obLabels.get(j)).getValue();
-                Label obCell = new Label(j, count, obValue);
+                Label obCell = new Label(j+1, count, obValue);
                 observations.addCell(obCell);
               }
             }

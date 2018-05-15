@@ -154,7 +154,7 @@
         <li><a class="active"><%=occProps.getProperty("table")%>
         </a></li>
             <li><a
-           href="occurrenceExportSearchResults.jsp?<%=request.getQueryString() %>"><%=occProps.getProperty("permitExport")%>
+           href="occurrenceExportSearchResults.jsp?<%=request.getQueryString() %>">export
          </a></li>
 
       </ul>

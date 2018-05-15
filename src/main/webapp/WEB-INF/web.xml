@@ -855,6 +855,11 @@
         <servlet-class>org.ecocean.servlet.export.EncounterSearchExportAllData</servlet-class>
   </servlet>
 
+    <servlet>
+        <servlet-name>OccurrenceSearchExportAllData</servlet-name>
+        <servlet-class>org.ecocean.servlet.export.OccurrenceSearchExportAllData</servlet-class>
+  </servlet>
+
 
   <servlet>
     <servlet-name>EncounterSetTapirLinkExposure</servlet-name>
@@ -1405,6 +1410,11 @@
   <servlet-mapping>
     <servlet-name>EncounterSearchExportAllData</servlet-name>
     <url-pattern>/EncounterSearchExportAllData</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>OccurrenceSearchExportAllData</servlet-name>
+    <url-pattern>/OccurrenceSearchExportAllData</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

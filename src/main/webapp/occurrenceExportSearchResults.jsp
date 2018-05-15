@@ -119,6 +119,9 @@
 
 		 <p><strong><%=map_props.getProperty("exportOptions")%></strong></p>
 
+		 <p><b>Export ALL Occurrence Data</b> <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/OccurrenceSearchExportAllData?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
+ 		 </p>
+
      <p>Excel Metadata Summary <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/OccurrenceSearchExportMetadataExcel?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
  		 </p>
 
