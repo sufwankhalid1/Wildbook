@@ -855,9 +855,14 @@
         <servlet-class>org.ecocean.servlet.export.EncounterSearchExportAllData</servlet-class>
   </servlet>
 
-    <servlet>
+  <servlet>
         <servlet-name>OccurrenceSearchExportAllData</servlet-name>
         <servlet-class>org.ecocean.servlet.export.OccurrenceSearchExportAllData</servlet-class>
+  </servlet>
+
+  <servlet>
+        <servlet-name>SurveySearchExportAllData</servlet-name>
+        <servlet-class>org.ecocean.servlet.export.SurveySearchExportAllData</servlet-class>
   </servlet>
 
 
@@ -1415,6 +1420,11 @@
   <servlet-mapping>
     <servlet-name>OccurrenceSearchExportAllData</servlet-name>
     <url-pattern>/OccurrenceSearchExportAllData</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>SurveySearchExportAllData</servlet-name>
+    <url-pattern>/SurveySearchExportAllData</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

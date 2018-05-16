@@ -6,7 +6,7 @@
   String context="context0";
   context=ServletUtilities.getContext(request);
 
-    //let's load OccurrenceSearch.properties
+    //let's load SurveySearch.properties
     //String langCode = "en";
     String langCode=ServletUtilities.getLanguageCode(request);
 
@@ -24,7 +24,7 @@
     Shepherd myShepherd = new Shepherd(context);
 
     //set up the vector for matching encounters
-    Vector rOccurrences = new Vector();
+    Vector rSurveys = new Vector();
 
     //kick off the transaction
     myShepherd.beginDBTransaction();
@@ -36,8 +36,8 @@
     Vector blocked=new Vector();
 
     try{
-		    	OccurrenceQueryResult queryResult = OccurrenceQueryProcessor.processQuery(myShepherd, request, order);
-		    	rOccurrences = queryResult.getResult();
+		    	SurveyQueryResult queryResult = SurveyQueryProcessor.processQuery(myShepherd, request, order);
+		    	rSurveys = queryResult.getResult();
 		  %>
 
 		<style type="text/css">
@@ -95,22 +95,22 @@
 
 		</style>
 
-		    <jsp:include page="header.jsp" flush="true"/>
+		    <jsp:include page="../header.jsp" flush="true"/>
 
 		    <div class="container maincontent">
 
 
-		      <h1 class="intro">Occurrence Search Data Export
+		      <h1 class="intro">Survey Search Data Export
 		      </h1>
 
 
 
 		 <ul id="tabmenu">
 
-		   <li><a href="occurrenceSearchResults.jsp?<%=request.getQueryString() %>"><%=map_props.getProperty("table")%>
+		   <li><a href="surveySearchResults.jsp?<%=request.getQueryString() %>"><%=map_props.getProperty("table")%>
 		   </a></li>
        <li><a class="active"
-      href="occurrenceExportSearchResults.jsp?<%=request.getQueryString() %>"><%=occProps.getProperty("export")%>
+      href="surveyExportSearchResults.jsp?<%=request.getQueryString() %>"><%=occProps.getProperty("export")%>
     </a></li>
 
 		 </ul>
@@ -119,15 +119,8 @@
 
 		 <p><strong><%=map_props.getProperty("exportOptions")%></strong></p>
 
-		 <p><b>Export ALL Occurrence Data</b> <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/OccurrenceSearchExportAllData?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
+		 <p><b>Export ALL Survey Data</b> <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/SurveySearchExportAllData?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
  		 </p>
-
-     <p>Excel Metadata Summary <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/OccurrenceSearchExportMetadataExcel?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
- 		 </p>
-
-     <p>GTM export for <a href="http://compbio.cs.uic.edu/"> Computational Population Biology </a>: <a href="http://<%=CommonConfiguration.getURLLocation(request)%>/OccurrenceSearchExportGtm?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
- 		 </p>
-
 
 		<% } else { // dont have access to ALL records, so:  %>
 
@@ -168,4 +161,4 @@
 
  %>
 
- <jsp:include page="footer.jsp" flush="true"/>
+ <jsp:include page="../footer.jsp" flush="true"/>
