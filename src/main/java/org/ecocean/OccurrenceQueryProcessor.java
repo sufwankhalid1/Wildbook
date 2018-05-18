@@ -20,7 +20,7 @@ public class OccurrenceQueryProcessor extends QueryProcessor {
 
   private static final String BASE_FILTER = "SELECT FROM org.ecocean.Occurrence WHERE \"ID\" != null && ";
 
-  public static final String[] SIMPLE_STRING_FIELDS = new String[]{"ID","distance","groupBehavior"};
+  public static final String[] SIMPLE_STRING_FIELDS = new String[]{"ID","distance","groupBehavior","sightNo"};
 
   
 
@@ -46,7 +46,8 @@ public class OccurrenceQueryProcessor extends QueryProcessor {
       filter = QueryProcessor.filterWithBasicStringField(filter, fieldName, request, prettyPrint);
     }
 
-    filter = QueryProcessor.filterDateRanges(request, filter, prettyPrint);
+    // Date contraints if present
+    filter = occurrenceDateRange(request, filter, prettyPrint);
     
     // GPS box
     filter = QueryProcessor.filterWithGpsBox(filter, request, prettyPrint);
@@ -104,33 +105,48 @@ public class OccurrenceQueryProcessor extends QueryProcessor {
     return (new OccurrenceQueryResult(rOccurrences,filter,prettyPrint.toString()));
   }
   
-  public static String filterDateRanges(HttpServletRequest request, String filter) {
-    String filterAddition = "";
-    String startTimeFrom = null;
-    String startTimeTo = null;
-    filter = prepForNext(filter);
-    if (request.getParameter("startTimeFrom")!=null) {
-      startTimeFrom = request.getParameter("startTimeFrom");
-      
-      //Process date to millis... for survey too... 
-      // yuck.
-      
-      filter += " 'millis' >=  "+startTimeFrom+" ";
-    }
-    filter = prepForNext(filter);
-    if (request.getParameter("startTimeTo")!=null) {
-      startTimeTo = request.getParameter("startTimeTo");
-      filter += " 'millis' <=  "+startTimeFrom+" ";
-    }
-    filter = prepForNext(filter);
-    return filter;
-  }
-  
  public static String prepForNext(String filter) {
    if (!QueryProcessor.endsWithAmpersands(filter)) {
      QueryProcessor.prepForCondition(filter);
    }
+   System.out.println("Prep for next? Here's the filter: "+filter);
    return filter;
  }
+
+
+ protected static String occurrenceDateRange(HttpServletRequest request, String filter, StringBuffer prettyPrint) {
+  String endTime = null;
+  String startTime = null;
+  
+  try {
+    filter = prepForCondition(filter);
+    if (request.getParameter("startTime")!=null&&request.getParameter("startTime").length()>8) {
+      startTime = monthDayYearToMilli(request.getParameter("startTime"));
+      // Crush date
+      String addition = " (millis >= "+startTime+") ";
+      prettyPrint.append(addition);
+      filter += addition;
+    }      
+  } catch (NullPointerException npe) {
+    npe.printStackTrace();
+  }
+  
+  try {
+    filter = prepForCondition(filter);
+    if (request.getParameter("endTime")!=null&&request.getParameter("endTime").length()>8) {
+      endTime = monthDayYearToMilli(request.getParameter("endTime"));
+      // Crush date
+      String addition = " (millis <= "+endTime+") ";
+      prettyPrint.append(addition);
+      filter += addition;
+    }      
+  } catch (NullPointerException npe) {
+    npe.printStackTrace();
+  }
+  
+  filter = prepForNext(filter);
+  System.out.println("This filter: "+filter);
+  return filter;
+}
   
 }

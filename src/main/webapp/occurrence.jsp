@@ -136,7 +136,7 @@ context=ServletUtilities.getContext(request);
 		<strong><%=props.getProperty("correspondingSurveyTrack") %>:&nbsp<%=surveyTrackID%></strong> 									
 	<%	
 	} 
-	%>		
+	%>
 	</p>
 
 	<!-- Triggers edit survey and track ID form. -->
@@ -235,6 +235,15 @@ context=ServletUtilities.getContext(request);
 <div class="row">	
 	<div class="col-xs-12">
 	<br/>
+	<%
+	if (occ.getSightNo()!=null) {
+		String sightNo = occ.getSightNo();
+	%>
+		<br/>	
+		<p><%=props.getProperty("sightNo") %>:&nbsp<%=sightNo%></p> 									
+	<%	
+	} 
+	%>
 	<p><%=props.getProperty("groupBehavior") %>: 
 		<%if(occ.getGroupBehavior()!=null){%>
 			<%=occ.getGroupBehavior() %>

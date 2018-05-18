@@ -175,7 +175,6 @@ String formAction="surveySearchResults.jsp";
     <div id="date" style="display:none;">
       <p><%=svyProps.getProperty("dateInstructions") %></p>
 
-<!--  date of birth and death -->
       <p><strong><%=occProps.getProperty("dateStart")+" "+occProps.getProperty("range")%>:</strong></p>
       <table>
       	<tr>

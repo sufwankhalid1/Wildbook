@@ -20,10 +20,8 @@ public static String getDisplayName(String fieldName, Properties nameLookup) thr
   return (nameLookup.getProperty(fieldName, ClassEditTemplate.prettyFieldName(fieldName)));
 }
 %>
-
-
-
 <%
+
 String context="context0";
 context=ServletUtilities.getContext(request);
   Shepherd myShepherd = new Shepherd(context);
@@ -50,12 +48,18 @@ context=ServletUtilities.getContext(request);
 
   //props.load(getClass().getResourceAsStream("/bundles/" + langCode + "/individualSearch.properties"));
   // Properties occProps = new Properties();
-  // occProps = ShepherdProperties.getProperties("occurrence.properties", langCode,context);
+  Properties svyProps = ShepherdProperties.getProperties("survey.properties", langCode,context);
   Properties occProps = ShepherdProperties.getProperties("occurrence.properties", langCode,context);
 
   props = ShepherdProperties.getProperties("individualSearch.properties", langCode,context);
   
   String mapKey = CommonConfiguration.getGoogleMapsKey(context);
+
+  //Iterator<Occurrence> occs = myShepherd.getAllOccurrencesNoQuery();
+  //while (occs.hasNext()) {
+  //  Occurrence thisOcc = occs.next();
+  //  System.out.println("Millis? : "+thisOcc.getMillis());
+  //}
 
 %>
 
@@ -70,7 +74,8 @@ context=ServletUtilities.getContext(request);
     animatedcollapse.addDiv('map', 'fade=1')
     animatedcollapse.addDiv('observations', 'fade=1')
     animatedcollapse.addDiv('metadata', 'fade=1')
-  	animatedcollapse.addDiv('patternrecognition', 'fade=1')
+  	animatedcollapse.addDiv('daterange', 'fade=1')
+    animatedcollapse.addDiv('patternrecognition', 'fade=1')
 
     animatedcollapse.ontoggle = function($, divobj, state) { //fires each time a DIV is expanded/contracted
       //$: Access to jQuery
@@ -101,6 +106,7 @@ width: 100% !important;
 height: 100% !important;
 margin-top: 0px !important;
 margin-bottom: 8px !important;
+}
 </style>
 
 <script>
@@ -200,8 +206,8 @@ if(compareAgainst.getGeneticSex()!=null){
 <p><em><strong><%=occProps.getProperty("searchInstructions")%>
 </strong></em></p>
 
-
 <form action="<%=formAction %>" method="get" name="search" id="search">
+
     <%
 	if(request.getParameter("individualDistanceSearch")!=null){
 	%>
@@ -210,7 +216,6 @@ if(compareAgainst.getGeneticSex()!=null){
 	}
     %>
 <table width="810px">
-
 <tr>
   <td width="810px">
 
@@ -414,7 +419,9 @@ function FSControl(controlDiv, map) {
 
     </script>
 
-    <div id="map">
+
+
+    <div id="map" style="display:none;">
       <p><%=props.getProperty("useTheArrow") %></p>
 
       <div id="map_canvas" style="width: 770px; height: 510px; ">
@@ -447,8 +454,51 @@ function FSControl(controlDiv, map) {
   pageContext.setAttribute("showAcousticTag", CommonConfiguration.showAcousticTag(context));
   pageContext.setAttribute("showSatelliteTag", CommonConfiguration.showSatelliteTag(context));
 %>
-  <tr id="FieldsTitleRow">
+
+  <tr>
+    <td>
+      <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
+        href="javascript:animatedcollapse.toggle('daterange')" style="text-decoration:none"><img
+        src="images/Black_Arrow_down.png" width="14" height="14" border="0" align="absmiddle"/> <font
+        color="#000000"><%=occProps.getProperty("dateRange") %></font></a></h4>
+    </td>
   </tr>
+	  	<!-- Begin search code for Observations --> 
+	<tr>
+		<td>
+      <div id="daterange" style="display:none; ">
+        <!-- Allow a key and value for each observation, allow user to add additional fields. -->
+        <p><%=occProps.getProperty("dateInstructions") %></p>
+        <p><strong><%=occProps.getProperty("timeRangeStart")%>:</strong></p>
+        <table>
+          <tr>
+            <input type="text" id="startDate" name="startTime" class="addDatePicker"/></td>
+          </tr>
+        </table>
+        <p><strong><%=occProps.getProperty("timeRangeEnd")%>:</strong></p>
+        <table>
+          <tr>
+            <input type="text" id="endDate" name="endTime" class="addDatePicker"/></td>
+          </tr>
+        </table>
+        <label>The occurrence gets it's sense of date from encounters. If the connected encounters have no 
+        date, or an improper one they will not be included in the search pool.</label>
+      </div>
+		</td>
+	</tr>	
+
+<script>
+  $(document).ready(function(){
+    $('.addDatePicker').datepicker({
+        changeMonth: true,
+        changeYear: true
+      }
+    );
+    console.log("Done setting datepickers!");
+  });     
+</script>
+
+
   <tr>
     <td>
       <h4 class="intro" style="background-color: #cccccc; padding:3px; border: 1px solid #000066; "><a
@@ -507,6 +557,11 @@ function FSControl(controlDiv, map) {
   <div id="metadata" style="display:none; ">
     <p><%=props.getProperty("metadataInstructions") %></p>
 
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+      <strong>Sighting Number</strong><br>
+      <input type="text" id="sightNo" name="sightNo"></input>  
+    </div>
+
     <strong><%=props.getProperty("username")%></strong><br />
         <%
           Shepherd inShepherd=new Shepherd("context0");
@@ -539,10 +594,6 @@ function FSControl(controlDiv, map) {
   </div>
 </td>
 </tr>
-
-
-
-
 <%
   myShepherd.rollbackDBTransaction();
 %>

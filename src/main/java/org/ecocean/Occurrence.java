@@ -163,6 +163,7 @@ public class Occurrence extends FoundationalPropertiesBase {
     }
     if(isNew){
       encounters.add(enc);
+      setMillisFromEncounterAvg();
       //updateNumberOfEncounters();
     }
     //if((locationID!=null) && (enc.getLocationID()!=null)&&(!enc.getLocationID().equals("None"))){this.locationID=enc.getLocationID();}

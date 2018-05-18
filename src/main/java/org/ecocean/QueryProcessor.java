@@ -243,7 +243,7 @@ public abstract class QueryProcessor {
     return sb.toString();
   }
   
-  public static String filterDateRanges(HttpServletRequest request, String filter, StringBuffer prettyPrint) {
+  protected static String filterDateRanges(HttpServletRequest request, String filter, StringBuffer prettyPrint) {
     String endTimeFrom = null;
     String endTimeTo = null;
     String startTimeFrom = null;
@@ -254,7 +254,7 @@ public abstract class QueryProcessor {
       if (request.getParameter("startTimeFrom")!=null&&request.getParameter("startTimeFrom").length()>8) {
         startTimeFrom = monthDayYearToMilli(request.getParameter("startTimeFrom"));
         // Crush date
-        String addition = " (startTime >=  "+startTimeFrom+") ";
+        String addition = " (startTime >= "+startTimeFrom+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -267,7 +267,7 @@ public abstract class QueryProcessor {
       if (request.getParameter("startTimeTo")!=null&&request.getParameter("startTimeTo").length()>8) {
         startTimeTo = monthDayYearToMilli(request.getParameter("startTimeTo"));
         // Crush date
-        String addition = " (startTime <=  "+startTimeTo+") ";
+        String addition = " (startTime <= "+startTimeTo+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -280,7 +280,7 @@ public abstract class QueryProcessor {
       if (request.getParameter("endTimeFrom")!=null&&request.getParameter("endTimeFrom").length()>8) {
         endTimeFrom = monthDayYearToMilli(request.getParameter("endTimeFrom"));
         // Crush date
-        String addition = " (endTime >=  "+endTimeFrom+") ";
+        String addition = " (endTime >= "+endTimeFrom+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -293,7 +293,7 @@ public abstract class QueryProcessor {
       if (request.getParameter("endTimeTo")!=null&&request.getParameter("endTimeFrom").length()>8) {
         endTimeTo = monthDayYearToMilli(request.getParameter("endTimeTo"));
         // Crush date
-        String addition = " (startTime <=  "+endTimeTo+") ";
+        String addition = " (startTime <= "+endTimeTo+") ";
         prettyPrint.append(addition);
         filter += addition;
       }      
@@ -313,7 +313,7 @@ public abstract class QueryProcessor {
    return filter;
  }
  
- private static String monthDayYearToMilli(String newDate) {
+ protected static String monthDayYearToMilli(String newDate) {
    System.out.println("This is the input date: "+newDate);
    SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");
    String month = newDate.substring(0,2);
