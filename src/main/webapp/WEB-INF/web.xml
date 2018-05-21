@@ -865,6 +865,10 @@
         <servlet-class>org.ecocean.servlet.export.SurveySearchExportAllData</servlet-class>
   </servlet>
 
+  <servlet>
+        <servlet-name>SurveyAddFile</servlet-name>
+        <servlet-class>org.ecocean.servlet.SurveyAddFile</servlet-class>
+  </servlet>
 
   <servlet>
     <servlet-name>EncounterSetTapirLinkExposure</servlet-name>
@@ -1470,6 +1474,11 @@
 <servlet-mapping>
   <servlet-name>SubmitSpotsAndImage</servlet-name>
   <url-pattern>/SubmitSpotsAndImage</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+  <servlet-name>SurveyAddFile</servlet-name>
+  <url-pattern>/SurveyAddFile</url-pattern>
 </servlet-mapping>
 
 <servlet-mapping>

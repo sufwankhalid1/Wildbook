@@ -1459,18 +1459,13 @@ $(document).ready(function() {
           }
           if (CommonConfiguration.isCatalogEditable(context)) {
         %>
-        <form action="IndividualAddFile" method="post"
-              enctype="multipart/form-data" name="addDataFiles"><input
-          name="action" type="hidden" value="fileadder" id="action"> <input
-          name="individual" type="hidden" value="<%=sharky.getName()%>"
-          id="individual">
-
-          <p><%=addDataFile %>:</p>
-
-          <p><input name="file2add" type="file" size="50"></p>
-
-          <p><input name="addtlFile" type="submit" id="addtlFile"
-                    value="<%=sendFile %>"></p></form>
+        <form action="IndividualAddFile" method="post" enctype="multipart/form-data" name="addDataFiles">
+          <input name="action" type="hidden" value="fileadder" id="action"> 
+          <input name="individual" type="hidden" value="<%=sharky.getName()%>" id="individual">
+            <p><%=addDataFile%>:</p>
+            <p><input name="newFile" type="file" size="50"></p>
+            <p><input name="addtlFile" type="submit" id="addtlFile" value="<%=sendFile%>"></p>
+          </form>
         <%
           }
 

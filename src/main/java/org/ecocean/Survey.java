@@ -338,6 +338,11 @@ public class Survey implements java.io.Serializable{
       dataFiles.remove(dataFile);
     }
   }
+
+  public Vector getDataFiles() {
+    return dataFiles;
+  }
+
   
   public ArrayList<Observation> getBaseObservationArrayList() {
     return observations;

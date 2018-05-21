@@ -277,7 +277,7 @@ if (sv!=null) {
 		<label class="response"></label>
 	</div>
 	
-<div id="surveyObservations">
+<div id="surveyObservations" class="col-md-6">
 
 <!-- Observations Column -->
 
@@ -394,7 +394,49 @@ if (sv!=null) {
 			</form>
 		</div>		
 	</div>			
+	<div id="surveyAddFile" class="col-md-6">
+			<%
+				if (isOwner) {
+			%>
+			<h2> 
+				<img align="absmiddle" src="../images/48px-Crystal_Clear_mimetype_binary.png" /> Additional Data Files
+			</h2>
+				<%if ((sv.getDataFiles()!=null)&&(sv.getDataFiles().size() > 0)) {%>
+			<table>
+			<%
+				Vector addtlFiles = sv.getDataFiles();
+				for (int pdq = 0; pdq < addtlFiles.size(); pdq++) {
+				String file_name = (String) addtlFiles.get(pdq);
+			%>
+			<tr>
+				<td><a href="/<%=CommonConfiguration.getDataDirectoryName(context) %>/surveys/<%=sv.getID()%>/<%=file_name%>"><%=file_name%></a></td>
+				<td>
+					&nbsp;&nbsp;&nbsp;[<a href="SurveyRemoveDataFile?survey=<%=sv.getID()%>&filename=<%=file_name%>">delete</a>]
+				</td>
+			</tr>
+
+			<%}%>
+			</table>
+			<%} else {%> None.
+			</p>
+			<%
+			}
+			if (CommonConfiguration.isCatalogEditable(context)) {
+				%>
+				<form action="../SurveyAddFile" method="post" enctype="multipart/form-data" name="addDataFiles">
+					<input name="action" type="hidden" value="fileadder" id="action"> 
+					<input name="survey" type="hidden" value="<%=sv.getID()%>" id="survey">
+					<p>Add Data File:</p>
+					<p><input name="file2add" type="file" size="50"></p>
+					<p><input name="addtlFile" type="submit" id="addtlFile" value="Send File"></p>
+				</form>
+				<%
+				}
+			}
+			%>
+	</div>
 </div>
+
 
 <script>
 $(document).ready(function() {
@@ -414,7 +456,6 @@ $(document).ready(function() {
 		$('.hideOccIDs').hide();
 	});
 });
-
 </script>
 <%
 myShepherd.closeDBTransaction();
