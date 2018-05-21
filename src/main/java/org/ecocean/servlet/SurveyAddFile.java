@@ -61,7 +61,7 @@ public class SurveyAddFile extends HttpServlet {
     String context="context0";
     context=ServletUtilities.getContext(request);
     Shepherd myShepherd = new Shepherd(context);
-    myShepherd.setAction("IndividualAddFile.class");
+    myShepherd.setAction("SurveyAddFile.class");
     
     //setup data dir
     String rootWebappPath = getServletContext().getRealPath("/");

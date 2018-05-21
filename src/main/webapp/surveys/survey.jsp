@@ -411,7 +411,7 @@ if (sv!=null) {
 			<tr>
 				<td><a href="/<%=CommonConfiguration.getDataDirectoryName(context) %>/surveys/<%=sv.getID()%>/<%=file_name%>"><%=file_name%></a></td>
 				<td>
-					&nbsp;&nbsp;&nbsp;[<a href="SurveyRemoveDataFile?survey=<%=sv.getID()%>&filename=<%=file_name%>">delete</a>]
+					&nbsp;&nbsp;&nbsp;[<a href="../SurveyRemoveDataFile?survey=<%=sv.getID()%>&filename=<%=file_name%>">delete</a>]
 				</td>
 			</tr>
 

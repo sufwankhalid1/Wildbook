@@ -870,6 +870,11 @@
         <servlet-class>org.ecocean.servlet.SurveyAddFile</servlet-class>
   </servlet>
 
+    <servlet>
+        <servlet-name>SurveyRemoveDataFile</servlet-name>
+        <servlet-class>org.ecocean.servlet.SurveyRemoveDataFile</servlet-class>
+  </servlet>
+
   <servlet>
     <servlet-name>EncounterSetTapirLinkExposure</servlet-name>
     <servlet-class>org.ecocean.servlet.EncounterSetTapirLinkExposure</servlet-class>
@@ -1479,6 +1484,11 @@
 <servlet-mapping>
   <servlet-name>SurveyAddFile</servlet-name>
   <url-pattern>/SurveyAddFile</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+  <servlet-name>SurveyRemoveDataFile</servlet-name>
+  <url-pattern>/SurveyRemoveDataFile</url-pattern>
 </servlet-mapping>
 
 <servlet-mapping>
