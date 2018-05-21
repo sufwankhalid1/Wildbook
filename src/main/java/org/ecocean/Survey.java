@@ -43,6 +43,8 @@ public class Survey implements java.io.Serializable{
   private String date;
   
   private ArrayList<Observation> observations = new ArrayList<Observation>();
+
+  private Vector<String> dataFiles = new Vector<>();
   
   //empty constructor used by the JDO enhancer
   public Survey(){}
@@ -309,7 +311,7 @@ public class Survey implements java.io.Serializable{
   }
   
   public String getStartDateTime() {
-    System.out.println("Start Time in Millis for SV: "+startTime);
+    //System.out.println("Start Time in Millis for SV: "+startTime);
     if (startTime!=null) {
       return milliToMonthDayYear(startTime);
     }
@@ -317,11 +319,24 @@ public class Survey implements java.io.Serializable{
   }
   
   public String getEndDateTime() {
-    System.out.println("End Time in Millis for SV: "+endTime);
+    //System.out.println("End Time in Millis for SV: "+endTime);
     if (endTime!=null) {
       return milliToMonthDayYear(endTime);      
     }
     return null;
+  }
+
+  public void addDataFile(String dataFile) {
+    if(dataFiles==null) {
+      dataFiles = new Vector();
+    }
+    dataFiles.add(dataFile);
+  }
+
+  public void removeDataFile(String dataFile) {
+    if(dataFiles!=null) {
+      dataFiles.remove(dataFile);
+    }
   }
   
   public ArrayList<Observation> getBaseObservationArrayList() {

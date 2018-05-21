@@ -1400,9 +1400,8 @@
     <servlet-name>OccurrenceSearchExportGtm</servlet-name>
     <servlet-class>org.ecocean.servlet.export.OccurrenceSearchExportGtm</servlet-class>
   </servlet>
-  
-  
-    <servlet-mapping>
+   
+  <servlet-mapping>
     <servlet-name>OccurrenceSearchExportGtm</servlet-name>
     <url-pattern>/OccurrenceSearchExportGtm</url-pattern>
   </servlet-mapping>
@@ -1431,7 +1430,6 @@
     <servlet-name>GenerateNOAAReport</servlet-name>
     <url-pattern>/GenerateNOAAReport</url-pattern>
   </servlet-mapping>
-
 
 <servlet-mapping>
 <servlet-name>WildbookApi</servlet-name>

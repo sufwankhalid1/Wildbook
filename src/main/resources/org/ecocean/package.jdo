@@ -58,6 +58,11 @@
         <join/>
       </field>
 
+      <field name="dataFiles" persistence-modifier="persistent" default-fetch-group="true">
+        <collection element-type="java.lang.String"/>
+        <join/>
+      </field>
+
       <fetch-group name="count"/>
     </class> 
   

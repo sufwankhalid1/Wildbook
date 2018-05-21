@@ -267,7 +267,13 @@ public class ImportBento extends HttpServlet {
       String fileName = standardizeFilename(file.getName());
       String fileKey = fileName.split("_")[0]+fileName.split("_")[1];
       try  {
+        
         //processBentoFocalFollow(file, myShepherd);
+
+        //This just needs to be download/swappable from the survey page. 
+        // Should we grab it and attach to an occurrence we create from sightings?  
+        // OR a survey from effort/survey log. 
+
       } catch (Exception e) {
         e.printStackTrace();
       }
