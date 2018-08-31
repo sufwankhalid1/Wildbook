@@ -74,10 +74,10 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
       
       <script type="text/javascript" src="<%=urlLoc %>/tools/hello/javascript/hello.all.js"></script>
       
-      <script type="text/javascript"  src="<%=urlLoc%>/JavascriptGlobals.js"></script>
+      <!-- <script type="text/javascript"  src="<%=urlLoc%>/JavascriptGlobals.js"></script> -->
       <script type="text/javascript"  src="<%=urlLoc%>/javascript/collaboration.js"></script>
       
-     <script src="https://a.vimeocdn.com/js/froogaloop2.min.js"></script>    
+     <!-- <script src="https://a.vimeocdn.com/js/froogaloop2.min.js"></script> -->    
   	<script src="<%=urlLoc %>/cust/mantamatcher/js/behaviour.js"></script>
  
   
