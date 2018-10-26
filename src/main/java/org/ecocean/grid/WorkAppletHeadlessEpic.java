@@ -45,8 +45,7 @@ public class WorkAppletHeadlessEpic {
   private int numMatches = 0;
   private static String version = "1.3";
 
-  //thread pool handling comparison threads
-  ThreadPoolExecutor threadHandler;
+
 
   //public static String thisURLRoot = "https://www.whaleshark.org";
   public static ArrayList<String> urlArray = new ArrayList<String>(); 
@@ -122,7 +121,7 @@ public class WorkAppletHeadlessEpic {
     //set up the random identifier for this "node"
     Random ran = new Random();
     int nodeIdentifier = ran.nextInt();
-    String nodeID = "Amazon_Consolidated_" + (new Integer(nodeIdentifier)).toString();
+    String nodeID = "Azure_Sevengill_" + (new Integer(nodeIdentifier)).toString();
 
 
     //if targeted on a specific task, show a percentage bar for progress
@@ -140,7 +139,7 @@ public class WorkAppletHeadlessEpic {
         
         //check the number of processors
         Runtime rt = Runtime.getRuntime();
-        int numProcessors = rt.availableProcessors();
+        int numProcessors = 2;
   
   
         System.out.println();
@@ -174,14 +173,15 @@ public class WorkAppletHeadlessEpic {
             
             //allow 55 minutes
             //update 2017-11-08 AWS now allows per-second billing, so limit this way down to maximum 180 seconds (two polling intervals)
-            long allowedDiff=3*60*1000;
+            //long allowedDiff=3*60*1000;
             
            
-            
+            //thread pool handling comparison threads
+            //ThreadPoolExecutor threadHandler;
             
             //set up our thread processor for each comparison thread
             ArrayBlockingQueue abq = new ArrayBlockingQueue(500);
-            threadHandler = new ThreadPoolExecutor(numProcessors, numProcessors, 0, TimeUnit.SECONDS, abq);
+            ThreadPoolExecutor threadHandler = new ThreadPoolExecutor(numProcessors, numProcessors, 0, TimeUnit.SECONDS, abq);
   
             boolean successfulConnect = true;
   
@@ -236,6 +236,7 @@ public class WorkAppletHeadlessEpic {
                 }
                 
                 successfulConnect=false;
+                /*
                 if (timeDiff<allowedDiff) {
   
                   Thread.sleep(sleepTime);
@@ -245,9 +246,12 @@ public class WorkAppletHeadlessEpic {
                 else {
                   System.out.println("\n\nI hit the timeout and am shutting down after "+(timeDiff/1000/60)+" minutes.");
                   inputFromServlet.close();
-                  System.exit(0);
+                  //System.exit(0);
                   
                 }
+                */
+                
+                Thread.sleep(sleepTime);
                 
               }
               inputFromServlet.close();
@@ -261,6 +265,8 @@ public class WorkAppletHeadlessEpic {
               //System.exit(0);
               //long currentTime=(new GregorianCalendar()).getTimeInMillis();
               //long timeDiff=currentTime-startTime;
+              
+              /*
               if (timeDiff<allowedDiff) {
   
                 Thread.sleep(sleepTime);
@@ -268,8 +274,10 @@ public class WorkAppletHeadlessEpic {
                 
               }
               else {
-                System.exit(0);
+                //System.exit(0);
               }
+              */
+              Thread.sleep(sleepTime);
               
             }
   
@@ -285,6 +293,7 @@ public class WorkAppletHeadlessEpic {
                   //waiting for last workItem to finish elsewhere, wait quietly and check later
                   //long currentTime=(new GregorianCalendar()).getTimeInMillis();
                   //long timeDiff=currentTime-startTime;
+                  /*
                   if ((swi.getTotalWorkItemsInTask() == -1)&&(timeDiff<allowedDiff)) {
   
                     Thread.sleep(sleepTime);
@@ -292,9 +301,10 @@ public class WorkAppletHeadlessEpic {
                     
                   }
                   else {
-                    System.exit(0);
+                    //System.exit(0);
   
-                  }
+                  }*/
+                  Thread.sleep(sleepTime);
   
                 } 
                 catch (NullPointerException npe) {
@@ -451,7 +461,7 @@ public class WorkAppletHeadlessEpic {
           catch (OutOfMemoryError oome) {
             //oome.printStackTrace();
             //hb.setFinished(true);
-            System.exit(0);
+            //System.exit(0);
   
           } catch (Exception e) {
             e.printStackTrace();
@@ -465,10 +475,10 @@ public class WorkAppletHeadlessEpic {
       System.out.println("I hit an Exception while trying to create the recoverURL for OutOfMemoryErrors");
       //mue.printStackTrace();
       mue.printStackTrace();
-      System.exit(0);
+      //System.exit(0);
 
     }
-    System.exit(0);
+    //System.exit(0);
   }        //end getGoing method
 
 
