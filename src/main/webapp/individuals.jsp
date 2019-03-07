@@ -1429,6 +1429,9 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
         <%-- End Encounter Table --%>
 
         <!-- Start genetics -->
+        <%
+        if(request.getRemoteUser()!=null){
+        %>
         <div id="bioSamplesTable">
           <a name="tissueSamples"></a>
           <p>
@@ -1533,6 +1536,11 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
                               %>
         </div>
         <!-- End genetics -->
+        
+        <%
+    	}
+        %>
+        
       </div>
       <br></br>
 

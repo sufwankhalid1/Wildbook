@@ -2354,7 +2354,9 @@ if(enc.getLocation()!=null){
         </div>
 <%-- END CONTACT INFORMATION --%>
 
-
+<%
+if(request.getUserPrincipal()!=null){
+%>
 <%-- START METADATA --%>
 <table>
 <tr>
@@ -2788,6 +2790,9 @@ if (isOwner) {
 </td>
 </tr>
 </table>
+<%
+}
+%>
 
 
 <%
@@ -2960,6 +2965,10 @@ else {
 %>
 
 </c:if>
+
+<%
+if(request.getUserPrincipal()!=null){
+%>
 
 <table>
 <tr>
@@ -3202,6 +3211,9 @@ else {
 </td>
 </tr>
 </table>
+<%
+} 
+%>
 
       <div id="dialogOccurrence" title="<%=encprops.getProperty("assignOccurrence")%>" style="display:none"></div>
 
