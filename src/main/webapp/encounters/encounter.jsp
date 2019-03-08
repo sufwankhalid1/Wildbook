@@ -1133,11 +1133,7 @@ if(enc.getLocation()!=null){
  		<div id="map_canvas" style="width: 510px; height: 350px; overflow: hidden;"></div>
  	<%
  	}
- 	else {
- 	%>
- 	<p><%=encprops.getProperty("nomap") %></p>
- 	<%
- 	}
+
  	%>
  	<!-- adding ne submit GPS-->
 

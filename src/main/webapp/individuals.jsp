@@ -1413,9 +1413,15 @@ for (Encounter enJ : sharky.getDateSortedEncounters()) {
             <li id="encountersTableTab"  class="active">
               <a href="#encountersTable"><%=sharky.totalEncounters()%> <%=numencounters %></a>
             </li>
+            <%
+        	if(request.getRemoteUser()!=null){
+        	%>
             <li id="bioSamplesTableTab">
               <a href="#bioSamplesTable"><%=props.getProperty("tissueSamples") %></a>
             </li>
+            <%
+        	}
+            %>
           </ul>
         </div>
 
