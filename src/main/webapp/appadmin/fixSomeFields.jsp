@@ -25,42 +25,31 @@ Shepherd myShepherd=new Shepherd(context);
 
 
 <body>
-<<<<<<< HEAD
-<p>Removing all workspaces.</p>
-=======
 
->>>>>>> origin/crc
 <ul>
 <%
 
 myShepherd.beginDBTransaction();
 try{
 	
-    List<String> encs=null;
-    String filter="SELECT DISTINCT catalogNumber FROM org.ecocean.Encounter";  
-    Query query=myShepherd.getPM().newQuery(filter);
-    Collection c = (Collection) (query.execute());
-    encs=new ArrayList<String>(c);
-    query.closeAll();
-    %>
-    <li><%=encs.toString() %></li>
-	<%
 
-	Iterator allEncs=myShepherd.getAllMarkedIndividuals();
+
+	Iterator allEncs=myShepherd.getAllEncounters();
 	
 
 
 	while(allEncs.hasNext()){
 		
-		MarkedIndividual enc=(MarkedIndividual)allEncs.next();
-		enc.refreshDependentProperties(context);
+		Encounter enc=(Encounter)allEncs.next();
+		enc.setGenus("Spilogale");
+		//enc.refreshDependentProperties(context);
 		myShepherd.commitDBTransaction();
 		myShepherd.beginDBTransaction();
 
 	}
 	myShepherd.rollbackDBTransaction();
 	
->>>>>>> origin/crc
+
 }
 catch(Exception e){
 	myShepherd.rollbackDBTransaction();
@@ -73,11 +62,10 @@ finally{
 %>
 
 </ul>
-<<<<<<< HEAD
-<p>Done successfully: <%=numFixes %> workspaces deleted.</p>
-=======
-<p>Done successfully: <%=numFixes %></p>
 
->>>>>>> origin/crc
+
+<p>Done successfully</p>
+
+
 </body>
 </html>

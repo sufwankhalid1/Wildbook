@@ -658,8 +658,10 @@ System.out.println("tissueSampleID=(" + tissueSampleID + ")");
 	  try {
 	  	ma = astore.copyIn(f, assetParams);
 	  } catch (java.io.IOException ioEx) {
+	    ioEx.printStackTrace();
 	  	System.out.println("IOException creating MediaAsset for file "+fullPath);
 	  	missingPhotos.add(fullPath);
+	  	return null;
 	  }
 
 	  // keywording
