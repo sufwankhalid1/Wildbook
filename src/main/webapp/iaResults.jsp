@@ -17,7 +17,7 @@ if (request.getParameter("acmId") != null) {
 	Shepherd myShepherd = new Shepherd(context);
 	myShepherd.setAction("matchResults.jsp1");
 	myShepherd.beginDBTransaction();
-    ArrayList<Annotation> anns = null;
+       	ArrayList<Annotation> anns = null;
 	JSONObject rtn = new JSONObject("{\"success\": false}");
 	//Encounter enc = null;
 	try {
@@ -28,6 +28,14 @@ if (request.getParameter("acmId") != null) {
 	} else {
             JSONArray janns = new JSONArray();
             for (Annotation ann : anns) {
+                JSONObject jann = new JSONObject();
+                jann.put("id", ann.getId());
+                jann.put("acmId", ann.getAcmId());
+		MediaAsset ma = ann.getMediaAsset();
+		if (ma != null) {
+			jann.put("asset", Util.toggleJSONObject(ma.sanitizeJson(request, new org.datanucleus.api.rest.orgjson.JSONObject())));
+		}
+                janns.put(jann);
 				if (ann.getMatchAgainst()==true) {
 					JSONObject jann = new JSONObject();
 					jann.put("id", ann.getId());
@@ -156,7 +164,6 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 <jsp:include page="header.jsp" flush="true" />
 
 <div class="container maincontent">
-
 </div>
 
 <jsp:include page="footer.jsp" flush="true"/>
@@ -178,8 +185,6 @@ var tasks = {};
 var jobIdMap = {};
 var timers = {};
 var matchInstructions = 'Select <b>correct match</b> from results below by <i>hovering</i> over result and checking the <i>checkbox</i>.';
-
-
 function init2() {   //called from wildbook.init() when finished
 	$('.nav-bar-wrapper').append('<div id="encounter-info"><div class="enc-title" /></div>');
 	parseTaskIds();
@@ -215,18 +220,13 @@ function init2() {   //called from wildbook.init() when finished
 		}
 	},4000);
 }
-
-
 $(document).ready(function() { wildbook.init(function() { init2(); }); });
-
-
 function parseTaskIds() {
 	var a = window.location.search.substring(1).split('&');
 	for (var i = 0 ; i < a.length ; i++) {
 		if (a[i].indexOf('taskId=') == 0) taskIds.push(a[i].substring(7));
 	}
 }
-
 function tryTaskId(tid) {
     wildbook.IA.fetchTaskResponse(tid, function(x) {
         if ((x.status == 200) && x.responseJSON && x.responseJSON.success && x.responseJSON.task) {
@@ -238,13 +238,9 @@ function tryTaskId(tid) {
         }
     });
 }
-
-
 function getCachedTask(tid) {
     return tasks[tid];
 }
-
-
 function cacheTaskAndChildren(task) {
     if (!task || !task.id || tasks[task.id]) return;
     tasks[task.id] = task;
@@ -261,10 +257,12 @@ function processTask(task) {
     //now we get the DOM element
     //  note: this recurses, so our "one" element should have nested children element for child task(s)
     wildbook.IA.getDomResult(task, function(t, res) {
-		$('.maincontent').append(res);
+        $('.maincontent').append(res);
         grabTaskResultsAll(task);
     });
 }
+
+
 
 //calls grabTaskResult() on all appropriate nodes in tree
 //  note there is no callback -- that is because this ultimately is expecting to put contents in
@@ -294,8 +292,7 @@ function grabTaskResult(tid) {
 		type: 'GET',
 		dataType: 'json',
 		success: function(d) {
-			$('#wait-message-' + tid).remove();  //in case it already exists from previous
-			
+		    $('#wait-message-' + tid).remove();  //in case it already exists from previous
 console.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> got %o on task.id=%s', d, tid);
                     $('#task-debug-' + tid).append('<br /><b>iaLogs returned:</b>\n\n' + JSON.stringify(d, null, 4));
 			for (var i = 0 ; i < d.length ; i++) {
@@ -516,7 +513,7 @@ function displayAnnotDetails(taskId, res, num, illustrationUrl) {
 	}
         /*
             we may have gotten more than one annot back from the acmId, so we have to account for them all.  currently we handle
-			this as follows:
+            this as follows:
             (a) if it is the query annot, we *should* be able to find the id of the annot by looking at task.annotationIds.
             (b) if we cannot, or if target/dict annots, then we collect data about *all* possibly annots and show that
         */
@@ -546,9 +543,7 @@ function displayAnnotDetails(taskId, res, num, illustrationUrl) {
 		$('#initial-waiter').remove();
             }
         }
-
         if (mainAnnId) $('#task-' + taskId + ' .annot-summary-' + acmId).data('annid', mainAnnId);  //TODO what if this fails?
-
         if (mainAsset) {
 console.info('mainAsset -> %o', mainAsset);
 console.info('illustrationUrl '+illustrationUrl);
@@ -566,8 +561,7 @@ console.info('illustrationUrl '+illustrationUrl);
                 if (j > -1) fn = fn.substring(j + 1);
                 imgInfo += ' ' + fn + ' ';
             }
-			var ft = findMyFeature(acmId, mainAsset);
-			
+            var ft = findMyFeature(acmId, mainAsset);
             if (ft) {
                 var encId = ft.encounterId;
                 var indivId = ft.individualId;
@@ -888,5 +882,4 @@ function approveNewIndividual(el) {
 
 
 </script>
-
 
