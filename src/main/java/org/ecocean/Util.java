@@ -28,6 +28,9 @@ import net.jpountz.xxhash.XXHashFactory;
 import net.jpountz.xxhash.StreamingXXHash32;
 import net.jpountz.xxhash.XXHash32;
 
+import org.apache.commons.lang3.StringUtils;
+import java.util.regex.Pattern;
+
 
 //EXIF-related imports
 import java.io.File;
