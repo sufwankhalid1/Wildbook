@@ -92,8 +92,6 @@ String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
       <script type="text/javascript"  src="<%=urlLoc %>/javascript/multipleSubmit/form.multipleSubmit.js"></script>
       <script type="text/javascript"  src="<%=urlLoc %>/javascript/multipleSubmit/ui.multipleSubmit.js"></script>
        <script type="text/javascript"  src="<%=urlLoc %>/javascript/multipleSubmit/api.multipleSubmit.js"></script>
-
-      <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
       
       
       <script type="text/javascript"  src="<%=urlLoc %>/JavascriptGlobals.js"></script>
