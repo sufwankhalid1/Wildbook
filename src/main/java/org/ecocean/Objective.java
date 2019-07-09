@@ -105,6 +105,7 @@ public class Objective implements java.io.Serializable {
         if (stat.optBoolean("complete", false)) return;  //if a high up task is marked complete, we dont traverse (and are done)
 System.out.println(((task.getParent() == null) ? "ROOT=" : task.getParent().getId() + " > ") + task.getId() + " NOT complete in Objective.traverseTask(); digging deeper.....");
 
+        stat.put("complete", false);  //assume the worst
         String sid = stat.optString("id", null);
         if (sid == null) {
             stat.put("id", task.getId());
@@ -137,27 +138,54 @@ System.out.println(((task.getParent() == null) ? "ROOT=" : task.getParent().getI
 
         JSONArray log = stat.optJSONArray("log");
         if (log == null) log = new JSONArray();
+
+///////////// this is fake stuff!!!
+        double conf = Math.random();
+        JSONObject l = new JSONObject();
+        l.put("msgKey", "logOk");
+        JSONArray mp = new JSONArray();
+        if (conf > 0.8) {
+            mp.put("Task magically complete due to high (random) confidence!");
+            stat.put("complete", true);
+        } else {
+            mp.put("Faux text substitution parameter " + Util.generateUUID());
+        }
+        l.put("msgParams", mp);
+        l.put("confidence", conf);
+        l.put("time", System.currentTimeMillis());
+        l.put("url", "/?something");
+        l.put("progressPercent", 0.3);
+        l.put("progressRemainMinutesApprox", 999);
+        l.put("queuePosition", 3);
+        l.put("priority", 0);
+        log.put(l);
+//////////////////
+
+
         /// DO SOMETHING HERE !!!  FIXME
 
+        stat.put("log", log);
         if (!task.hasChildren()) return;
 
+        boolean childrenAllComplete = true;  //prove me wrong!
         JSONArray tasksStat = stat.optJSONArray("tasks");
-System.out.println("******* tasksStat[" + task.getId() + "] => " + tasksStat);
+//System.out.println("******* tasksStat[" + task.getId() + "] => " + tasksStat);
         if (tasksStat == null) tasksStat = new JSONArray();
         for (Task childTask : task.getChildren()) {
             JSONObject childStat = new JSONObject();
             int statOffset = -1;
             for (int i = 0 ; i < tasksStat.length() ; i++) {
-System.out.println(i + " ==> " + tasksStat.optJSONObject(i));
+//System.out.println(i + " ==> " + tasksStat.optJSONObject(i));
                 if ((tasksStat.optJSONObject(i) == null) ||
                     (tasksStat.getJSONObject(i).optString("id", null) == null) ||
                     !tasksStat.getJSONObject(i).getString("id").equals(childTask.getId()) ) continue;
                 //if we get here, we found the status corresponding to our task
                 statOffset = i;
                 childStat = tasksStat.getJSONObject(i);
-System.out.println("got statOffset=" + i + " for childTask=" + childTask.getId());
+//System.out.println("got statOffset=" + i + " for childTask=" + childTask.getId());
                 break;
             }
+            childrenAllComplete &= childStat.optBoolean("complete", false);
             traverseTask(childTask, childStat);
             if (statOffset < 0) {
                 tasksStat.put(childStat);
@@ -166,6 +194,7 @@ System.out.println("got statOffset=" + i + " for childTask=" + childTask.getId()
             }
         }
         stat.put("tasks", tasksStat);
+        stat.put("complete", childrenAllComplete);
     }
 
 /*
@@ -194,7 +223,8 @@ System.out.println("got statOffset=" + i + " for childTask=" + childTask.getId()
         j.put("createdDate", new DateTime(created));
         j.put("modifiedDate", new DateTime(modified));
         j.put("complete", complete);
-        j.put("status", this.getStatus());
+        j.put("rootTask", (task == null) ? null : task.getId());
+        //j.put("status", this.getStatus());
         return j;
     }
 

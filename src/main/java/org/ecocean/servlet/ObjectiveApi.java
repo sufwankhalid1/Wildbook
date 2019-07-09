@@ -123,7 +123,7 @@ public class ObjectiveApi extends HttpServlet {
         }
 */
 
-
+        rtn.put("_currentServerTime", System.currentTimeMillis());
         return rtn.toString();
     }
 }
