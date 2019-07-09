@@ -861,5 +861,28 @@
 		</field>
 	</class>
 
+
+	<class name="Objective" identity-type="application" cacheable="false" >
+		<field name="id" primary-key="true">
+        		<column length="36"/>
+		</field>
+		<field name="status" persistence-modifier="persistent">
+			<column jdbc-type="LONGVARCHAR"/>
+		</field>
+		<field name="created">
+			<index name="OBJECTIVE_CREATED_idx" />
+		</field>
+		<field name="modified">
+			<index name="OBJECTIVE_MODIFIED_idx" />
+		</field>
+
+<!--
+            	<field name="children" persistence-modifier="persistent" default-fetch-group="false" mapped-by="parent" >
+                	<collection element-type="org.ecocean.ia.Task" dependent-element="true" />
+                	<join />
+            	</field>
+-->
+	</class>
+
   </package>
 </jdo>
