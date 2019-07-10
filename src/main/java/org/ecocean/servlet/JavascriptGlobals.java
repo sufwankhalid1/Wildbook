@@ -65,7 +65,7 @@ public class JavascriptGlobals extends HttpServlet {
     Shepherd myShepherd = new Shepherd(context);
     myShepherd.setAction("JavascriptGlobals.class1");
     
-		String username = ((request.getUserPrincipal() == null) ? "" : request.getUserPrincipal().getName());
+    User user = AccessControl.getUser(request, myShepherd);
 
 		String langCode = ServletUtilities.getLanguageCode(request);
 		//Properties props = new Properties();
@@ -74,7 +74,13 @@ public class JavascriptGlobals extends HttpServlet {
 		HashMap rtn = new HashMap();
 
 		rtn.put("context", context);
-		rtn.put("username", username);
+                if (user == null) {
+		    rtn.put("username", null);
+		    rtn.put("user", null);
+                } else {
+		    rtn.put("username", user.getUsername());
+                    rtn.put("user", user.toJSONObjectPrivate());  //FIXME this makes an extra layer of .map.foo, ugh! gson<->jsonobject
+                }
                 rtn.put("sessionIsHuman", ReCAPTCHA.sessionIsHuman(request));
 		rtn.put("langCode", langCode);
 		rtn.put("baseUrl", request.getContextPath());
