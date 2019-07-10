@@ -236,6 +236,7 @@ System.out.println(((task.getParent() == null) ? "ROOT=" : task.getParent().getI
         j.put("modifiedDate", new DateTime(modified));
         j.put("complete", complete);
         j.put("status", this.getStatus());
+        j.put("owner", (owner == null) ? (String)null : owner.toJSONObject());
         return j;
     }
 

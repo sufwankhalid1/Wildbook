@@ -22,10 +22,11 @@ package org.ecocean.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-//import javax.jdo.Query;
+import javax.jdo.Query;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,6 +44,7 @@ import org.ecocean.media.MediaAsset;
 import org.ecocean.MarkedIndividual;
 import org.ecocean.AccessControl;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 /*
 import org.apache.commons.lang3.StringUtils;
@@ -80,7 +82,7 @@ public class ObjectiveApi extends HttpServlet {
             jsonIn.put("id", request.getParameter("id"));
         }
 
-        String rtn = process(jsonIn, myShepherd);
+        String rtn = process(jsonIn, myShepherd, request);
 
         myShepherd.rollbackDBTransaction();
 
@@ -90,23 +92,43 @@ public class ObjectiveApi extends HttpServlet {
         out.close();
     }
 
-    public String process(JSONObject jsonIn, Shepherd myShepherd) {
+    public String process(JSONObject jsonIn, Shepherd myShepherd, HttpServletRequest request) {
         if (jsonIn == null) throw new RuntimeException("null jsonIn");
 
-/*
-        //TODO we could make this check owner of Encounter(s) etc etc
         User user = AccessControl.getUser(request, myShepherd);
         boolean isAdmin = false;
-        if (user != null) isAdmin = myShepherd.doesUserHaveRole(user.getUsername(), "admin", context);
-        if (!isAdmin) {
-            response.sendError(401, "access denied");
-            response.setContentType("text/plain");
-            out.println("access denied");
-        }
-*/
+        if (user != null) isAdmin = myShepherd.doesUserHaveRole(user.getUsername(), "admin", myShepherd.getContext());
 
         JSONObject rtn = new JSONObject("{\"success\": false}");
+        if (user == null) {
+            rtn.put("error", "current design requires login");
+            return rtn.toString();
+        }
+
         String id = jsonIn.optString("id", null);
+        rtn.put("_currentServerTime", System.currentTimeMillis());
+
+        //we should have other options here, like timeframes or completeness, IDs only, etc...
+        if (id == null) {  //listing
+            String jdoql = "SELECT FROM org.ecocean.Objective";
+            //TODO make it so admin can see all users
+            jdoql += " WHERE owner.uuid == '" + user.getUUID() + "'";
+            
+            Query query = myShepherd.getPM().newQuery(jdoql);
+            query.setOrdering("created");  //modified?
+            //query.setRange(......)
+            Collection c = (Collection) (query.execute());
+            List<Objective> objs = new ArrayList<Objective>(c);
+            query.closeAll();
+            JSONArray jo = new JSONArray();
+            for (Objective obj : objs) {
+                jo.put(obj.toJSONObject());
+            }
+            rtn.put("objectives", jo);
+            rtn.put("success", true);
+            return rtn.toString();
+        }
+
         Objective obj = Objective.load(id, myShepherd);
         if (obj == null) {
             rtn.put("error", "invalid Objective id=" + id);
@@ -123,7 +145,6 @@ public class ObjectiveApi extends HttpServlet {
         }
 */
 
-        rtn.put("_currentServerTime", System.currentTimeMillis());
         return rtn.toString();
     }
 }
