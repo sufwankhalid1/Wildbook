@@ -79,9 +79,18 @@ public class Objective implements java.io.Serializable {
     }
 
     //this does the magic of populating the status
+    //  normally this bails and does nothing if complete, but you can force by passing true
     public JSONObject updateStatus() {
+        return updateStatus(false);
+    }
+    public JSONObject updateStatus(boolean force) {
         JSONObject stat = this.getStatus();
         if (stat == null) stat = new JSONObject();
+        if (this.complete && !force) {
+            stat.put("_updateSkippedBecauseComplete", System.currentTimeMillis());
+            return stat;
+        }
+        if (force && this.complete) stat.put("_updateForcedOnCompleted", System.currentTimeMillis());
         JSONObject taskStat = new JSONObject();
         //this assumes we only have one root task
         if ((stat.optJSONArray("tasks") != null) && (stat.getJSONArray("tasks").length() > 0) && (stat.getJSONArray("tasks").optJSONObject(0) != null)) {
