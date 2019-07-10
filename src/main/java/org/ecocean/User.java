@@ -7,6 +7,8 @@ import org.ecocean.SinglePhotoVideo;
 import org.ecocean.servlet.ServletUtilities;
 import org.joda.time.DateTime;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.json.JSONObject;
+import org.json.JSONArray;
 
 /**
  * <code>User</code> stores information about a contact/user.
@@ -318,6 +320,23 @@ public class User implements Serializable {
         return uuid.hashCode();
     }
 
+    //this is "public" (no sensitive info)
+    public JSONObject toJSONObject() {
+        JSONObject u = new JSONObject();
+        u.put("uuid", uuid);
+        //u.put("displayName", this.getDisplayName());   THESE TWO AFTER MASTER MERGE  FIXME
+        //JSONArray of organizations
+        u.put("username", username);  //TODO is this really public?  seems to be implied as such by much of wildbook
+        u.put("fullName", fullName);
+        return u;
+    }
+    //this is meant for users eyes only
+    public JSONObject toJSONObjectPrivate() {
+        JSONObject u = this.toJSONObject();
+        u.put("emailAddress", emailAddress);
+        //what else?
+        return u;
+    }
 
     public String toString() {
         return new ToStringBuilder(this)
