@@ -90,6 +90,9 @@ public class Objective implements java.io.Serializable {
         traverseTask(this.task, taskStat);  //this uses and modifies taskStat
         JSONArray t = new JSONArray();
         t.put(taskStat);
+        int ct = stat.optInt("updateCount", 0);
+        stat.put("updateCount", ct + 1);
+        stat.put("updateTime", System.currentTimeMillis());
         stat.put("tasks", t);
         this.setStatus(stat);
         this.updateModified();
@@ -144,7 +147,7 @@ System.out.println(((task.getParent() == null) ? "ROOT=" : task.getParent().getI
         JSONObject l = new JSONObject();
         l.put("msgKey", "logOk");
         JSONArray mp = new JSONArray();
-        if (conf > 0.8) {
+        if ((conf > 0.8) && !task.hasChildren()) {  //fake leaf nodes as complete to test bubbling up
             mp.put("Task magically complete due to high (random) confidence!");
             stat.put("complete", true);
         } else {
@@ -185,8 +188,8 @@ System.out.println(((task.getParent() == null) ? "ROOT=" : task.getParent().getI
 //System.out.println("got statOffset=" + i + " for childTask=" + childTask.getId());
                 break;
             }
-            childrenAllComplete &= childStat.optBoolean("complete", false);
             traverseTask(childTask, childStat);
+            childrenAllComplete &= childStat.optBoolean("complete", false);
             if (statOffset < 0) {
                 tasksStat.put(childStat);
             } else {
@@ -223,8 +226,7 @@ System.out.println(((task.getParent() == null) ? "ROOT=" : task.getParent().getI
         j.put("createdDate", new DateTime(created));
         j.put("modifiedDate", new DateTime(modified));
         j.put("complete", complete);
-        j.put("rootTask", (task == null) ? null : task.getId());
-        //j.put("status", this.getStatus());
+        j.put("status", this.getStatus());
         return j;
     }
 
@@ -234,6 +236,7 @@ System.out.println(((task.getParent() == null) ? "ROOT=" : task.getParent().getI
                 .append(id)
                 .append("complete=" + complete)
                 .append("(" + new DateTime(created) + "|" + new DateTime(modified) + ")")
+                .append("rootTask=" + ((task == null) ? "null" : task.getId()))
                 .toString();
     }
 
