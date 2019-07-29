@@ -1042,7 +1042,8 @@ System.out.println("iaCheckMissing -> " + tryAgain);
         String taskID = "_UNKNOWN_";
         if (task != null) taskID = task.getId();  //"should never happen"
         log(taskID, jobID, new JSONObject("{\"_action\": \"initIdentify\"}"), myShepherd.getContext());
-        
+        String curvrankDailyTag = null;
+
         try {
             for (Annotation ann : qanns) {
                 if (validForIdentification(ann, myShepherd.getContext())) {
@@ -1060,6 +1061,7 @@ System.out.println("iaCheckMissing -> " + tryAgain);
                 String iaClass = qanns.get(0).getIAClass();
 System.out.println("beginIdentifyAnnotations(): have to set tanns. Matching set being built from the first ann in the list.");
                 tanns = qanns.get(0).getMatchingSet(myShepherd, (task == null) ? null : task.getParameters());
+                curvrankDailyTag = qanns.get(0).getCurvrankDailyTag((task == null) ? null : task.getParameters());
             }
 
 System.out.println("- mark 2");
@@ -1080,6 +1082,11 @@ System.out.println("- mark 2");
                 System.out.println("                               ... qanns has: "+qanns.size()+" ... taans has: "+tanns.size());
             } else {
                 System.out.println("                               ... qanns has: "+qanns.size()+" ... taans is null! Target is all annotations.");
+            }
+
+            if (curvrankDailyTag != null) {
+                if (queryConfigDict == null) queryConfigDict = new JSONObject();
+                queryConfigDict.put("curvrank_daily_tag", curvrankDailyTag);
             }
 
             //this should attempt to repair missing Annotations
@@ -1453,6 +1460,20 @@ System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " [with n
         myShepherd.getPM().makePersistent(enc);
         if (occ != null) myShepherd.getPM().makePersistent(occ);
 System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " on Encounter " + enc.getCatalogNumber());
+        //this is to tell IA to update species on the newly-created annot on its side
+        String taxonomyString = enc.getTaxonomyString();
+        if (Util.stringExists(taxonomyString)) {
+            List<String> uuids = new ArrayList<String>();
+            List<String> species = new ArrayList<String>();
+            uuids.add(ann.getAcmId());
+            species.add(taxonomyString);
+            try {
+                iaUpdateSpecies(uuids, species, context);
+            } catch (Exception ex) {
+                System.out.println("ERROR: iaUpdateSpecies() failed! " + ex.toString());
+                ex.printStackTrace();
+            }
+        }
         return ann;
     }
 
@@ -2821,6 +2842,24 @@ System.out.println(">>>>>>>> sex -> " + rtn);
         JSONObject rtn = RestClient.post(iaURL(context, "/api/labeler/cnn/json/"), data);
         if ((rtn == null) || (rtn.optJSONArray("response") == null)) throw new RuntimeException("could not get viewpoint from annot uuid=" + uuid);
         return rtn.getJSONArray("response").optJSONObject(0);
+    }
+
+    public static void iaUpdateSpecies(List<String> uuids, List<String> species, String context) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+        if (Util.collectionIsEmptyOrNull(uuids) || Util.collectionIsEmptyOrNull(species)) {
+            System.out.println("WARNING: iaUpdateSpecies() received empty uuids/species; ignoring");
+            return;
+        }
+        if (uuids.size() != species.size()) {
+            System.out.println("WARNING: iaUpdateSpecies() has mismatched uuids/species lengths! ignoring");
+            return;
+        }
+        JSONArray idList = new JSONArray();
+        JSONArray speciesList = new JSONArray();
+        for (int i = 0 ; i < uuids.size() ; i++) {
+            idList.put(toFancyUUID(uuids.get(i)));
+            speciesList.put(species.get(i).replaceAll(" ", "_").toLowerCase());
+        }
+        JSONObject rtn = RestClient.put(iaURL(context, "/api/annot/species/json/?annot_uuid_list=" + idList.toString() + "&species_text_list=" + speciesList.toString()), null);
     }
 
 //http://104.42.42.134:5010/api/image/uri/original/json/?image_uuid_list=[{%22__UUID__%22:%2283e2439f-d112-1084-af4a-4fa9a5094e0d%22}]

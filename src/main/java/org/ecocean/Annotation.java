@@ -421,7 +421,8 @@ public class Annotation implements java.io.Serializable {
 
     public String getSpecies(Shepherd myShepherd) {
         Encounter enc = this.findEncounter(myShepherd);
-        return enc.getGenus()+" "+enc.getSpecificEpithet();
+        if (enc == null) return null;
+        return enc.getTaxonomyString();
     }
 
     public String getIAClass() {
@@ -717,6 +718,7 @@ System.out.println("[1] getMatchingSet params=" + params);
     }
 
     //note, we are give *full* task.parameters; by convention, we only act on task.parameters.matchingSetFilter
+    // > > > ATTENTION!  if you change this method, please also adjust accordingly getCurvrankDailyTag() below!! < < <
     private String getMatchingSetFilterFromParameters(JSONObject taskParams) {
         if (taskParams == null) return "";
         String userId = taskParams.optString("userId", null);
@@ -752,6 +754,49 @@ System.out.println("[1] getMatchingSet params=" + params);
         }
 
         return f;
+    }
+
+    /*
+        sorta weird to have this in here, but it is inherently linked with getMatchingSetXXX() above ...
+        this is a string that uniquely identifies the matchingSet, dependent of content (e.g. cant be based on content uuids)
+    */
+    public String getCurvrankDailyTag(JSONObject taskParams) {
+        if (taskParams == null) return null;
+        String userId = taskParams.optString("userId", null);
+        JSONObject j = taskParams.optJSONObject("matchingSetFilter");
+        if (j == null) return null;
+        String tag = "";
+
+        //currently we have only owner=me, which requires a userId
+        JSONArray owner = j.optJSONArray("owner");
+        boolean mineOnly = false;
+        if ((owner != null) && (userId != null)) {
+            for (int i = 0 ; i < owner.length() ; i++) {
+                if ("me".equals(owner.optString(i, null))) mineOnly = true;
+            }
+        }
+        if (mineOnly) {
+            tag += "user:" + userId;
+        } else {
+            tag += "user:ANY";
+        }
+
+        //now locations, which we want sorted and lowercase, to ensure consistency in multi-value names
+        List<String> locs = new ArrayList<String>();
+        if (j.optString("locationId", null) != null) locs.add(j.getString("locationId"));
+        JSONArray larr = j.optJSONArray("locationIds");
+        if (larr != null) {
+            for (int i = 0 ; i < larr.length() ; i++) {
+                String val = larr.optString(i, null);
+                if ((val != null) && !locs.contains(val)) locs.add(val);
+            }
+        }
+        if (locs.size() > 0) {
+            Collections.sort(locs);
+            tag += ";locs:" + String.join(",", locs);
+        }
+
+        return tag;
     }
 
     public String findIndividualId(Shepherd myShepherd) {
