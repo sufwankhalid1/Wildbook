@@ -523,6 +523,11 @@
       <servlet-class>org.ecocean.servlet.EncounterSetGenusSpecies</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>EncounterVMData</servlet-name>
+    <servlet-class>org.ecocean.servlet.EncounterVMData</servlet-class>
+  </servlet>
+
     <servlet>
       <servlet-name>EncounterSetVerbatimEventDate</servlet-name>
       <servlet-class>org.ecocean.servlet.EncounterSetVerbatimEventDate</servlet-class>
@@ -1946,12 +1951,6 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>EncounterVMData</servlet-name>
-    <url-pattern>/EncounterVMData</url-pattern>
-  </servlet-mapping>
-
-
-  <servlet-mapping>
     <servlet-name>EncounterResetDate</servlet-name>
     <url-pattern>/EncounterResetDate</url-pattern>
   </servlet-mapping>
@@ -2449,10 +2448,12 @@
     <url-pattern>/LoginUserSocial</url-pattern>
   </servlet-mapping>
 
-  <servlet>
+  
+  <servlet-mapping>
     <servlet-name>EncounterVMData</servlet-name>
-    <servlet-class>org.ecocean.servlet.EncounterVMData</servlet-class>
-  </servlet>
+    <url-pattern>/EncounterVMData</url-pattern>
+  </servlet-mapping>
+
   <servlet-mapping>
     <servlet-name>EncounterSetObservation</servlet-name>
     <url-pattern>/EncounterSetObservation</url-pattern>
