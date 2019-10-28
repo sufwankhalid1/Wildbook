@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,9 +48,11 @@ public class GrothAnalysis implements MultivariateFunction {
 
   private int matchedRankEvalsEach = 10;
 
+  private Integer numCPUs = null;
+
   private static boolean normalizeTopN = false; // use top ranking (top 1, top 5 ect) percentage for optimization return 
   private static int numToNormalize = 5; // how many top ranking to look at
-  private static Double normalizedScores = 0.0;
+  private static double normalizedScores = 0.0;
 
   private double[] parameterScaling = new double[] {1.0, 1.0, 1.0, 1.0, 1.0};
   private boolean scalingSet = false; 
@@ -125,6 +128,10 @@ public class GrothAnalysis implements MultivariateFunction {
     this.matchedRankEvalsEach = evals;
   }
 
+  public void setNumCPUs(Integer num) {
+    this.numCPUs = num;
+  }
+
   /*
   * 
   * 
@@ -157,7 +164,7 @@ public class GrothAnalysis implements MultivariateFunction {
         //Integer rawVal = getMatchedRankSum(numComparisons, matchedRankEvalsEach, point[0], point[1], point[2], point[3],
         //                                    point[4], defaultSide, maxNumSpots, useWeights, targetScore, weightAmount, null);
 
-        Double rawVal = GrothAnalysis.getMatchedRankSum(numComparisons, matchedRankEvalsEach, scaledPoint[0], scaledPoint[1], scaledPoint[2], scaledPoint[3], scaledPoint[4], "left", maxNumSpots, false,1,0.0,null);
+        val = GrothAnalysis.getMatchedRankSum(numComparisons, matchedRankEvalsEach, scaledPoint[0], scaledPoint[1], scaledPoint[2], scaledPoint[3], scaledPoint[4], "left", maxNumSpots, false,1,0.0,numCPUs);
 
         //val = new Double(rawVal);
 
@@ -270,12 +277,12 @@ public class GrothAnalysis implements MultivariateFunction {
           EncounterLite el=thisAL.get(i);
         
           if(side.equals("left")) {
-            if(el.getSpots()==null || el.getSpots().size()==0 || el.getSpots().size()>maxNumSpots) {
+            if(el.getSpots()==null || el.getSpots().size()==0 || el.getSpots().size()>maxNumSpots || el.getSpots().size() < 10 ) {
               thisAL.remove(el);
               i--;
             }
           }else if(side.equals("right")) {
-            if(el.getRightSpots()==null || el.getRightSpots().size()==0 || el.getRightSpots().size()>maxNumSpots) {
+            if(el.getRightSpots()==null || el.getRightSpots().size()==0 || el.getRightSpots().size()>maxNumSpots || el.getSpots().size() < 10) {
               thisAL.remove(el);
               i--;
             }
@@ -339,11 +346,11 @@ public class GrothAnalysis implements MultivariateFunction {
        //OK, indyMap now has non-matched individuals from the chosen side, let's create our comparison set
       
 
-       for(int q=0;q<(allEncs.size()-1);q++) {System.out.println("");
-         System.out.println("....... q loop "+q);System.out.println("");
-         for(int r=0;r<allEncs.size();r++) {System.out.println("");
-           EncounterLite el1=allEncs.get(q);System.out.println("");
-           EncounterLite el2=allEncs.get(r);System.out.println("");
+       for(int q=0;q<(allEncs.size()-1);q++) {
+         System.out.println("....... q loop "+q);
+         for(int r=0;r<allEncs.size();r++) {
+           EncounterLite el1=allEncs.get(q);
+           EncounterLite el2=allEncs.get(r);
            if(!el1.getEncounterNumber().equals(el2.getEncounterNumber())) {
              ScanWorkItem swi = new ScanWorkItem(el1, el2, (el1.getEncounterNumber()+"-"+el2.getEncounterNumber()), "GrothAnalysis", props2);
              unmatchedComparisons.add(swi);
@@ -502,13 +509,13 @@ public class GrothAnalysis implements MultivariateFunction {
           for(int i=0;i<thisAL.size();i++) {
             EncounterLite el=thisAL.get(i);    
             if(side.equals("left")) {
-              if(el.getSpots()==null || el.getSpots().size()==0 || el.getSpots().size()>maxNumSpots) {
+              if(el.getSpots()==null || el.getSpots().size()==0 || el.getSpots().size()>maxNumSpots || el.getSpots().size()<10) {
                 thisAL.remove(el);
                 i--;
               }
             }
             else if(side.equals("right")) {
-              if(el.getRightSpots()==null || el.getRightSpots().size()==0 || el.getRightSpots().size()>maxNumSpots) {
+              if(el.getRightSpots()==null || el.getRightSpots().size()==0 || el.getRightSpots().size()>maxNumSpots || el.getSpots().size()<10) {
                 thisAL.remove(el);
                 i--;
               }
@@ -557,6 +564,8 @@ public class GrothAnalysis implements MultivariateFunction {
         System.out.println("........................... finished matched map... All encs = "+allEncounterLites.size());
       }
       
+      double normalizedScores = 0.0;
+      
       //now let's iterate through our known matches that we want to sum the ranks for
       //for each one we are going to:
       //     1. run the ScanWorkItem of the matched result itself
@@ -580,9 +589,32 @@ public class GrothAnalysis implements MultivariateFunction {
         //essentially we're prentendin that we're trying to find this pattern in every comparison
         //and then get the rank when it's compared against the true match, which was already scored above
         EncounterLite el1=swi.getNewEncounterLite();
-
+        
         //System.out.println("2) Iterating through "+allEncounterLitesUnmodifiable.size()+" encounterLites...");
         // the second run of the method gets 0 for falsePositivesToCompareAgainst
+        // ** RANDOMIZED METHOD **
+        // try {
+        //   //for (EncounterLite el2 : allEncounterLites ) {
+        //   Random rndGen = new Random();
+        //   int numFound = 0;
+        //   while (numFound < numComparisonsEach) {
+        //     EncounterLite el2 = allEncounterLites.get(rndGen.nextInt(allEncounterLites.size()-1));  
+        //     //System.out.println("[Still need more false positives? : "+falsePositivesToCompareAgainst.size()+"/"+(numComparisonsEach-1)+"]");
+        //     //System.out.println("[Is a non match? "+!el2.getBelongsToMarkedIndividual().equals(el1.getBelongsToMarkedIndividual())+" ]");
+        //     if(falsePositivesToCompareAgainst.size()<(numComparisonsEach-1) && !el2.getBelongsToMarkedIndividual().equals(el1.getBelongsToMarkedIndividual())) {
+        //         ScanWorkItem swi2 = new ScanWorkItem(el1, el2, (el1.getEncounterNumber()+"-"+el2.getEncounterNumber()), "GrothAnalysis", props2);
+        //         falsePositivesToCompareAgainst.add(swi2);
+        //         numFound++;
+        //     }
+        //     if (falsePositivesToCompareAgainst.size()==(numComparisonsEach-1)) {
+        //       break;
+        //     }
+        //   }
+        // } catch (Exception e) {
+        //   e.printStackTrace();
+        // }
+
+        // * NON RANDOM METHOD*
         try {
           for(EncounterLite el2:allEncounterLites) {
             //System.out.println("[Still need more false positives? : "+falsePositivesToCompareAgainst.size()+"/"+(numComparisonsEach-1)+"]");
@@ -631,6 +663,8 @@ public class GrothAnalysis implements MultivariateFunction {
         threadHandler.shutdown();
         //let's build a list of all the scores from the matches
         System.out.println("Building score list...");
+
+
         for (ScanWorkItemResult matchme:workItemResults) {
           MatchObject mo=matchme.getResult();
           Double score=mo.getMatchValue() * mo.getAdjustedMatchValue();  
@@ -638,11 +672,13 @@ public class GrothAnalysis implements MultivariateFunction {
             score = score*(1.0-weightAmount);
           }
           //System.out.println("Putting a score of "+score+" for "+matchme.+"("+matchme.getNewEncounterLite().getBelongsToMarkedIndividual()+") against "+matchme.getExistingEncNumber()+"("+matchme.getExistingEncounterLite().getBelongsToMarkedIndividual());
+          if (score.isNaN()) score = 0.0; 
           results.add(score);
         }
 
         //add the true positive's score
         Double swiscore=swi.getResult().getMatchValue() * swi.getResult().getAdjustedMatchValue();
+        if (swiscore.isNaN()) swiscore = 0.0;
         results.add(swiscore);      
         totalNumComparisonsRun+=results.size();
         
@@ -650,11 +686,11 @@ public class GrothAnalysis implements MultivariateFunction {
         Collections.sort(results,Collections.reverseOrder());
         
         System.out.println("======>======>true match score of "+swiscore+" should be reflected in results: "+results.toString());
-  
+        System.out.println("Current sum of ranks: "+totalMatchRank);
         if (normalizeTopN) {
           
-          System.out.println("Normalizing scores in top "+numToNormalize+" to  calculate score.");
-
+          try {
+          //System.out.println("Normalizing scores in top "+numToNormalize+" to  calculate score.");
           //Double xMin = 0.0;
           Double xMin = results.get(0);
           for (Double result : results) {
@@ -663,26 +699,45 @@ public class GrothAnalysis implements MultivariateFunction {
               if (xMin==0.0) break;  
             } 
           }
-
-          Double xMax = results.get(0);
-          Double normalizedScore = 0.0;
+          double xMax = results.get(0);
+          double normalizedScore = -1.0;
           //if (results.indexOf(swiscore)<numToNormalize) {
-          normalizedScore = ((swiscore-xMin) / (xMax-xMin));
+          System.out.println("Normalizing: ("+swiscore+"-"+xMin+") / ("+xMax+"-"+xMin+")"); 
+          if  (swiscore!=0.0&&!swiscore.isNaN()) { // pretty tough to have a swiscore over 0.0 and an xMax==0.0 lol
+            normalizedScore = ((swiscore-xMin) / (xMax-xMin));
+            System.out.println("Normalized scores of "+normalizedScores+" adding "+normalizedScore);
+          } else if (swiscore==0.0) {
+            System.out.println("Failed to produce score for true match! Adding -1.0 to normalized scores of "+normalizedScores);
+          }
+
           normalizedScores+=normalizedScore;
           //} else {
           //  System.out.println("Score was out of bounds, discarded.");
           //}
           System.out.println("Normalization produced this score: "+normalizedScore);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
 
         } else {
           if (swiscore==0.0) {
-            totalMatchRank += (results.size()-1);
-            System.out.println("======>======>Zero score for match! adding worst rank: "+(results.size()-1));
+            if ((results.indexOf(swiscore)+1)<5) {
+              totalMatchRank+= Math.pow(1.25,5);
+              System.out.println("Zero index was < 5, adding rank of "+Math.pow(1.25,5));
+            } else {
+              totalMatchRank+= results.indexOf(swiscore)+1;
+              System.out.println("Zero index was > 5, adding rank of "+Math.pow(1.25,results.indexOf(swiscore)+1));
+            }
+            //totalMatchRank += Math.pow(1.25,results.size()-1);
+            //System.out.println("======>======>Zero score for match! adding worst rank: "+Math.pow(1.25,results.size()-1));
           } else {
-            totalMatchRank+=results.indexOf(swiscore)+1;
+            totalMatchRank+=Math.pow(1.25,results.indexOf(swiscore)+1);
             System.out.println("======>======>Adding rank of: "+(results.indexOf(swiscore)+1));
+            //totalMatchRank+=(results.indexOf(swiscore)+1)/numMatchedComparisons;
+            //System.out.println("======>======>Adding rank of: "+(results.indexOf(swiscore)+1));
           }
         }
+        System.out.println("NEW sum of ranks: "+totalMatchRank);
         //System.out.println("7) Iterating through "+allEncounterLitesUnmodifiable.size()+" encounterLites...");
       }
       System.out.println("");
@@ -692,12 +747,16 @@ public class GrothAnalysis implements MultivariateFunction {
       if (normalizeTopN) {
         //System.out.println("Returning this total for normalized scores: "+normalizedScores);
         System.out.println("Judging by average normalized score for each comparison: "+normalizedScores/numMatchedComparisons);
+        //System.out.println("Judging by normalized score total for each comparison: "+normalizedScores);
         System.out.println("");
+        //return normalizedScores;
         return (normalizedScores/numMatchedComparisons);
+
       }
-      System.out.println("=>Returning total match rank for true positives = "+numMatchedComparisons+" in a field of "+numComparisonsEach+" total possible matches: "+totalMatchRank+ "(best="+numMatchedComparisons+",worst="+(numComparisonsEach*numMatchedComparisons)+")");
+      System.out.println("=>Returning TOTAL match rank for true positives = "+numMatchedComparisons+" in a field of "+numComparisonsEach+" total possible matches: "+totalMatchRank+ "(best="+numMatchedComparisons+",worst="+(numComparisonsEach*numMatchedComparisons)+")");
       System.out.println("");
       return totalMatchRank;
+      //return totalMatchRank/numMatchedComparisons;
       }
 
 }

@@ -57,35 +57,37 @@ int numFixes=0;
                 // the total number of times the optimizer will call the .value() method
                 // also, the max number of "moves" it will make throws an exception if exceeded, 
                 // so set to a number it would be unreasonable for it to go to
-                gpo.setMaxEval(200);
+                gpo.setMaxEval(1000);
 
                 gpo.setParameterScaling(new double[] {1.0, 100.0, 1.0, 100.0, 1.0});
 
                 gpo.setUpperBounds(new double[] {0.15, 50.0, 0.9999, 30.0, 0.999});
-                gpo.setLowerBounds(new double[] {0.0005, 5.0, 0.85, 5.0, 0.9});
+                gpo.setLowerBounds(new double[] {0.001, 5.0, 0.85, 5.0, 0.9});
                 
-                gpo.setInitialGuess(new double[] {0.1, 50.0, 0.9999, 10.0, 0.99});
+                gpo.setInitialGuess(new double[] {0.027, 50.0, 0.999, 16.0, 0.999});
 
                 // i'm still not 100% on how this works, but higher numbers up complexity and 
                 // it has to do with the number of places the optimizer will explore between value A and B.
                 // with a 5 variable function the range is 7-21
                 gpo.setBOBYQInterpolationPoints(14);
 
-                gpo.getGrothAnalysis().setMaxSpots(32);
+                gpo.getGrothAnalysis().setMaxSpots(35);
                 gpo.getGrothAnalysis().useMatchedRanking(true);
 
-                gpo.getGrothAnalysis().normalizeTopN(true);
+                gpo.getGrothAnalysis().setNumCPUs(2);
+
+                //gpo.getGrothAnalysis().normalizeTopN(true);
                 //gpo.getGrothAnalysis().numToNormalize(5);
 
                 // min for ranking eval, unless using normalized scores
-                gpo.setGoalTypeAsMax();
+                gpo.setGoalTypeAsMin();
 
                 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
                 // comparisons for ranked matching function
-                gpo.getGrothAnalysis().setNumComparisonsEach(50);
+                gpo.getGrothAnalysis().setNumComparisonsEach(15);
                 // num comparisons for matched ranking function.. 
                 // evals per method call are matchedRankEvals * numComparisons each
-                gpo.getGrothAnalysis().setMatchedRankEvalsEach(20);
+                gpo.getGrothAnalysis().setMatchedRankEvalsEach(350);
                 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                 //gpo.getGrothAnalysis().useWeightsForTargetScore(true, 100, 0.1);
@@ -97,8 +99,10 @@ int numFixes=0;
 
                 // *** This WILL work no matter how you optimize *** the int it takes is how many good & bad comparisons
                 // you want to end up in the csv file that goes to /wildbook_data_dir/optimization
-                //gpo.writeResultsToFile(500);
+                gpo.writeResultsToFile(500);
                         
+
+                // 12*12, averages ------> This also is the result of optimization: [0.016691707984154897, 50.0, 0.9971782298763721, 5.0, 0.999]
 
                 System.out.println("Done optimizing????");
 	
