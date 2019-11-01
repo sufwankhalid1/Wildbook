@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.ecocean.grid.AppletWorkItemThread;
 import org.ecocean.grid.EncounterLite;
+import org.ecocean.Encounter;
 import org.ecocean.grid.GridManager;
 import org.ecocean.grid.GridManagerFactory;
 import org.ecocean.grid.MatchObject;
@@ -37,6 +39,7 @@ public class GrothAnalysis implements MultivariateFunction {
   private static ArrayList<Double> nonmatchScores = new ArrayList<Double>();
 
   private static ArrayList<EncounterLite> allEncounterLites = new ArrayList<EncounterLite>();
+  private static ArrayList<Encounter> allEncounters = new ArrayList<Encounter>();
   
   private int numComparisons = 200;
   private int maxNumSpots = 30;
@@ -61,11 +64,22 @@ public class GrothAnalysis implements MultivariateFunction {
   private static GridManager gm = null;
   private static ConcurrentHashMap<String,EncounterLite> chm = null;
 
-  private boolean useMatchedRanking = false;
+  //fine 
+  private static Map<Double,Integer> ranks = new HashMap<>();
+
+  private static boolean useMatchedRanking = false;
 
   private int callsMade = 0; // chk just in case you oop the settings 
 
   private List<Double> matchRankScores = new ArrayList<>();
+
+  public Integer getRankForScore(double score) {
+    return ranks.get(score);
+  }
+
+  public void clearStoredRanks() {
+    ranks = new HashMap<>();
+  }
 
   public String getMatchRankScoresAsString() {
     return Arrays.toString(this.matchRankScores.toArray());
@@ -442,6 +456,11 @@ public class GrothAnalysis implements MultivariateFunction {
     //We'll return this value at the end of the method
     //It's value should be in the range of numMatchedComparison (perfect rank 1 comparison for each match of numMatchedComparisons
     //to perfect algorithm failure of numMatchedComparisons*numComparisonsEach (all true matches were ranked last)
+    //Double defaultScore = Math.pow(1.25, numComparisonsEach);
+    // if (useMatchedRanking) {
+
+    // }
+
     Double totalMatchRank=0.0;
     
     //this is a sanity check that should sum to numMatchedComparisons*numComparisonsEach at the end
@@ -614,7 +633,7 @@ public class GrothAnalysis implements MultivariateFunction {
         //   e.printStackTrace();
         // }
 
-        // * NON RANDOM METHOD*
+        //* NON RANDOM METHOD*
         try {
           for(EncounterLite el2:allEncounterLites) {
             //System.out.println("[Still need more false positives? : "+falsePositivesToCompareAgainst.size()+"/"+(numComparisonsEach-1)+"]");
@@ -684,6 +703,11 @@ public class GrothAnalysis implements MultivariateFunction {
         
         //sort the results
         Collections.sort(results,Collections.reverseOrder());
+
+        // pop the ranks into a hashmap so we can add them to the csv output
+        for (int k=0;k<results.size();k++) {
+          ranks.put(results.get(k),k);
+        }
         
         System.out.println("======>======>true match score of "+swiscore+" should be reflected in results: "+results.toString());
         System.out.println("Current sum of ranks: "+totalMatchRank);
@@ -721,18 +745,20 @@ public class GrothAnalysis implements MultivariateFunction {
 
         } else {
           if (swiscore==0.0) {
-            if ((results.indexOf(swiscore)+1)<5) {
-              totalMatchRank+= Math.pow(1.25,5);
-              System.out.println("Zero index was < 5, adding rank of "+Math.pow(1.25,5));
-            } else {
-              totalMatchRank+= results.indexOf(swiscore)+1;
-              System.out.println("Zero index was > 5, adding rank of "+Math.pow(1.25,results.indexOf(swiscore)+1));
-            }
-            //totalMatchRank += Math.pow(1.25,results.size()-1);
-            //System.out.println("======>======>Zero score for match! adding worst rank: "+Math.pow(1.25,results.size()-1));
+            
+            //if ((results.indexOf(swiscore)+1)<5) {
+            //  totalMatchRank+= Math.pow(5,1.25);
+            //  System.out.println("Zero index was < 5, adding rank of "+Math.pow(5,1.25));
+            //} else {
+              //totalMatchRank+= Math.pow(results.indexOf(swiscore)+1,1.25);
+              //System.out.println("Zero index was > 5, adding rank of "+Math.pow(results.indexOf(swiscore)+1,1.25));
+            //}
+
+            totalMatchRank += Math.pow(results.size()-1,1.25);
+            System.out.println("======>======>Zero score for match! adding worst rank: "+Math.pow(results.size()-1,1.25));
           } else {
-            totalMatchRank+=Math.pow(1.25,results.indexOf(swiscore)+1);
-            System.out.println("======>======>Adding rank of: "+(results.indexOf(swiscore)+1));
+            totalMatchRank+=Math.pow(results.indexOf(swiscore)+1,1.25);
+            System.out.println("======>======>Adding rank of: "+Math.pow(results.indexOf(swiscore)+1,1.25));
             //totalMatchRank+=(results.indexOf(swiscore)+1)/numMatchedComparisons;
             //System.out.println("======>======>Adding rank of: "+(results.indexOf(swiscore)+1));
           }

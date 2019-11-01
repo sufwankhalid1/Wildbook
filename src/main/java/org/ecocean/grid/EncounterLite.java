@@ -321,9 +321,9 @@ public class EncounterLite implements java.io.Serializable {
 
         }
       }
-      if (newClosePairDist < (3 * epsilon)) {
-        System.out.println("WARNING!!!! Spots in the new encounter are too close together to support this high of an epsilon value!!!");
-      }
+      //if (newClosePairDist < (3 * epsilon)) {
+      //  System.out.println("WARNING!!!! Spots in the new encounter are too close together to support this high of an epsilon value!!!");
+      //}
 
       //construct all triangles for the base Encounter to be compared to
       baseSpan = -1;
@@ -375,9 +375,9 @@ public class EncounterLite implements java.io.Serializable {
       //System.out.println("     Now using "+baseTriangles.size()+" base encounter triangles.");
       //System.out.println("newSpan "+newSpan+" baseSpan "+baseSpan);
       //System.out.println("     baseClosePairDist is "+baseClosePairDist);
-      if (baseClosePairDist < (3 * epsilon)) {
-        System.out.println("WARNING!!!! Spots in the catalog encounter are too close together to support this high of an epsilon value!!!");
-      }
+      //if (baseClosePairDist < (3 * epsilon)) {
+      //  System.out.println("WARNING!!!! Spots in the catalog encounter are too close together to support this high of an epsilon value!!!");
+      //}
 
       //System.out.println("   I have constructed all of the triangles!");
 
@@ -952,9 +952,9 @@ public class EncounterLite implements java.io.Serializable {
       }
       //System.out.println("     Now using "+newTriangles.size()+" new encounter triangles.");
       //System.out.println("     newClosePairDist is "+newClosePairDist);
-      if (newClosePairDist < (3 * epsilon)) {
-        System.out.println("WARNING!!!! Spots in the new encounter are too close together to support this high of an epsilon value!!!");
-      }
+      //if (newClosePairDist < (3 * epsilon)) {
+      //  System.out.println("WARNING!!!! Spots in the new encounter are too close together to support this high of an epsilon value!!!");
+      //}
       //construct all triangles for the base Encounter to be compared to
       baseSpan = -1;
       baseClosePairDist = 9999;
@@ -1008,9 +1008,9 @@ public class EncounterLite implements java.io.Serializable {
       //System.out.println("     Now using "+baseTriangles.size()+" base encounter triangles.");
       //System.out.println("newSpan "+newSpan+" baseSpan "+baseSpan);
       //System.out.println("     baseClosePairDist is "+baseClosePairDist);
-      if (baseClosePairDist < (3 * epsilon)) {
-        System.out.println("WARNING!!!! Spots in the catalog encounter are too close together to support this high of an epsilon value!!!");
-      }
+      //if (baseClosePairDist < (3 * epsilon)) {
+      //  System.out.println("WARNING!!!! Spots in the catalog encounter are too close together to support this high of an epsilon value!!!");
+      //}
 
       //System.out.println("   I have constructed all of the triangles!");
       SpotTriangle[] tArray = new SpotTriangle[0];

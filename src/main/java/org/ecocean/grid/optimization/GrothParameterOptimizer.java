@@ -37,7 +37,7 @@ public class GrothParameterOptimizer {
     double[] parameterScaling = new double[] {1.0, 1.0, 1.0, 1.0, 1.0};
     boolean scalingSet = false;
 
-    GoalType goal = GoalType.MAXIMIZE;
+    static GoalType goal = GoalType.MAXIMIZE;
     GrothAnalysis ga = new GrothAnalysis();
     
     // population * iterations = evaluatons
@@ -89,11 +89,11 @@ public class GrothParameterOptimizer {
         return scaledWeights;
     }
 
-    public void setGoalTypeAsMax() {
+    public static void setGoalTypeAsMax() {
         goal = GoalType.MAXIMIZE;
     }
 
-    public void setGoalTypeAsMin() {
+    public static void setGoalTypeAsMin() {
         goal = GoalType.MINIMIZE;
     }
 
@@ -151,6 +151,8 @@ public class GrothParameterOptimizer {
         try {
 
             GrothAnalysis.flush();
+
+            ga.clearStoredRanks();
             //final ConvergenceChecker<PointValuePair> cchecker = new SimpleValueChecker(1e-10, 1e-10);
             //SimplexOptimizer optimizer = new SimplexOptimizer(cchecker);
 
@@ -173,17 +175,20 @@ public class GrothParameterOptimizer {
 
             //NelderMeadSimplex nms = new NelderMeadSimplex(steps);
 
-            System.out.println("-of: "+of+"  -goal: "+goal+"  -mi: "+mi+"  -me: "+me);
+            System.out.println("-of: "+of+"  -goal: "+goal.name()+"  -mi: "+mi+"  -me: "+me);
 
+            
             PointValuePair result = optimizer.optimize(of, goal, me, sb, mi, ig);
             double[] resultArr = descaleParams(result.getPoint());
             lastResults = descaleParams(result.getPoint());
-
+            
             System.out.println("Actual eval scores (only match ranking): "+ga.getMatchRankScoresAsString());
-
+            
             System.out.println("------> Here are the default values: "+Arrays.toString(defaults));
-
+            
             System.out.println("------> This also is the result of optimization: "+Arrays.toString(resultArr));
+            
+            System.out.println("Goal Type???? : "+optimizer.getGoalType()); 
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -289,15 +294,17 @@ public class GrothParameterOptimizer {
             System.out.println("Isfile? "+f.isFile()+"  IsDirectory? "+f.isDirectory()+" ABS Path: "+f.getAbsolutePath());
             bw = new BufferedWriter(new FileWriter(f));
 
-            bw.write("MATCH,SCORE");
+            bw.write("MATCH,SCORE,RANK");
             bw.newLine();
 
             for (Double d : ga.getMatchScores()) {
-                bw.write("M,"+String.valueOf(d));
+                String rank = String.valueOf(ga.getRankForScore(d));
+                bw.write("M,"+String.valueOf(d)+","+rank);
                 bw.newLine();
             }
             for (Double d : ga.getNonMatchScores()) {
-                bw.write("N,"+String.valueOf(d));
+                String rank = String.valueOf(ga.getRankForScore(d));
+                bw.write("N,"+String.valueOf(d)+","+rank);
                 bw.newLine();
             }
             bw.close();
