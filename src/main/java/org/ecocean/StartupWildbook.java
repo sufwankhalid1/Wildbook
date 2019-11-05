@@ -219,7 +219,7 @@ public class StartupWildbook implements ServletContextListener {
     public static void createMatchGraph(){
       System.out.println("Entering createMatchGraph StartupWildbook method.");
       ThreadPoolExecutor es=SharkGridThreadExecutorService.getExecutorService();
-      es.execute(new MatchGraphCreationThread());
+      es.execute(new MatchGraphCreationThread("SELECT FROM org.ecocean.Encounter WHERE ( locationID == \"1a1\" ) && ((dateInMilliseconds >= 1041379200000) && (dateInMilliseconds <= 1262217600000))"));
     }
 
     public static boolean skipInit(ServletContextEvent sce, String extra) {

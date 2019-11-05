@@ -71,13 +71,16 @@ public class GrothAnalysis implements MultivariateFunction {
 
   private int callsMade = 0; // chk just in case you oop the settings 
 
+  // below just used for evaluation metrics
   private List<Double> matchRankScores = new ArrayList<>();
+  private static int topFives = 0;
+  private static int topOnes = 0;
 
   public Integer getRankForScore(double score) {
     return ranks.get(score);
   }
 
-  public void clearStoredRanks() {
+  public static void clearStoredRanks() {
     ranks = new HashMap<>();
   }
 
@@ -199,13 +202,17 @@ public class GrothAnalysis implements MultivariateFunction {
 
   //public static Integer getMatchedRankSum(int numMatchedComparisons, int numComparisonsEach, double epsilon, double R, double Sizelim, double maxTriangleRotation,
   //double C, String side, int maxNumSpots, boolean useWeights, int targetScore, double weightAmount, Integer numProcessorsToUse) throws Exception {
-
-
   public double valueForCSV(double[] point, int numComparisons) {
+    return valueForCSV(point, numComparisons, 25);    
+  }
+  
+  public double valueForCSV(double[] point, int numComparisons, int numComparisonsEach) {
     System.out.println("VALUE: SCALED INPUT ==> Epsilon: "+point[0]+"  R: "+point[1]+"  sizeLim: "+point[2]+"  maxTriangleRotation: "+point[3]+"  C: "+point[4]);
     double val = -1;
     try {
-      val = getScoreDiffMatchesMinusNonmatches(numComparisons, point[0], point[1], point[2], point[3], point[4], defaultSide, maxNumSpots, false, targetScore, weightAmount );
+      //public static Double getMatchedRankSum(int numMatchedComparisons, int numComparisonsEach, double epsilon, double R, double Sizelim, double maxTriangleRotation,
+      //double C, String side, int maxNumSpots, boolean useWeights, int targetScore, double weightAmount, Integer numProcessorsToUse) throws Exception {
+      val =  getMatchedRankSum(numComparisons, numComparisonsEach, point[0], point[1], point[2], point[3], point[4], defaultSide, maxNumSpots, false, targetScore, weightAmount, 2);
       //valArr[0] = val;
     } catch (Exception e) {
       e.printStackTrace();
@@ -216,7 +223,8 @@ public class GrothAnalysis implements MultivariateFunction {
 
   public static Double getScoreDiffMatchesMinusNonmatches(int numComparisonsEach, double epsilon, double R, double Sizelim, double maxTriangleRotation,
                                                           double C, String side, int maxNumSpots, boolean useWeights, int targetScore, double weightAmount) throws Exception {
-    
+    GrothAnalysis.clearStoredRanks();
+
     Double totalMatchScores=0.0;
     Double totalNonmatchScores=0.0;
     
@@ -453,12 +461,13 @@ public class GrothAnalysis implements MultivariateFunction {
   public static Double getMatchedRankSum(int numMatchedComparisons, int numComparisonsEach, double epsilon, double R, double Sizelim, double maxTriangleRotation,
       double C, String side, int maxNumSpots, boolean useWeights, int targetScore, double weightAmount, Integer numProcessorsToUse) throws Exception {
       
+      GrothAnalysis.clearStoredRanks();
     //We'll return this value at the end of the method
     //It's value should be in the range of numMatchedComparison (perfect rank 1 comparison for each match of numMatchedComparisons
     //to perfect algorithm failure of numMatchedComparisons*numComparisonsEach (all true matches were ranked last)
     //Double defaultScore = Math.pow(1.25, numComparisonsEach);
     // if (useMatchedRanking) {
-
+    
     // }
 
     Double totalMatchRank=0.0;
@@ -683,10 +692,14 @@ public class GrothAnalysis implements MultivariateFunction {
         //let's build a list of all the scores from the matches
         System.out.println("Building score list...");
 
-
+        boolean addOne = true;
         for (ScanWorkItemResult matchme:workItemResults) {
           MatchObject mo=matchme.getResult();
           Double score=mo.getMatchValue() * mo.getAdjustedMatchValue();  
+          if (addOne) {
+            nonmatchScores.add(score);
+            addOne = false;
+          }
           if (useWeights&&score<targetScore) {
             score = score*(1.0-weightAmount);
           }
@@ -698,7 +711,8 @@ public class GrothAnalysis implements MultivariateFunction {
         //add the true positive's score
         Double swiscore=swi.getResult().getMatchValue() * swi.getResult().getAdjustedMatchValue();
         if (swiscore.isNaN()) swiscore = 0.0;
-        results.add(swiscore);      
+        results.add(swiscore);
+        matchScores.add(swiscore);      
         totalNumComparisonsRun+=results.size();
         
         //sort the results
@@ -744,6 +758,18 @@ public class GrothAnalysis implements MultivariateFunction {
           }
 
         } else {
+
+          int actualRank = results.indexOf(swiscore);
+          if (actualRank==0) topOnes++;
+          if (actualRank<5) topFives++;
+          if (swiCount>0) {
+            double topFivePercentage = (double) topFives / (double) swiCount;
+            double topOnePercentage = (double) topOnes / (double) swiCount;
+            System.out.println("Actual rank: "+actualRank+" topOnes: "+topOnes+" topFives: "+topFives);
+            //System.out.println("About to RUN swi "+swiCount+"/"+matchedComparisons.size());
+            System.out.println("Current complete runs: "+swiCount+"  Current top 5 percentage: "+(topFivePercentage)+"  Current top 1 percantage: "+(topOnePercentage));
+          }
+
           if (swiscore==0.0) {
             
             //if ((results.indexOf(swiscore)+1)<5) {
@@ -757,8 +783,9 @@ public class GrothAnalysis implements MultivariateFunction {
             totalMatchRank += Math.pow(results.size()-1,1.25);
             System.out.println("======>======>Zero score for match! adding worst rank: "+Math.pow(results.size()-1,1.25));
           } else {
-            totalMatchRank+=Math.pow(results.indexOf(swiscore)+1,1.25);
-            System.out.println("======>======>Adding rank of: "+Math.pow(results.indexOf(swiscore)+1,1.25));
+            totalMatchRank+=Math.pow(actualRank+1,1.25);
+            System.out.println("======>======>Adding rank of: "+Math.pow(actualRank+1,1.25));
+            System.out.println("");
             //totalMatchRank+=(results.indexOf(swiscore)+1)/numMatchedComparisons;
             //System.out.println("======>======>Adding rank of: "+(results.indexOf(swiscore)+1));
           }

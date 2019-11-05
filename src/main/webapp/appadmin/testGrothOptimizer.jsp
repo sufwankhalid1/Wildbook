@@ -95,12 +95,11 @@ int numFixes=0;
                 System.out.println("Trying to optimize parameters...");
 
                 //is a double[] 
-                result = gpo.doOptimize();
+                //result = gpo.doOptimize();
 
                 // *** This WILL work no matter how you optimize *** the int it takes is how many good & bad comparisons
                 // you want to end up in the csv file that goes to /wildbook_data_dir/optimization
-                gpo.writeResultsToFile(500);
-                        
+                gpo.writeResultsToFile(new double[] {0.008, 49.8, 0.998, 12.33, 0.998}, 500,1000);
 
                 // 12*12, averages ------> This also is the result of optimization: [0.016691707984154897, 50.0, 0.9971782298763721, 5.0, 0.999]
 

@@ -151,8 +151,6 @@ public class GrothParameterOptimizer {
         try {
 
             GrothAnalysis.flush();
-
-            ga.clearStoredRanks();
             //final ConvergenceChecker<PointValuePair> cchecker = new SimpleValueChecker(1e-10, 1e-10);
             //SimplexOptimizer optimizer = new SimplexOptimizer(cchecker);
 
@@ -176,7 +174,6 @@ public class GrothParameterOptimizer {
             //NelderMeadSimplex nms = new NelderMeadSimplex(steps);
 
             System.out.println("-of: "+of+"  -goal: "+goal.name()+"  -mi: "+mi+"  -me: "+me);
-
             
             PointValuePair result = optimizer.optimize(of, goal, me, sb, mi, ig);
             double[] resultArr = descaleParams(result.getPoint());
@@ -256,6 +253,10 @@ public class GrothParameterOptimizer {
     }
 
     public void writeResultsToFile(double[] params, int numPoints) {
+        writeResultsToFile(params, numPoints, 2);
+    }
+
+    public void writeResultsToFile(double[] params, int numPoints, int numComparisonsEach) {
 
         System.out.println("[INFO] Trying to export results...");
 
@@ -265,12 +266,11 @@ public class GrothParameterOptimizer {
         try {
             ga.flush();
             ga.setNumComparisonsEach(numPoints);
-            Double finalScore = ga.valueForCSV(params, numPoints);
+            Double finalScore = ga.valueForCSV(params, numPoints, numComparisonsEach);
         } catch (Exception e) {
             System.out.println("[WARN]: Could not get results for input to write to file.");
             e.printStackTrace();
         }
-
         BufferedWriter bw = null;
         try {
             Path dir = Paths.get("webapps/wildbook_data_dir/optimizerResults/");
@@ -314,6 +314,5 @@ public class GrothParameterOptimizer {
         }
         System.out.println("[SUCCESS] Wrote results for "+numPoints+" comparisons using "+Arrays.toString(params)); 
     }
-
 
 }
