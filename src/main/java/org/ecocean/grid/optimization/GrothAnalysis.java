@@ -554,10 +554,18 @@ public class GrothAnalysis implements MultivariateFunction {
         //filter out any individuals with only one EncounterLite 
         Iterator<String> keys3=indyMap.keySet().iterator();
         ArrayList<String> keys2remove=new ArrayList<String>();
+        
+        ArrayList<EncounterLite> extraNonMatches=new ArrayList<EncounterLite>();
+        
         while(keys3.hasNext()) {
           String myKey=keys3.next();
           ArrayList<EncounterLite> thisAL=indyMap.get(myKey);
-          if(thisAL.size()<=1) {keys2remove.add(myKey);}
+          if(thisAL.size()<=1) {
+            keys2remove.add(myKey);
+            if(thisAL.size()==1) {
+              if(!allEncounterLites.contains(thisAL.get(0)))allEncounterLites.add(thisAL.get(0));
+            }
+          }
         }
         
         //remove the unneeded keys for only single EncounterLite individuals
@@ -664,6 +672,7 @@ public class GrothAnalysis implements MultivariateFunction {
         //thread pool handling comparison threads
         //spawn the thread for each comparison
         ThreadPoolExecutor threadHandler = new ThreadPoolExecutor(numProcessors, numProcessors, 0, TimeUnit.SECONDS, abq);
+        threadHandler.setMaximumPoolSize(numComparisonsEach);
         
         ArrayList<Double> results=new ArrayList<Double>();
         int vectorSize = falsePositivesToCompareAgainst.size();
@@ -677,6 +686,7 @@ public class GrothAnalysis implements MultivariateFunction {
             matchme.setProperties(props2);
             threadHandler.submit(new AppletWorkItemThread(matchme, workItemResults));
           } catch (Exception e){
+            e.printStackTrace();
             System.out.println("...a thread threw an error, so I'm gonna skip it...");
           }
         }
