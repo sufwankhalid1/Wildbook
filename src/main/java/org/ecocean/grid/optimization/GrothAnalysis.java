@@ -42,7 +42,7 @@ public class GrothAnalysis implements MultivariateFunction {
   private static ArrayList<Encounter> allEncounters = new ArrayList<Encounter>();
   
   private int numComparisons = 200;
-  private int maxNumSpots = 30;
+  private int maxNumSpots = 60;
   private String defaultSide = "left";
   
   private int targetScore = 100;

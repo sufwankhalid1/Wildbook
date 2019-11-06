@@ -74,7 +74,7 @@ int numFixes=0;
                 gpo.getGrothAnalysis().setMaxSpots(35);
                 gpo.getGrothAnalysis().useMatchedRanking(true);
 
-                gpo.getGrothAnalysis().setNumCPUs(2);
+                //gpo.getGrothAnalysis().setNumCPUs(2);
 
                 //gpo.getGrothAnalysis().normalizeTopN(true);
                 //gpo.getGrothAnalysis().numToNormalize(5);
@@ -99,7 +99,7 @@ int numFixes=0;
 
                 // *** This WILL work no matter how you optimize *** the int it takes is how many good & bad comparisons
                 // you want to end up in the csv file that goes to /wildbook_data_dir/optimization
-                gpo.writeResultsToFile(new double[] {0.008, 49.8, 0.998, 12.33, 0.998}, 500,1000);
+                gpo.writeResultsToFile(new double[] {0.01, 50, 0.9999, 10.0, 0.99}, 500,1000);
 
                 // 12*12, averages ------> This also is the result of optimization: [0.016691707984154897, 50.0, 0.9971782298763721, 5.0, 0.999]
 
