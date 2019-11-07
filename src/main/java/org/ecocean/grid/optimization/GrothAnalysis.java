@@ -656,8 +656,10 @@ public class GrothAnalysis implements MultivariateFunction {
             //System.out.println("[Still need more false positives? : "+falsePositivesToCompareAgainst.size()+"/"+(numComparisonsEach-1)+"]");
             //System.out.println("[Is a non match? "+!el2.getBelongsToMarkedIndividual().equals(el1.getBelongsToMarkedIndividual())+" ]");
             if(falsePositivesToCompareAgainst.size()<(numComparisonsEach-1) && !el2.getBelongsToMarkedIndividual().equals(el1.getBelongsToMarkedIndividual())) {
+              if(el1.getLocationID()==null || el2.getLocationID()==null || !el1.getLocationID().equals(el2.getLocationID())) {
                 ScanWorkItem swi2 = new ScanWorkItem(el1, el2, (el1.getEncounterNumber()+"-"+el2.getEncounterNumber()), "GrothAnalysis", props2);
                 falsePositivesToCompareAgainst.add(swi2);
+              }
             }
             if (falsePositivesToCompareAgainst.size()==(numComparisonsEach-1)) {
               break;
