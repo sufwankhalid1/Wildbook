@@ -138,6 +138,9 @@
         <column length="1024" allows-null="true"/>
       </field>
 
+      <field name="majorColors" persistence-modifier="persistent" serialized="true">
+      </field>
+
       <field name="dateInMilliseconds" persistence-modifier="persistent">
         <column jdbc-type="BIGINT" allows-null="true"/>
       </field>
