@@ -1190,7 +1190,9 @@ if (sharky.getNames() != null) {
             <label id="editOrCreateMembershipResponse" ></label>
 
           </div>  
-        </div>  
+        </div>
+        
+        <br/>
 
       <%  
       }
