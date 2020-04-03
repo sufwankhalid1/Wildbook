@@ -469,7 +469,7 @@ Util.mark("identify process pre-post end");
 
 
 
-	        String nms_aware = IA.getProperty(context, "nms_aware");
+	    String nms_aware = IA.getProperty(context, "nms_aware");
         if (nms_aware != null) {
             System.out.println("[INFO] sendDetect() nms_aware set to " + nms_aware);
             map.put("nms_aware", nms_aware);
@@ -484,7 +484,15 @@ Util.mark("identify process pre-post end");
         } else {
             System.out.println("[INFO] sendDetect() nms is null; DEFAULT will be used");
         }
-        
+
+        String ulsKey = "use_labeler_species"+taxonomyPropString;
+        String uls = IA.getProperty(context, ulsKey);
+        if (uls != null) {
+            System.out.println("[INFO] sendDetect() use_labeler_species set to " + uls);
+            map.put("use_labeler_species", uls);
+        } else {
+            System.out.println("[INFO] sendDetect() use_labeler_species is null; DEFAULT of False will be used");
+        }        
 
         String u = getDetectUrlByModelTag(context, modelTag);
         if (u == null) throw new MalformedURLException("configuration value IBEISIARestUrlStartDetectImages is not set");
