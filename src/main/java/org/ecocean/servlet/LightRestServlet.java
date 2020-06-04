@@ -84,7 +84,7 @@ public class LightRestServlet extends HttpServlet
 {
     private static final long serialVersionUID = -4445182084242929362L;
 
-    private static final String[] Encounter_Light_Str_Fields = {"catalogNumber","individualID","occurrenceID","sex","otherCatalogNumbers","verbatimLocality","locationID","submitterName","submitterProject","submitterID","submitterOrganization","genus","specificEpithet", "dwcDateAdded","modified"};
+    private static final String[] Encounter_Light_Str_Fields = {"catalogNumber","individualID","occurrenceID","sex","otherCatalogNumbers","verbatimLocality","locationID","submitterName","submitterProject","submitterID","submitterOrganization","affiliation","genus","specificEpithet", "dwcDateAdded","modified"};
     private static final String[] Encounter_Light_Int_Fields = {"year","month","day"};
 
     public static final NucleusLogger LOGGER_REST = NucleusLogger.getLoggerInstance("DataNucleus.REST");
@@ -236,17 +236,18 @@ public class LightRestServlet extends HttpServlet
                 // GET "/query?the_query_details" or GET "/jdoql?the_query_details" where "the_query_details" is "SELECT FROM ... WHERE ... ORDER BY ..."
                 String queryString = URLDecoder.decode(req.getQueryString(), "UTF-8");
                 PersistenceManager pm = pmf.getPersistenceManager();
-                
+
                 ShepherdPMF.setShepherdState("LightRestServlet.class"+"_"+servletID, "new");
-                
-                
+
+
                 try
                 {
                     pm.currentTransaction().begin();
                     ShepherdPMF.setShepherdState("LightRestServlet.class"+"_"+servletID, "begin");
-                    
+
 
                     Query query = pm.newQuery("JDOQL", queryString);
+                    //Query submitterQuery = pm.newQuery("JDQL", queryString.submitterID)???
                     if (fetchParam != null)
                     {
                         query.getFetchPlan().addGroup(fetchParam);
@@ -271,7 +272,7 @@ public class LightRestServlet extends HttpServlet
                     resp.setStatus(200);
                     pm.currentTransaction().commit();
                     ShepherdPMF.setShepherdState("LightRestServlet.class"+"_"+servletID, "commit");
-                    
+
                 }
                 finally
                 {
@@ -279,13 +280,13 @@ public class LightRestServlet extends HttpServlet
                     {
                         pm.currentTransaction().rollback();
                         ShepherdPMF.setShepherdState("LightRestServlet.class"+"_"+servletID, "rollback");
-                        
+
                     }
                     pm.close();
                     //ShepherdPMF.setShepherdState("RestServlet.class"+"_"+servletID, "close");
                     ShepherdPMF.removeShepherdState("LightRestServlet.class"+"_"+servletID);
-                    
-                    
+
+
                 }
                 return;
             }
@@ -359,7 +360,7 @@ public class LightRestServlet extends HttpServlet
                 }
 
                 Object id = getId(req);
-                //don't let an unauthenticated user do a full grab of all instances of an object type 
+                //don't let an unauthenticated user do a full grab of all instances of an object type
                 if (id == null)
                 {
                   if(req.getRemoteUser()!=null){
@@ -463,13 +464,13 @@ public class LightRestServlet extends HttpServlet
                     //resp.getWriter().write(jsonobj.toString());
                     resp.setHeader("Content-Type","application/json");
                     //pm.currentTransaction().commit();
-                    
+
                 }
                 catch (NucleusObjectNotFoundException ex)
                 {
                     resp.setContentLength(0);
                     resp.setStatus(404);
-                   
+
                 }
                 catch (NucleusException ex)
                 {
@@ -478,7 +479,7 @@ public class LightRestServlet extends HttpServlet
                     resp.getWriter().write(error.toString());
                     resp.setStatus(404);
                     resp.setHeader("Content-Type", "application/json");
-                    
+
                 }
                 finally
                 {
@@ -501,7 +502,7 @@ public class LightRestServlet extends HttpServlet
                 resp.getWriter().write(error.toString());
                 resp.setStatus(404);
                 resp.setHeader("Content-Type", "application/json");
-                
+
             }
             catch (JSONException e1)
             {
@@ -1030,7 +1031,7 @@ System.out.println("??? TRY COMPRESS ??");
             context=ServletUtilities.getContext(req);
             ShepherdPMF.setShepherdState("LightRestServlet.class"+"_"+servletID, "new");
             pmf=ShepherdPMF.getPMF(context);
-            
+
             this.nucCtx = ((JDOPersistenceManagerFactory)pmf).getNucleusContext();
             thisRequest = req;
         }

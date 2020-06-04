@@ -1,9 +1,9 @@
 <%@ page contentType="text/html; charset=utf-8" language="java"
-         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*, 
-         org.ecocean.servlet.ServletUtilities, java.io.File, 
-         java.io.FileOutputStream, java.io.OutputStreamWriter, 
-         java.util.*, org.datanucleus.api.rest.orgjson.JSONArray, 
-         org.json.JSONObject, org.datanucleus.api.rest.RESTUtils, 
+         import="org.ecocean.servlet.ServletUtilities,org.ecocean.*,
+         org.ecocean.servlet.ServletUtilities, java.io.File,
+         java.io.FileOutputStream, java.io.OutputStreamWriter,
+         java.util.*, org.datanucleus.api.rest.orgjson.JSONArray,
+         org.json.JSONObject, org.datanucleus.api.rest.RESTUtils,
          org.datanucleus.api.jdo.JDOPersistenceManager,
          java.nio.charset.StandardCharsets,
          java.net.URLEncoder " %>
@@ -173,7 +173,7 @@ td.tdw:hover div {
   #tabmenu a, a.active {
     color: #000;
     background: #E6EEEE;
-     
+
     border: 1px solid #CDCDCD;
     padding: 2px 5px 0px 5px;
     margin: 0;
@@ -288,7 +288,7 @@ td.tdw:hover div {
     <strong><%=encprops.getProperty("markedIndividual")%>
     <strong><%=encprops.getProperty("number")%>
     if (<%=CommonConfiguration.showProperty("showTaxonomy",context)%>) {
-    	
+
 	    <strong><%=encprops.getProperty("taxonomy")%>
 	    <strong><%=encprops.getProperty("submitterName")%>
 	    <strong><%=encprops.getProperty("date")%>
@@ -732,7 +732,7 @@ console.info(percent);
 
 // a functor!
 function _notUndefined(fieldName) {
-  function _helperFunc(o) {	
+  function _helperFunc(o) {
     if (!o.get(fieldName)) return '';
     return o.get(fieldName);
   }
@@ -740,7 +740,7 @@ function _notUndefined(fieldName) {
 }
 // non-functor version!
 function _notUndefinedValue(obj, fieldName) {
-  function _helperFunc(o) {	
+  function _helperFunc(o) {
     if (!o.get(fieldName)) return '';
     return o.get(fieldName);
   }
@@ -902,6 +902,8 @@ function _colEncDate(o) {
 }
 
 function _colEncDateSort(o) {
+  console.log("here's what o is:");
+  console.log(o);
 	var d = o.date();
 	if (!d) return 0;
 	return d.getTime();
