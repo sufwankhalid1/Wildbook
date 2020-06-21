@@ -1290,7 +1290,6 @@ public class Encounter implements java.io.Serializable {
       this.dateInMilliseconds = ms;
   }
 
-
   public int getDay() {
     return day;
   }
