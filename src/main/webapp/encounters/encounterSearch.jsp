@@ -4,6 +4,7 @@
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List, java.util.Map, org.datanucleus.api.rest.orgjson.JSONObject,java.util.Collections" %>
 <%@ page import="java.util.Properties, java.io.IOException" %>
+<%@ page import="java.util.Arrays" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%!
@@ -29,6 +30,21 @@ public static void printStringFieldSearchRow(String fieldName, List<String> valu
     out.println("    <option value=\""+val+"\">"+val+"</option>");
   }
   out.println("  </select></td>");
+  out.println("</tr>");
+
+}
+
+public static void printStringFieldSearchRowBoldTitle(String fieldName, List<String> valueOptions, javax.servlet.jsp.JspWriter out, Properties nameLookup) throws IOException, IllegalAccessException {
+  // note how fieldName is variously manipulated in this method to make element ids and contents
+  String displayName = getDisplayName(fieldName, nameLookup);
+  out.println("<tr id=\""+fieldName+"Row\">");
+  out.println("<td id=\""+fieldName+"Title\"><br/><strong>"+displayName+"</strong><br/>");
+  out.println("<select multiple name=\""+fieldName+"\" id=\""+fieldName+"\"/>");
+  out.println("<option value=\"None\" selected=\"selected\"></option>");
+  for (String val: valueOptions) {
+    out.println("<option value=\""+val+"\">"+val+"</option>");
+  }
+  out.println("</select></td>");
   out.println("</tr>");
 
 }
@@ -985,7 +1001,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
 							<input type="button" class="new-lkw <%=kwNo%>" value="Add Keyword" onclick="addLabeledKeyword(this);" style="display:none">
 						</td>
 					</tr>
-					
+
 		    <%
           int numStandardKeywords = myShepherd.getAllKeywordsList().size();
           int numLabeledKeywords = myShepherd.getAllLabeledKeywords().size();
@@ -995,7 +1011,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
           <td><p><%=encprops.getProperty("hasKeywordPhotos")%>
           </p>
             <%
-              if (numStandardKeywords> 0) {            	     
+              if (numStandardKeywords> 0) {
             %>
 
             <select multiple name="keyword" id="keyword" size="10">
@@ -1008,7 +1024,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
                 }
 
                 Iterator<Keyword> keys = myShepherd.getAllKeywords();
-                while (keys.hasNext()) { 
+                while (keys.hasNext()) {
                   Keyword word = keys.next();
               %>
               <option value="<%=word.getIndexname()%>"><%=word.getReadableName()%>
@@ -1018,7 +1034,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
             System.out.println("got here to end of keyword section....");
             System.out.println("prior to closing kw query line... ");
             //kwQuery.closeAll();
-            
+
             if (numStandardKeywords>0&&numLabeledKeywords>0) {
               %>
               <option disabled><em><i><%=encprops.getProperty("labeled")%></i></em></option>
@@ -1062,8 +1078,8 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
             <%
               }
             %>
-					
-					
+
+
 			</table>
 		</div>
 	</td>
@@ -1077,7 +1093,7 @@ if(CommonConfiguration.showProperty("showPatterningCode",context)){
 </style>
 
 <script>
-console.log("reaching this block????");  
+console.log("reaching this block????");
 var labelsToValues = <%=labeledKwsJson%>;
 
 function selectKeywordLabel(el) {
@@ -1499,7 +1515,19 @@ else {
 </tr>
 
 <% printStringFieldSearchRow("submitterProject", out, encprops); %>
-<% printStringFieldSearchRow("submitterOrganization", out, encprops); %>
+<%
+  User usr = AccessControl.getUser(request, myShepherd);
+  if(usr != null){
+    List<Organization> orgsUserBelongsTo = usr.getOrganizations();
+    ArrayList<String> orgOptions = new ArrayList<String>();
+    for (int i = 0; i < orgsUserBelongsTo.size(); i++) { //TODO DRY up
+      Organization currentOrg = orgsUserBelongsTo.get(i);
+      String currentOrgName = currentOrg.getName();
+      orgOptions.add(currentOrgName);
+    }
+    printStringFieldSearchRowBoldTitle("submitterOrganization", orgOptions, out, encprops);
+  }
+%>
 
 
 <tr>
@@ -1510,33 +1538,31 @@ else {
 </tr>
 
 <tr>
-<td>
+  <td>
 
-      <%
-
-        //List<String> users = myShepherd.getAllUsernames();
-      	List<String> users = myShepherd.getAllNativeUsernames();
-        users.remove(null);
-        Collections.sort(users,String.CASE_INSENSITIVE_ORDER);
-        int numUsers = users.size();
-
-      %>
-	<br /><strong><%=encprops.getProperty("username")%></strong><br />
-      <select multiple size="5" name="username" id="username">
-        <option value="None"></option>
         <%
-          for (int n = 0; n < numUsers; n++) {
-            String username = users.get(n);
 
-        	%>
-        	<option value="<%=username%>"><%=username%></option>
-        	<%
-          }
+          //List<String> users = myShepherd.getAllUsernames();
+        	List<String> users = myShepherd.getAllNativeUsernames();
+          users.remove(null);
+          Collections.sort(users,String.CASE_INSENSITIVE_ORDER);
+          int numUsers = users.size();
+
         %>
-      </select>
+  	<br /><strong><%=encprops.getProperty("username")%></strong><br />
+        <select multiple size="5" name="username" id="username">
+          <option value="None"></option>
+          <%
+            for (int n = 0; n < numUsers; n++) {
+              String username = users.get(n);
 
-
-</td>
+          	%>
+          	<option value="<%=username%>"><%=username%></option>
+          	<%
+            }
+          %>
+        </select>
+  </td>
 </tr>
     </table>
     </div>
@@ -1570,4 +1596,3 @@ else {
 <script type="text/javascript" src="../javascript/formNullRemover.js"></script>
 
 <jsp:include page="../footer.jsp" flush="true"/>
-
