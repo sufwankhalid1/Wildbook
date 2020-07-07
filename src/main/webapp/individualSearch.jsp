@@ -1596,7 +1596,7 @@ else {
       if(usr != null){
         List<Organization> orgsUserBelongsTo = usr.getOrganizations();
         ArrayList<String> orgOptions = new ArrayList<String>();
-        for (int i = 0; i < orgsUserBelongsTo.size(); i++) { //TODO DRY up
+        for (int i = 0; i < orgsUserBelongsTo.size(); i++) { //TODO how to DRY up? Map function in java is in Streams package; there were issues importing and using said Stream package
           Organization currentOrg = orgsUserBelongsTo.get(i);
           String currentOrgName = currentOrg.getName();
           orgOptions.add(currentOrgName);

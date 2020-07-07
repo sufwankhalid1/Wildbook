@@ -1515,6 +1515,7 @@ else {
 </tr>
 
 <% printStringFieldSearchRow("submitterProject", out, encprops); %>
+
 <%
   User usr = AccessControl.getUser(request, myShepherd);
   if(usr != null){
