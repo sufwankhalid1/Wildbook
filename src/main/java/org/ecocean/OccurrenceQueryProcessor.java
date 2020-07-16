@@ -20,6 +20,8 @@ import org.joda.time.DateTime;
 public class OccurrenceQueryProcessor extends QueryProcessor {
 
   private static final String BASE_FILTER = "SELECT FROM org.ecocean.Occurrence WHERE \"OCCURRENCEID\" != null && ";
+  private static final String SELECT_FROM_ORG_ECOCEAN_OCCURENCE_WHERE = "SELECT FROM org.ecocean.Occurrence WHERE encounters.contains(enc) && ";
+  private static final String VARIABLES_STATEMENT = " VARIABLES org.ecocean.Encounter enc";
 
   public static final String[] SIMPLE_STRING_FIELDS = new String[]{"fieldStudySite", "fieldSurveyCode", "sightingPlatform","seaState","observer","comments","occurrenceID"};
 
@@ -68,14 +70,15 @@ public class OccurrenceQueryProcessor extends QueryProcessor {
     }
 
     // filter for submitterOrganization------------------------------------------
-      if((request.getParameter("submitterOrganization")!=null)&&(!request.getParameter("submitterOrganization").equals(""))) {
-        String submitterOrgString=request.getParameter("submitterOrganization").toLowerCase().replaceAll("%20", " ").trim();
-
-          filter=filterWithCondition(filter,"(enc.submitterOrganization.toLowerCase().indexOf('"+submitterOrgString+"') != -1)");
-
-        prettyPrint.append("Submitter organization contains \""+submitterOrgString+"\".<br />");
-      }
-      //end submitterOrganization filter--------------------------------------------------------------------------------------
+    if((request.getParameter("SubmitterOrganization")!=null)&&(!request.getParameter("SubmitterOrganization").equals(""))) {
+      String submitterOrgString=request.getParameter("SubmitterOrganization").toLowerCase().replaceAll("%20", " ").trim();
+      System.out.println("submitterOrgString is" + submitterOrgString);
+      filter = SELECT_FROM_ORG_ECOCEAN_OCCURENCE_WHERE;
+      filter=QueryProcessor.filterWithCondition(filter,"(enc.submitterOrganization.toLowerCase().indexOf('"+submitterOrgString+"') != -1)");
+      jdoqlVariableDeclaration = addOrgVars(VARIABLES_STATEMENT, filter);
+      prettyPrint.append("Submitter organization contains \""+submitterOrgString+"\".<br />");
+    }
+    //end submitterOrganization filter--------------------------------------------------------------------------------------
 
     //Taxonomies
     List<String> scientificNames = getScientificNames(request);
@@ -135,6 +138,11 @@ public class OccurrenceQueryProcessor extends QueryProcessor {
     for (int i = 0; i < numTaxonomies; i++) {
       QueryProcessor.updateJdoqlVariableDeclaration(jdoqlVariableDeclaration, "org.ecocean.Taxonomy taxonomy" + i);
     }
+    return jdoqlVariableDeclaration;
+  }
+
+  private static String addOrgVars(String jdoqlVariableDeclaration, String orgs) {
+    QueryProcessor.updateJdoqlVariableDeclaration(jdoqlVariableDeclaration, orgs);
     return jdoqlVariableDeclaration;
   }
 
