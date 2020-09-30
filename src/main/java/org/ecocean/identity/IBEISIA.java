@@ -1625,10 +1625,23 @@ System.out.println("!!!! waitForTrainingJobs() has finished.");
     }
 */
 
+/*
+    WB-945 - this is the re-tooling of this method which does nothing with encounter(s)
+    REMINDER TODO:
+        shouldUpdateSpeciesFromIa() no longer gets called here and thus should be called once all annots are made, i guess/
+*/
+    public static Annotation createAnnotationFromIAResult(JSONObject jann, MediaAsset asset, Shepherd myShepherd, String context, String rootDir) {
+        Annotation ann = convertAnnotation(asset, jann, myShepherd, context, rootDir);
+        if (ann == null) return null;
+        myShepherd.getPM().makePersistent(ann);
+System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " [with no Encounter!]");
+        return ann;
+    }
 
 //{"xtl":910,"height":413,"theta":0,"width":444,"class":"giraffe_reticulated","confidence":0.2208,"ytl":182}
-    public static Annotation createAnnotationFromIAResult(JSONObject jann, MediaAsset asset, Shepherd myShepherd, String context, String rootDir, boolean skipEncounter) {
-
+    // WB-945 - this is the old deprecated version for prosperity or whatever
+    public static Annotation createAnnotationFromIAResultDEPRECATED(JSONObject jann, MediaAsset asset, Shepherd myShepherd, String context, String rootDir, boolean skipEncounter) {
+        if (jann != null) throw new RuntimeException("IBEISIA.createAnnotationFromIAResultDEPRECATED was used. this is bad.");  //danger!
         Annotation ann = convertAnnotation(asset, jann, myShepherd, context, rootDir);
         if (ann == null) return null;
         if (skipEncounter) {
@@ -1639,7 +1652,8 @@ System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " [with n
 
         Encounter enc = null;
         try {
-            enc = ann.toEncounter(myShepherd);  //this does the magic of making a new Encounter if needed etc.  good luck!
+            //removed due to deprecating ann.toEncounter() for WB-945
+            //enc = ann.toEncounter(myShepherd);  //this does the magic of making a new Encounter if needed etc.  good luck!
             myShepherd.getPM().makePersistent(enc);
 
             enc.detectedAnnotation(myShepherd, ann);  //this is a stub presently, so meh?
@@ -1915,6 +1929,10 @@ System.out.println("RESP ===>>>>>> " + resp.toString(2));
     6. how do (when do) we kick off *identification* on an annotation? and what are the target annotations?
     7.  etc???
 */
+/*
+    update due to WB-945 work:  we now must _first_ build all the Annotations, and then after that decide how they get distributed
+    to Encounters... 
+*/
             if ((rlist != null) && (rlist.length() > 0) && (ilist != null) && (ilist.length() == rlist.length())) {
                 FeatureType.initAll(myShepherd);
                 JSONArray needReview = new JSONArray();
@@ -1945,6 +1963,7 @@ System.out.println("RESP ===>>>>>> " + resp.toString(2));
                     if(janns.length()==0) {
                       //OK, for some species and conditions we may just want to trust the user
                       //that there is an animal in the image and set trivial annot to matchAgainst=true
+                        //WB-945 note: this case janns is empty, so loop below will be skipped
 
                       if(asset.getAnnotations()!=null && asset.getAnnotations().size()==1 && asset.getAnnotations().get(0).isTrivial()) {
 
@@ -1980,7 +1999,9 @@ System.out.println("RESP ===>>>>>> " + resp.toString(2));
                         }
                         //these are annotations we can make automatically from ia detection.  we also do the same upon review return
                         //  note this creates other stuff too, like encounter
-                        Annotation ann = createAnnotationFromIAResult(jann, asset, myShepherd, context, rootDir, skipEncounters);
+                        //Annotation ann = createAnnotationFromIAResult(jann, asset, myShepherd, context, rootDir, skipEncounters);
+                        //WB-945 update: new version *will not* create encounter(s)
+                        Annotation ann = createAnnotationFromIAResult(jann, asset, myShepherd, context, rootDir);
                         if (ann == null) {
                             System.out.println("WARNING: IBEISIA detection callback could not create Annotation from " + asset + " and " + jann);
                             continue;
@@ -1998,7 +2019,10 @@ System.out.println("RESP ===>>>>>> " + resp.toString(2));
                     } else {
                         asset.setDetectionStatus(STATUS_COMPLETE);
                     }
-                    if (newAnns.length() > 0) amap.put(Integer.toString(asset.getId()), newAnns);
+                    if (newAnns.length() > 0) {
+                        asset.assignEncounters(myShepherd);  //WB-945 here is where we make some encounter(s) if we need to
+                        amap.put(Integer.toString(asset.getId()), newAnns);
+                    }
                 }
                 rtn.put("_note", "created " + numCreated + " annotations for " + rlist.length() + " images");
                 rtn.put("success", true);

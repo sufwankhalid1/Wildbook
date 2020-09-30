@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Base64;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1488,5 +1489,71 @@ System.out.println(">> updateStandardChildren(): type = " + type);
         return isValidImageForIA();
     }
 
+/*
+    WB-945 new magick.  this look at our annots (which may *or may not* have been created via detection results) and decide
+    if they need to have new encounter(s) made to hold them.  this will be based on their sibling annots on this asset, among other things.
+*/
+    public List<Encounter> assignEncounters(Shepherd myShepherd) {
+//FIXME -- need to somehow deal with trivial annot if/when we have one!!!!!  XXX
+        List<Encounter> newEncs = new ArrayList<Encounter>();
+        List<Annotation> annots = this.getAnnotations();
+        List<Annotation> trivialAnnots = new ArrayList<Annotation>();
+        if (Util.collectionIsEmptyOrNull(annots)) {
+            System.out.println("INFO: assignEncounters() finds no annots on " + this);
+            return newEncs;
+        }
+        Encounter someEnc = null;  //do we have *any* enc?
+        List<Annotation> needsEncounter = new ArrayList<Annotation>();
+        int encCt = 0;
+        Map<String,Integer> partCt = new HashMap<String,Integer>();  //holds count for each type of part
+        int nonPartCt = 0;
+        for (Annotation ann : annots) {
+            Encounter enc = ann.findEncounter(myShepherd);
+            if (enc == null) {
+                if (!ann.isTrivial()) needsEncounter.add(ann);  //see comment below
+            } else {
+                encCt++;
+                someEnc = enc;
+            }
+            if (ann.isTrivial() && (enc != null)) {  //i guess it would be weird to have trivial with no enc, but we dont want it!
+                trivialAnnots.add(ann);
+            } else if (ann.getIAClass() == null) {
+                //what do we do here?
+                System.out.println("INFO: assignEncounters() has no iaClass for " + ann);
+            } else if (ann.getIAClass().indexOf("+") > -1) {  //we are a part, i guess?
+                if (!partCt.containsKey(ann.getIAClass())) partCt.put(ann.getIAClass(), 0);
+                partCt.put(ann.getIAClass(), partCt.get(ann.getIAClass()) + 1);
+            } else {  //"non-part" (aka, um, whole? body?)
+                nonPartCt++;
+            }
+        }
+        boolean hasDuplicateParts = false;
+        for (String part : partCt.keySet()) {
+            if (partCt.get(part) > 1) hasDuplicateParts = true;
+        }
+
+        //okay, now we try to make sense of what we have......
+        if (needsEncounter.size() < 1) return newEncs;  //easiest!
+System.out.println("INFO: assignEncounters() needsEncounter ==> " + needsEncounter);
+
+        //if we dont have *any* enc -- do we create one out of the blue?  going to fail for now.
+        if (someEnc == null) {
+            System.out.println("INFO: assignEncounters() found no Encounter, but needsEncounter = " + needsEncounter);
+            return newEncs;
+        }
+
+        if ((nonPartCt > 1) || hasDuplicateParts || (encCt > 1)) {
+            /*
+                we dont know where to assign needsEncounter annots, so they each get own Encounter
+                - if we have any trivialAnnots, we use those up first and bump them out
+                - when no trivialAnnots, we duplicate someEnc and attach there
+            */
+
+        } else {  //all needsEncounter annots can live in harmony.  try bumping out trivialAnnot, otherwise use (the only) someEnc
+
+        }
+
+        return newEncs;
+    }
 
 }
