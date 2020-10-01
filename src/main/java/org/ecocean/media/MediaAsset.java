@@ -1494,7 +1494,6 @@ System.out.println(">> updateStandardChildren(): type = " + type);
     if they need to have new encounter(s) made to hold them.  this will be based on their sibling annots on this asset, among other things.
 */
     public List<Encounter> assignEncounters(Shepherd myShepherd) {
-//FIXME -- need to somehow deal with trivial annot if/when we have one!!!!!  XXX
         List<Encounter> newEncs = new ArrayList<Encounter>();
         List<Annotation> annots = this.getAnnotations();
         List<Annotation> trivialAnnots = new ArrayList<Annotation>();
