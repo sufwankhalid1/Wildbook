@@ -1519,8 +1519,7 @@ System.out.println(">> updateStandardChildren(): type = " + type);
                 //what do we do here?
                 System.out.println("INFO: assignEncounters() has no iaClass for " + ann);
             } else if (ann.getIAClass().indexOf("+") > -1) {  //we are a part, i guess?
-                if (!partCt.containsKey(ann.getIAClass())) partCt.put(ann.getIAClass(), 0);
-                partCt.put(ann.getIAClass(), partCt.get(ann.getIAClass()) + 1);
+                partCt.put(ann.getIAClass(), partCt.getOrDefault(ann.getIAClass(), 0) + 1);
             } else {  //"non-part" (aka, um, whole? body?)
                 nonPartCt++;
             }
