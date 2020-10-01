@@ -988,7 +988,7 @@ System.out.println("  >> findEncounterDeep() -> ann = " + ann);
     // look for "sibling" Annotations on same MediaAsset.  if one of them has an Encounter, we clone that.
     // additionally, if one is a trivial annotation, we drop it after.  if no siblings are found, we create
     // an Encounter based on this Annotation (which may get us something, e.g. species, date, loc)
-    //  ######   NOTE: this is going away due to WB-945.  (see assignEncounters() above instead)   ######
+    //  ######   NOTE: this is going away due to WB-945.  (see MediaAsset.assignEncounters() instead)   ######
     public Encounter toEncounterDEPRECATED(Shepherd myShepherd) {
         // fairly certain this will *never* happen as code currently stands.  this (Annotation) is always new, and
         //  therefore unattached to any Encounter for sure.   so skipping this for now!

@@ -2020,7 +2020,8 @@ System.out.println("RESP ===>>>>>> " + resp.toString(2));
                         asset.setDetectionStatus(STATUS_COMPLETE);
                     }
                     if (newAnns.length() > 0) {
-                        asset.assignEncounters(myShepherd);  //WB-945 here is where we make some encounter(s) if we need to
+                        List<Encounter> assignedEncs = asset.assignEncounters(myShepherd);  //WB-945 here is where we make some encounter(s) if we need to
+                        rtn.put("_assignedEncsSize", assignedEncs.size());
                         amap.put(Integer.toString(asset.getId()), newAnns);
                     }
                 }

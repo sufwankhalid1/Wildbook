@@ -1502,9 +1502,8 @@ System.out.println(">> updateStandardChildren(): type = " + type);
             System.out.println("INFO: assignEncounters() finds no annots on " + this);
             return newEncs;
         }
-        Encounter someEnc = null;  //do we have *any* enc?
+        Set<Encounter> myEncs = new HashSet<Encounter>();
         List<Annotation> needsEncounter = new ArrayList<Annotation>();
-        int encCt = 0;
         Map<String,Integer> partCt = new HashMap<String,Integer>();  //holds count for each type of part
         int nonPartCt = 0;
         for (Annotation ann : annots) {
@@ -1512,8 +1511,7 @@ System.out.println(">> updateStandardChildren(): type = " + type);
             if (enc == null) {
                 if (!ann.isTrivial()) needsEncounter.add(ann);  //see comment below
             } else {
-                encCt++;
-                someEnc = enc;
+                myEncs.add(enc);
             }
             if (ann.isTrivial() && (enc != null)) {  //i guess it would be weird to have trivial with no enc, but we dont want it!
                 trivialAnnots.add(ann);
@@ -1537,22 +1535,72 @@ System.out.println(">> updateStandardChildren(): type = " + type);
 System.out.println("INFO: assignEncounters() needsEncounter ==> " + needsEncounter);
 
         //if we dont have *any* enc -- do we create one out of the blue?  going to fail for now.
-        if (someEnc == null) {
-            System.out.println("INFO: assignEncounters() found no Encounter, but needsEncounter = " + needsEncounter);
+        if (myEncs.isEmpty()) {
+            System.out.println("WARNING: assignEncounters() found no Encounter(s), but needsEncounter = " + needsEncounter);
             return newEncs;
         }
 
-        if ((nonPartCt > 1) || hasDuplicateParts || (encCt > 1)) {
+        Encounter whichever = myEncs.iterator().next();
+        if ((nonPartCt > 1) || hasDuplicateParts || (myEncs.size() > 1)) {
+            System.out.println(">>>>> assignEncounters() MANY ENCS ; myEncs=" + myEncs);
             /*
                 we dont know where to assign needsEncounter annots, so they each get own Encounter
                 - if we have any trivialAnnots, we use those up first and bump them out
-                - when no trivialAnnots, we duplicate someEnc and attach there
+                - when no trivialAnnots, we duplicate "a random encounter" (aka whichever) and attach there
             */
+            for (Annotation ann : needsEncounter) {
+                if (trivialAnnots.size() > 0) {
+                    Annotation tann = trivialAnnots.remove(0);
+                    tann.setMatchAgainst(false);
+                    Encounter tenc = tann.findEncounter(myShepherd);  //should never be null, so hope you arent here cuz of a npe
+                    tenc.replaceAnnotation(tann, ann);
+                    tenc.setDWCDateLastModified();
+                    tenc.resetDateInMilliseconds();
+System.out.println(">>>>> ******** [1] assignEncounters() trivial " + tann + " replaced by " + ann + " on " + tenc);
+                    if (!newEncs.contains(tenc)) newEncs.add(tenc);
+                } else {  //new enc from myEncs
+                    try {
+                        Encounter newEnc = whichever.cloneWithoutAnnotations();  //ok, not really random
+                        newEnc.addAnnotation(ann);
+                        newEnc.setDWCDateAdded();
+                        newEnc.setDWCDateLastModified();
+                        newEnc.resetDateInMilliseconds();
+                        newEnc.setSpecificEpithet(whichever.getSpecificEpithet());
+                        newEnc.setGenus(whichever.getGenus());
+                        newEnc.setSex(null);
+System.out.println(">>>>> ******** [1] assignEncounters() cloned " + whichever + " for " + ann + " yielding " + newEnc);
+                        if (!newEncs.contains(newEnc)) newEncs.add(newEnc);
+                    } catch (Exception ex){
+                        System.out.println("ERROR: assignEncounters() failed to clone " + whichever + " for " + ann + " -> " + ex.toString());
+                        ex.printStackTrace();
+                    }
+                }
+            }
 
-        } else {  //all needsEncounter annots can live in harmony.  try bumping out trivialAnnot, otherwise use (the only) someEnc
-
+        } else {  //all needsEncounter annots can live in harmony.  myEncs should only have 1 enc
+            System.out.println(">>>>> assignEncounters() ONE ENC ; myEncs=" + myEncs);
+            for (Annotation ann : needsEncounter) {
+                if (trivialAnnots.size() > 0) {  //we have a trivial, lets replace it
+                    Annotation tann = trivialAnnots.remove(0);
+                    tann.setMatchAgainst(false);
+                    Encounter tenc = tann.findEncounter(myShepherd);  //i believe(???) this will always be same as the 1 enc in myEncs (any)
+                    tenc.replaceAnnotation(tann, ann);
+                    tenc.setDWCDateLastModified();
+                    tenc.resetDateInMilliseconds();
+System.out.println(">>>>> ******** [2] assignEncounters() trivial " + tann + " replaced by " + ann + " on " + tenc);
+                    if (!newEncs.contains(tenc)) newEncs.add(tenc);
+                } else {  //no trivials left, so we just throw it on whichever
+                    whichever.addAnnotation(ann);
+                    whichever.setDWCDateLastModified();
+                    whichever.resetDateInMilliseconds();
+System.out.println(">>>>> ******** [2] assignEncounters() added " + ann + " to " + whichever);
+                    if (!newEncs.contains(whichever)) newEncs.add(whichever);
+                }
+            }
+            //after all annots, we *should* only have 1 enc (whichever) in newEncs!!
         }
 
+System.out.println(">>>>> assignEncounters() EXIT ; size=" + newEncs.size() + " newEncs=" + newEncs);
         return newEncs;
     }
 
