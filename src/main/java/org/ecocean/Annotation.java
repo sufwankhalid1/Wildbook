@@ -603,6 +603,7 @@ public class Annotation implements java.io.Serializable {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("species", species)
+                .append("iaClass", iaClass)
                 .append("bbox", getBbox())
 /*
                 //.append("transform", ((getTransformMatrix == null) ? null : Arrays.toString(getTransformMatrix())))
