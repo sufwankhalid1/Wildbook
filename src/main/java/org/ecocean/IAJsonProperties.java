@@ -163,6 +163,7 @@ public class IAJsonProperties extends JsonProperties {
 
         //this skips a non-specific taxonomy with "sp" as the second part
         public Taxonomy taxonomyFromIAClass(String iaClass, Shepherd myShepherd) {
+            if (iaClass == null) return null;
             for (Taxonomy taxy : getAllTaxonomies(myShepherd)) {
                 if (taxy.getScientificName().endsWith(" sp")) continue;
 	        if (isValidIAClass(taxy, iaClass)) return taxy;  //first one wins!
