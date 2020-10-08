@@ -1689,6 +1689,34 @@ System.out.println("* createAnnotationFromIAResult() CREATED " + ann + " on Enco
         return ann;
     }
 
+    //this takes the place of iaUpdateSpecies code above that has been deprecated
+    //  basically tells IA to alter the species associated with these annots
+    public static int updateSpeciesOnIA(Shepherd myShepherd, List<Annotation> anns) {
+        if (Util.collectionIsEmptyOrNull(anns)) return 0;
+        List<String> uuids = new ArrayList<String>();
+        List<String> species = new ArrayList<String>();
+        for (Annotation ann : anns) {
+            Encounter enc = ann.findEncounter(myShepherd);
+System.out.println("updateSpeciesOnIA(): " + ann + " is on " + enc);
+            if ((enc == null) || (ann.getAcmId() == null)) continue;
+            String taxonomyString = enc.getTaxonomyString();
+            if (!shouldUpdateSpeciesFromIa(taxonomyString, myShepherd.getContext())) continue;
+            uuids.add(ann.getAcmId());
+            species.add(taxonomyString);
+        }
+System.out.println("updateSpeciesOnIA(): " + uuids);
+System.out.println("updateSpeciesOnIA(): " + species);
+        if (uuids.size() > 0) {
+            try {
+                iaUpdateSpecies(uuids, species, myShepherd.getContext());
+            } catch (Exception ex) {
+                System.out.println("ERROR: updateSpeciesOnIA() - iaUpdateSpecies() failed! " + ex.toString());
+                ex.printStackTrace();
+            }
+        }
+        return uuids.size();
+    }
+
     public static boolean shouldUpdateSpeciesFromIa(String taxonomyString, String context) {
         if (taxonomyString==null||"".equals(taxonomyString)) return false;
         String taxKey = taxonomyString.replaceAll(" ", "_");
@@ -2025,6 +2053,7 @@ System.out.println("RESP ===>>>>>> " + resp.toString(2));
                         amap.put(Integer.toString(asset.getId()), newAnns);
                     }
                 }
+                updateSpeciesOnIA(myShepherd, allAnns);  //tells IA what species we know about these annots now
                 rtn.put("_note", "created " + numCreated + " annotations for " + rlist.length() + " images");
                 rtn.put("success", true);
                 if (amap.length() > 0) rtn.put("annotations", amap);  //needed to kick off ident jobs with return value
