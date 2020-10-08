@@ -1585,6 +1585,7 @@ System.out.println(">>>>> ******** [1] assignEncounters() trivial " + tann + " r
                         newEnc.setSpecificEpithet(whichever.getSpecificEpithet());
                         newEnc.setGenus(whichever.getGenus());
                         newEnc.setSex(null);
+                        myShepherd.getPM().makePersistent(newEnc);
 System.out.println(">>>>> ******** [1] assignEncounters() cloned " + whichever + " for " + ann + " yielding " + newEnc);
                         if (!newEncs.contains(newEnc)) newEncs.add(newEnc);
                     } catch (Exception ex){
