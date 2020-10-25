@@ -1,4 +1,14 @@
-<%@ page contentType="text/html; charset=utf-8" language="java" import="org.ecocean.servlet.ServletUtilities,org.ecocean.*,java.util.Properties, java.io.FileInputStream, java.io.File, java.io.FileNotFoundException" %>
+<%@ page 
+	contentType="text/html; charset=utf-8" 
+	language="java" 
+	import="org.ecocean.servlet.ServletUtilities,
+			org.ecocean.*,
+			java.util.Properties, 
+			java.io.FileInputStream, 
+			java.io.File, 
+			java.io.FileNotFoundException,
+			java.util.Iterator
+			" %>
 <%
 
 String context="context0";
@@ -14,19 +24,19 @@ context=ServletUtilities.getContext(request);
 
 
 %>
-<jsp:include page="header.jsp" flush="true"/>
+<jsp:include page="header.jsp" flush="true" />
 <link rel="stylesheet" href="css/createadoption.css">
 
 <div class="container maincontent adoption-page">
 	<h1 class="intro-adopt">Adopt a Shark</h1>
-	<h2>Support cutting edge sevengill shark research.</h2>
+	<h2>Support cutting edge whale shark research.</h2>
 	<section class="adoption-details">
 		<p>
-			Adopt a sevengill shark, give it a nickname, and receive updates each time it's spotted! Funds
+			Adopt a whale shark, give it a nickname, and receive updates each time it's spotted! Funds
 			raised by shark adoptions are used to offset the costs of maintaining this global library and
 			to support new and existing research projects for the world's most mysterious fish.
 		</p>
-		<a href="gallery.jsp?adoptableSharks=true"><button type="button" name="make adoption" class="large">Choose a shark<span class="button-icon" aria-hidden="true"></button></a>
+		<a href="gallery.jsp?adoptableSharks=true"><button type="button" name="make adoption" class="large">Choose a shark<span class="button-icon" aria-hidden="true"></span></button></a>
 	</section>
 	<section id="custom-donation-image">
 		<img src="cust/mantamatcher/img/shark-donation-scale.jpeg" alt="donation options" />
@@ -81,86 +91,52 @@ context=ServletUtilities.getContext(request);
 			</div>
 		</article>
 	</section> --%>
+	
+
 
 	<section class="adopters-featured">
 			<h2>Join the Family!</h2>
 			<article class="adopter-feature-gallery">
-				<div class="adopter">
-					<div class="adopter-header" >
-						<p>
-							Sevengill Shark Adopter
-						</p>
+			
+				<%
+				Shepherd myShepherd=new Shepherd(context);
+				myShepherd.setAction("adoptananimal.jsp");
+				myShepherd.beginDBTransaction();
+				try{
+					if(myShepherd.getNumAdoptions()>0){
+					Iterator<Adoption> adoptions=myShepherd.getAllAdoptionsNoQuery();
+					int iter=0;
+					while((adoptions.hasNext())&&(iter<4)){
+					
+					Adoption ad=adoptions.next();
+					%>
+			
+					<div class="adopter" style="width: 190px">
+						<div class="adopter-header" >
+							<p>Whale Shark Adopter</p>
+						</div>
+						<img src="/<%=CommonConfiguration.getDataDirectoryName(context) %>/adoptions/<%=ad.getID()%>/thumb.jpg" alt="" />
+						<div class="adopter-details">
+							<p style="text-align: center;"><%=ad.getAdopterName().trim() %>
+							<br><em>adopted</em>
+							<br><a href="individuals.jsp?number=<%=ad.getMarkedIndividual() %>"><%=ad.getMarkedIndividual() %></a></p>
+							<p style="text-align: center;"><em>"<%=ad.getAdopterQuote().trim() %>"</em></p>
+						</div>
 					</div>
-					<img src="cust/mantamatcher/img/someguy.jpg" alt="" />
-					<div class="adopter-details">
-						<p>
-							Some Guy
-						</p>
-						<p>
-							Adopted Finnegan
-						</p>
-						<p>
-							We're going to need a bigger fish tank.
-						</p>
-					</div>
-				</div>
-				<div class="adopter">
-					<div class="adopter-header" >
-						<p>
-							Whale Shark Adopter
-						</p>
-					</div>
-					<img src="cust/mantamatcher/img/someguy.jpg" alt="" />
-					<div class="adopter-details">
-						<p>
-							Some Guy
-						</p>
-						<p>
-							Adopted Finnegan
-						</p>
-						<p>
-							Dun dun. Dun dun. Dun dun dun dun dun dun dun dun, da naaa
-						</p>
-					</div>
-				</div>
-				<div class="adopter">
-					<div class="adopter-header" >
-						<p>
-							Whale Shark Adopter
-						</p>
-					</div>
-					<img src="cust/mantamatcher/img/someguy.jpg" alt="" />
-					<div class="adopter-details">
-						<p>
-							Some Guy
-						</p>
-						<p>
-							Adopted Finnegan
-						</p>
-						<p>
-							Dun dun. Dun dun. Dun dun dun dun dun dun dun dun, da naaa
-						</p>
-					</div>
-				</div>
-				<div class="adopter">
-					<div class="adopter-header" >
-						<p>
-							Whale Shark Adopter
-						</p>
-					</div>
-					<img src="cust/mantamatcher/img/someguy.jpg" alt="" />
-					<div class="adopter-details">
-						<p>
-							Some Guy
-						</p>
-						<p>
-							Adopted Finnegan
-						</p>
-						<p>
-							Dun dun. Dun dun. Dun dun dun dun dun dun dun dun, da naaa
-						</p>
-					</div>
-				</div>
+					<%
+						iter++;
+					}
+					}
+				}
+				catch(Exception e){
+					e.printStackTrace();
+				}
+				finally{
+					myShepherd.rollbackDBTransaction();
+					myShepherd.closeDBTransaction();
+				}
+				%>
+			
 			</article>
 		</section>
 

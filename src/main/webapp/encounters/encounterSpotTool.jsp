@@ -48,8 +48,8 @@ try{
 	Encounter enc = null;
 	for (Annotation ann : ma.getAnnotations()) {
 		enc = Encounter.findByAnnotation(ann, myShepherd);
-		encNum=enc.getCatalogNumber();
-		if (enc != null) break;
+		if (enc == null) continue;  //maybe there is another annotations?
+		encNum = enc.getCatalogNumber();
 	}
 	if (enc == null) throw new Exception("could not find Encounter for MediaAsset id=" + imageID);
 	
@@ -238,7 +238,11 @@ function checkImage(imgEl) {
 		doImageSpots(imgEl);
 	} else {
 		console.info('waiting on img');
-		imgEl.bind('load', function() { doImageSpots(imgEl); });
+		imgEl.bind('load', function() {
+                    if (imgEl.data('load-complete')) return;  //dont run again!
+                    imgEl.data('load-complete', true);
+                    doImageSpots(imgEl);
+                });
 	}
 }
 

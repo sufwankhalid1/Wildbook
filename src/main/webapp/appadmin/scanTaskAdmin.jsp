@@ -24,7 +24,7 @@ String context=ServletUtilities.getContext(request);
   if (request.getParameter("nodeTimeout") != null) {
     try {
       int newTimeout = (new Integer(request.getParameter("nodeTimeout"))).intValue();
-      gm.setNodeTimeout(newTimeout);
+      //gm.setNodeTimeout(newTimeout);
     } catch (NumberFormatException nfe) {
     	nfe.printStackTrace();
     }
@@ -81,9 +81,7 @@ table {
 
 <jsp:include page="../header.jsp" flush="true" />
      <div class="container maincontent">
-<h1>Grid Administration
-  <a href="<%=CommonConfiguration.getWikiLocation(context)%>sharkgrid" target="_blank"><img
-    src="../images/information_icon_svg.gif" alt="Help" border="0" align="absmiddle"></a></h1>
+<h1>Grid Administration</h1>
 
 <%
   myShepherd.beginDBTransaction();
@@ -308,19 +306,27 @@ else{
     <td><%=st.getSubmitter()%>
     </td>
     <%
-      String gotoURL = "//" + CommonConfiguration.getURLLocation(request) + "/"+CommonConfiguration.getProperty("patternMatchingResultsPage", context);
-      if (st.getUniqueNumber().equals("TuningTask")) {
-        gotoURL = "endTuningTask.jsp";
-      }
+      String gotoURL = "//" + CommonConfiguration.getURLLocation(request) + "/encounters/scanEndApplet.jsp";
+      if(scanEnc.getLocationID()!=null)  gotoURL = "//" + CommonConfiguration.getURLLocation(request) + "/encounters/scanEndApplet.jsp";
+    //if (st.getUniqueNumber().equals("TuningTask")) {
+      //  gotoURL = "endTuningTask.jsp";
+      //}
     %>
 
     <td>
       <form name="scanNumJoin<%=scanNum%>" method="get"
-            action="<%=gotoURL%>"><input name="rightSide" type="hidden"
-                                         id="rightSide" value="<%=sideAddition%>"><input
+            action="<%=gotoURL%>">
+            
+            
+            <input name="rightSide" type="hidden" id="rightSide" value="<%=sideAddition%>">
+                 
+                 <input name="taskID" type="hidden" id="taskID" value="<%=st.getUniqueNumber() %>">                        
+                                         
+                                         <input
         name="writeThis" type="hidden" id="writeThis" value="true"><input
         name="number" type="hidden" id="number"
-        value="<%=st.getUniqueNumber().substring(5)%>"><input
+        value="<%=st.getUniqueNumber().substring(5)%>">
+        <input
         name="viewresult" type="submit" id="viewresult" value="View"></form>
     </td>
     <td>
@@ -349,9 +355,9 @@ else{
 						
 						<td>
 						<%
-						if((scanEnc.getIndividualID()!=null)&&(!scanEnc.getIndividualID().equals("Unassigned"))){
+						if(scanEnc.getIndividual()!=null){
 						%>
-						<a href="../individuals.jsp?number=<%=scanEnc.getIndividualID()%>"><%=scanEnc.getIndividualID()%></a>
+						<a href="../individuals.jsp?number=<%=scanEnc.getIndividual().getDisplayName()%>"><%=scanEnc.getIndividual().getDisplayName()%></a>
 						<%
       					}
       					else{
@@ -387,14 +393,12 @@ single scan are allowed to exceed the total.</span>
 <table class="table">
 <thead>
   <tr>
-    <th width="18"><span>IP</span></th>
-    <th width="38"><span>NodeID</span></th>
-    <th width="30"  ><span>#CPU</span></th>
+    <th width="25"><span>IP</span></th>
+    <th width="25"><span>NodeID</span></th>
+    <th width="25"  ><span>#CPUs</span></th>
+    <th width="25"  ><span>Items Completed</span></th>
+    <th width="25"  ><span>Last Checkin (ms)</span></th>
 
-
-    <th width="71"  >
-      <div align="left"><span class="style1">Chunk size</span></div>
-    </th>
 
   </tr>
   </thead>
@@ -402,19 +406,19 @@ single scan are allowed to exceed the total.</span>
   <%
     ArrayList nodes = gm.getNodes();
     int numNodes = nodes.size();
+    long currenTime = System.currentTimeMillis();
     for (int y = 0; y < numNodes; y++) {
       GridNode nd = (GridNode) nodes.get(y);
-      long currenTime = System.currentTimeMillis();
-      long nodeTimeout = gm.getNodeTimeout();
-      if ((currenTime - nd.getLastHeartbeat()) < nodeTimeout) {
+      
+      //long nodeTimeout = gm.getNodeTimeout();
+      if ((currenTime - nd.getLastHeartbeat()) < 180000) {
   %>
   <tr>
     <td><span class="style2"><%=nd.ipAddress()%></span></td>
     <td><span class="style2"><%=nd.getNodeIdentifier()%></span></td>
     <td><span class="style2"><%=nd.numProcessors%></span></td>
-    
-    <td><span class="style2"><%=nd.groupSize%></span></td>
-
+     <td><span class="style2"><%=nd.numComparisons%></span></td>
+    <td><span class="style2"><%=(currenTime-nd.getLastHeartbeat()) %></span></td>
 
 
   </tr>
@@ -436,10 +440,11 @@ single scan are allowed to exceed the total.</span>
   <%
   int toDo=gm.getToDoSize();
   int numDone=gm.getDoneSize();
+  int numDoing=gm.getNumUnderway();
  
   %>
   
-  (To-Do: <%=toDo%> Done: <%=numDone%>)</p>
+  (To-Do: <%=toDo%> Underway: <%=numDoing %> Done: <%=numDone%>)</p>
 
 <%
   if (request.isUserInRole("admin")) {
@@ -457,15 +462,7 @@ single scan are allowed to exceed the total.</span>
       </td>
     </form>
   </tr>
-  <tr>
-    <form name="setNodeTimeout" id="setNodeTimeout" method="get"
-          action="scanTaskAdmin.jsp">
-      <td>Set node timeout (milliseconds):</td>
-      <td><input name="nodeTimeout" type="text" id="nodeTimeout"
-                 value="<%=gm.getNodeTimeout()%>" size="10" maxlength="15"/> <input
-        type="submit" name="Submit2" value="Set"/></td>
-    </form>
-  </tr>
+
   <tr>
     <form name="setCheckoutTimeout" id="setCheckoutTimeout" method="get"
           action="scanTaskAdmin.jsp">
