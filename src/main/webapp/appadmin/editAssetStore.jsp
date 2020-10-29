@@ -27,13 +27,14 @@ String baseDir = ServletUtilities.dataDir("context0", rootDir);
 
 //first, load your AssetStore.  change the type accordingly, as well as the ID
 int id = 1;
-AssetStore as = null;
-try {
-	as = ((AssetStore) (myShepherd.getPM().getObjectById(myShepherd.getPM().newObjectIdInstance(AssetStore.class, id), true)));
-} catch (Exception ex) {
-	out.println("<h1>error loading AssetStore id=" + id + "</h1>");
-	return;
-}
+String dataDir = ServletUtilities.dataDir("context0", rootDir);
+String urlLoc = request.getScheme()+"://" + CommonConfiguration.getURLLocation(request);
+String dataUrl = urlLoc + "/wildbook_data_dir";
+myShepherd.beginDBTransaction();
+LocalAssetStore as = new LocalAssetStore("Default Local AssetStore", new File(dataDir).toPath(), dataUrl, true);
+myShepherd.getPM().makePersistent(as);
+myShepherd.updateDBTransaction();
+
 
 out.println("<h2>" + as + "</h2><p>original configuration: <b>" + as.getConfig() + "</b></p>");
 
@@ -41,7 +42,7 @@ out.println("<h2>" + as + "</h2><p>original configuration: <b>" + as.getConfig()
 // here is where you set the new values you want!  note this varies by AssetStore type, so be careful?
 AssetStoreConfig newConfig = new AssetStoreConfig();
 newConfig.put("root", "/var/lib/tomcat8/webapps/wildbook_data_dir");
-newConfig.put("webroot", "http://example.com/wildbook_data_dir");
+newConfig.put("webroot", "https://sevengill.oceansanctuaries.org/wildbook_data_dir");
 
 out.println("<p>new configuration: <b>" + newConfig + "</b></p>");
 
