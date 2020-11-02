@@ -6,67 +6,27 @@
   "description": "Hierarchical Encounter.locationID list in Wildbook",
   "source": "http://en.wikipedia.org/wiki/List_of_seas",
   "locationID": [
-	{ "name":"BI - Broughton Island", "id":"BI - Broughton Island", "locationID":[] },
+  
+  { "name":"Australia (East)", "id":"Australia (East)", "locationID":[] },
 
-{ "name":"BS - Big Seal", "id":"BS - Big Seal", "locationID":[] },
+{ "name":"California", "id":"California", "locationID":[] },
 
-{ "name":"BT -	Bait Grounds, Forster", "id":"BT - Bait Grounds, Forster", "locationID":[] },
+{ "name":"False Bay S Africa", "id":"False Bay S Africa", "locationID":[] },
 
-{ "name":"CC -	Cherubs Cave", "id":"CC - Cherubs Cave", "locationID":[] },
+{ "name":"La Jolla Cove", "id":"La Jolla Cove", "locationID":[] },
 
-{ "name":"CG -	Cod Grounds, Laurieton", "id":"CG - Cod Grounds, Laurieton", "locationID":[] },
+{ "name":"None", "id":"None", "locationID":[] },
 
-{ "name":"CK", "id":"CK", "locationID":[] },
+{ "name":"Point La Jolla", "id":"Point La Jolla", "locationID":[] },
 
-{ "name":"DP -	Dalmeny Point", "id":"DP - Dalmeny Point", "locationID":[] },
+{ "name":"Point Loma", "id":"Point Loma", "locationID":[] },
 
-{ "name":"FB -	Fairy Bower", "id":"FB - Fairy Bower", "locationID":[] },
+{ "name":"San Diego", "id":"San Diego", "locationID":[] },
 
-{ "name":"FC -	Foggy Cave, Terrigal", "id":"FC - Foggy Cave, Terrigal", "locationID":[] },
+{ "name":"San Fransisco Bay", "id":"San Fransisco Bay", "locationID":[] },
 
-{ "name":"FL -	Flinders Reef", "id":"FL - Flinders Reef", "locationID":[] },
+{ "name":"SoCal", "id":"SoCal", "locationID":[] }
 
-{ "name":"FO - Forster", "id":"FO - Forster", "locationID":[] },
-
-{ "name":"FR - Fish Rock", "id":"FR - Fish Rock", "locationID":[] },
-
-{ "name":"GI -	Green Island", "id":"GI - Green Island", "locationID":[] },
-
-{ "name":"JR - Julian Rocks", "id":"JR - Julian Rocks", "locationID":[] },
-
-{ "name":"LF -	Long Reef, Sydney", "id":"LF - Long Reef, Sydney", "locationID":[] },
-
-{ "name":"LR - Latitude Reef, Forster", "id":"LR - Latitude Reef, Forster", "locationID":[] },
-
-{ "name":"LS - Little Seal", "id":"LS - Little Seal", "locationID":[] },
-
-{ "name":"MI - Montague Island", "id":"MI - Montague Island", "locationID":[] },
-
-{ "name":"MP - Magic Point", "id":"MP - Magic Point", "locationID":[] },
-
-{ "name":"MR -	Mermaid Reef", "id":"MR - Mermaid Reef", "locationID":[] },
-
-{ "name":"NB -	North Bondi", "id":"NB - North Bondi", "locationID":[] },
-
-{ "name":"PF -	Pinnacle Forster", "id":"PF - Pinnacle Forster", "locationID":[] },
-
-{ "name":"SF -	Status Reef, Forster", "id":"SF - Status Reef, Forster", "locationID":[] },
-
-{ "name":"SI", "id":"SI", "locationID":[] },
-
-{ "name":"SK -	Skeleton Reef, Forster", "id":"SK - Skeleton Reef, Forster", "locationID":[] },
-
-{ "name":"SR -	Seal Rocks", "id":"SR -	Seal Rocks", "locationID":[] },
-
-{ "name":"SS -	South Solitary Island", "id":"SS - South Solitary Island", "locationID":[] },
-
-{ "name":"TB -	The Barge", "id":"TB - The Barge", "locationID":[] },
-
-{ "name":"TG -	Tollgate", "id":"TG - Tollgate", "locationID":[] },
-
-{ "name":"WB", "id":"WB", "locationID":[] },
-
-{ "name":"WR -	Wolf Rock", "id":"WR - Wolf Rock", "locationID":[] }
   ]
 }
 
