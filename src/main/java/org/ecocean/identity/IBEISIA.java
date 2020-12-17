@@ -1983,7 +1983,7 @@ System.out.println("RESP ===>>>>>> " + resp.toString(2));
 */
 /*
     update due to WB-945 work:  we now must _first_ build all the Annotations, and then after that decide how they get distributed
-    to Encounters...
+    to Encounters... 
 */
             if ((rlist != null) && (rlist.length() > 0) && (ilist != null) && (ilist.length() == rlist.length())) {
                 FeatureType.initAll(myShepherd);
