@@ -199,8 +199,6 @@ function doAjaxForProject(requestJSON,userId){
 
 
 <style type="text/css">
-<<<<<<< HEAD
-=======
     .full_screen_map {
     position: absolute !important;
     top: 0px !important;
@@ -211,7 +209,6 @@ function doAjaxForProject(requestJSON,userId){
     margin-top: 0px !important;
     margin-bottom: 8px !important;
     }
->>>>>>> manualUserConsolidate
 
 	.required-missing {
 		outline: solid 4px rgba(255,0,0,0.5);

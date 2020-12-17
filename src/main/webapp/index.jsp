@@ -49,7 +49,6 @@ if (!CommonConfiguration.isWildbookInitialized(myShepherd)) {
 
 
 
-<<<<<<< HEAD
 <style type="text/css">
 .full_screen_map {
 position: absolute !important;
@@ -68,7 +67,7 @@ margin-bottom: 8px !important;
   var map;
   var mapZoom = 8;
   var center;
-  var newCenter;	
+  var newCenter;
 //Define the overlay, derived from google.maps.OverlayView
   function Label(opt_options) {
    // Initialization
@@ -106,7 +105,7 @@ margin-bottom: 8px !important;
      google.maps.event.removeListener(this.listeners_[i]);
    }
   };
-  
+
   // Implement draw
   Label.prototype.draw = function() {
    var projection = this.getProjection();
@@ -125,7 +124,7 @@ margin-bottom: 8px !important;
     	// Create an array of styles for our Google Map.
   	    //var gmap_styles = [{"stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"color":"#00c0f7"}]},{"featureType":"landscape","stylers":[{"visibility":"on"},{"color":"#005589"}]},{"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"visibility":"on"},{"color":"#00c0f7"},{"weight":1}]}]
     	if($("#map_canvas").hasClass("full_screen_map")){mapZoom=3;}
-		
+
     	if (center == null) {
 	    	center = new google.maps.LatLng(0,0);
     	} else {
@@ -162,7 +161,7 @@ margin-bottom: 8px !important;
  			    	}
  			    }
  		});
- 		
+
  		// let's add map points for our locationIDs
  		<%
  		List<String> locs=CommonConfiguration.getIndexedPropertyValues("locationID", context);
@@ -215,23 +214,21 @@ margin-bottom: 8px !important;
     			center = newCenter;
     			map.setCenter(map.getCenter());
     		});
-    		 
- 	     }); 	 
-    	 
-    	 google.maps.event.addDomListener(window, "resize", function() {	 
+
+ 	     });
+
+    	 google.maps.event.addDomListener(window, "resize", function() {
  	    	console.log("Resize Center : "+center);
  	    	google.maps.event.trigger(map, "resize");
  	  	    console.log("Resize : "+newCenter);
  	  	    map.setCenter(center);
- 	     });    
+ 	     });
  	 } // end initialize function
 
     google.maps.event.addDomListener(window, 'load', initialize);
-  	
+
   </script>
 <%
-=======
->>>>>>> manualUserConsolidate
 
 
 //let's quickly get the data we need from Shepherd
@@ -272,7 +269,6 @@ catch(Exception e){
 
 %>
 
-<<<<<<< HEAD
 <section class="hero container-fluid main-section relative">
     <div class="container relative">
         <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
@@ -286,125 +282,12 @@ catch(Exception e){
             <a href="submit.jsp">
                 <button class="large"><%= props.getProperty("reportEncounter") %><span class="button-icon" aria-hidden="true"></button>
             </a>
-=======
-<style>
-
-
-
-
-#fullScreenDiv{
-    width:100%;
-   /* Set the height to match that of the viewport. */
-    
-    width: auto;
-    padding:0!important;
-    margin: 0!important;
-    position: relative;
-}
-#video{    
-    width: 100vw; 
-    height: auto;
-    object-fit: cover;
-    left: 0px;
-    top: 0px;
-    z-index: -1;
-}
-
-h2.vidcap {
-	font-size: 2.4em;
-	
-	color: #fff;
-	font-weight:300;
-	text-shadow: 1px 2px 2px #333;
-	margin-top: 35%;
-}
-
-
-
-/* The container for our text and stuff */
-#messageBox{
-    position: absolute;  top: 0;  left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height:100%;
-}
-
-@media screen and (min-width: 851px) {
-	h2.vidcap {
-	    font-size: 3.3em;
-	    margin-top: -45%;
-	}
-}
-
-@media screen and (max-width: 850px) and (min-width: 551px) {
-
-	
-	#fullScreenDiv{
-	    width:100%;
-	   /* Set the height to match that of the viewport. */
-	    
-	    width: auto;
-	    padding-top:50px!important;
-	    margin: 0!important;
-	    position: relative;
-	}
-	
-	h2.vidcap {
-	    font-size: 2.4em;
-	    margin-top: 55%;
-	}
-	
-}
-@media screen and (max-width: 550px) {
-
-	
-	#fullScreenDiv{
-	    width:100%;
-	   /* Set the height to match that of the viewport. */
-	    
-	    width: auto;
-	    padding-top:150px!important;
-	    margin: 0!important;
-	    position: relative;
-	}
-	
-	h2.vidcap {
-	    font-size: 1.8em;
-	    margin-top: 100%;
-	}
-	
-}
- 
-
-</style>
-<section style="padding-bottom: 0px;padding-top:0px;" class="container-fluid main-section relative videoDiv">
-
-        
-   <div id="fullScreenDiv">
-        <div id="videoDiv">           
-            <video playsinline preload id="video" autoplay muted>
-            <source src="images/MS_humpback_compressed.webm#t=,3:05" type="video/webm"></source>
-            <source src="images/MS_humpback_compressed.mp4#t=,3:05" type="video/mp4"></source>
-            </video> 
->>>>>>> manualUserConsolidate
         </div>
-        <div id="messageBox"> 
+        <div id="messageBox">
             <div>
                 <h2 class="vidcap"><%=props.getProperty("4cetaceanResearch") %></h2>
 
-<<<<<<< HEAD
 	</div>
-=======
-            </div>
-        </div>   
-    </div>
-
-  
-
-
->>>>>>> manualUserConsolidate
 </section>
 
 <!-- usedta be the carousel -->
@@ -436,7 +319,6 @@ h2.vidcap {
             </p>
         </div>
 
-<<<<<<< HEAD
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <h3 class="section-header"><%=props.getProperty("innerResultH3") %></h3>
         </div>
@@ -459,59 +341,6 @@ h2.vidcap {
                 <%=props.getProperty("innerResultP") %>
             </p>
         </div>
-=======
-  	<p class="lead"><%=props.getProperty("howItWorksHDescription") %></p>
-  	
-  	<h3 class="section-header"><%=props.getProperty("howItWorks1") %></h3>
-  	<p class="lead"><%=props.getProperty("howItWorks1Description") %></p>
-  	<img width="500px" height="*" style="max-width: 100%;" height="*" class="lazyload" src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="images/detectionSpermWhale.jpg" />
-		  	
-  	
-  	<h3 class="section-header"><%=props.getProperty("howItWorks2") %></h3>
-  	<p class="lead"><%=props.getProperty("howItWorks2Description") %></p>
-  	<img width="500px" height="*" style="max-width: 100%;" height="*" class="lazyload" src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="images/CurvRank_matches.jpg" />
-		
-		
-	<h3 class="section-header"><%=props.getProperty("howItWorks4") %></h3>
-  	<p class="lead"><%=props.getProperty("howItWorks4Description") %></p>
-  	<img width="500px" height="*" style="max-width: 100%;" height="*" class="lazyload" src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="images/action.jpg" />
-		
-  	
-  	<h2 class="section-header"><%=props.getProperty("howItWorks3") %></h2>
-  	<p class="lead"><%=props.getProperty("howItWorks3Description") %></p>
-  	
-  	<div class="row">
-  		<section class="col-xs-12 col-sm-6 col-md-4 col-lg-4 padding focusbox" height="500px">
-		  	<div class="focusbox-inner opec">
-		  	<img width="400px" style="max-width: 100%;" height="*" class="lazyload" src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="images/hotspotter.jpg" />
-		  	<em><%=props.getProperty("megapteraMatching") %></em>
-	  	</section>
-	  	
-  		<section class="col-xs-12 col-sm-6 col-md-4 col-lg-4 padding focusbox" height="500px">
-		  	<div class="focusbox-inner opec">
-		  	<img width="400px" style="max-width: 100%;" height="*" class="lazyload" src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="images/spermWhaleTrailingEdge.jpg" />
-		  	<em><%=props.getProperty("physeterMatching") %></em>
-	  	</section>
-	  	
-  		<section class="col-xs-12 col-sm-6 col-md-4 col-lg-4 padding focusbox">
-		  	<div class="focusbox-inner opec">
-		  	<img height="*" style="max-width: 100%;" width="400px" class="lazyload pull-left" src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="images/tracedFin.jpg" />
-		  	<div><em><%=props.getProperty("tursiopsMatching") %></em></div>
-	  	</section>
-	  	
-  		<section class="col-xs-12 col-sm-6 col-md-4 col-lg-4 padding focusbox">
-		  	<div class="focusbox-inner opec">
-		  	<img width="400px" style="max-width: 100%;" height="*" class="lazyload" src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="images/rightWHaleID.jpg" />
-		  	<em><%=props.getProperty("eubalaenaMatching") %></em>
-	  	</section>
-	  	
-  	</div>
-  	
-  	
-
-  	<p class="lead"><%=props.getProperty("moreSoon") %></p>
-
->>>>>>> manualUserConsolidate
 </section>
 
 <div class="container-fluid relative data-section">
@@ -564,11 +393,7 @@ h2.vidcap {
 
             <section class="col-xs-12 col-sm-6 col-md-4 col-lg-4 padding focusbox">
                 <div class="focusbox-inner opec">
-<<<<<<< HEAD
                     <h2><%=props.getProperty("latestEncs") %></h2>
-=======
-                    <h2><%=props.getProperty("latestAnimalEncounters") %></h2>
->>>>>>> manualUserConsolidate
                     <ul class="encounter-list list-unstyled">
 
                        <%
@@ -676,11 +501,13 @@ h2.vidcap {
     <section class="container text-center  main-section">
        <div class="row">
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-<<<<<<< HEAD
                 <p class="brand-primary"><i><span class="massive"><%=numMarkedIndividuals %></span><%=props.getProperty("identifiedAnimals") %></i></p>
             </section>
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
                 <p class="brand-primary"><i><span class="massive"><%=numEncounters %></span> reported sightings<%=props.getProperty("reportedSightings") %></i></p>
+            </section>
+            <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
+                <p class="brand-primary"><i><span class="massive"><%=numEncounters %></span> <%=props.getProperty("reportedSightings") %></i></p>
             </section>
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
 
@@ -689,36 +516,22 @@ h2.vidcap {
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
 
                 <p class="brand-primary"><i><span class="massive"><%=numDataContributors %></span><%=props.getProperty("researcherCount") %></i></p>
-=======
-                <p class="brand-primary"><i><span class="massive"><%=numMarkedIndividuals %></span> <%=props.getProperty("identifiedAnimals") %></i></p>
-            </section>
-            <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-                <p class="brand-primary"><i><span class="massive"><%=numEncounters %></span> <%=props.getProperty("reportedSightings") %></i></p>
-            </section>
-            <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-
-                <p class="brand-primary"><i><span class="massive"><%=numUsersWithRoles %></span> <%=props.getProperty("citizenScientists") %></i></p>
-            </section>
-            <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-
-                <p class="brand-primary"><i><span class="massive"><%=numDataContributors %></span> <%=props.getProperty("researchVolunteers") %></i></p>
->>>>>>> manualUserConsolidate
             </section>
         </div>
 
         <hr/>
 
-		<!-- 
+		<!--
         <main class="container">
             <article class="text-center">
                 <div class="row">
                     <img src="cust/mantamatcher/img/individual_placeholder_image.jpg" data-src="cust/mantamatcher/img/DSWP2015-20150408_081746a_Kopi.jpg" alt="" class="pull-left col-xs-7 col-sm-4 col-md-4 col-lg-4 col-xs-offset-2 col-sm-offset-1 col-md-offset-1 col-lg-offset-1 lazyload" />
-                   
+
 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 text-left">
                         <h1><%=props.getProperty("whyWeDoThis") %></h1>
                         <p class="lead">
                             <i>"Sperm whales roam so vastly that no one research group can study them across their range. PhotoID as a tool for conservation and research finds power in numbers and international, inter-institutional collaboration. Flukebook enables us to do this easily."</i><br>- Shane Gero, <i>The Dominica Sperm Whale Project</i></p>
-                        
+
                     </div>
                 </div>
             </article>
@@ -728,8 +541,7 @@ h2.vidcap {
     </section>
 </div>
 
-<<<<<<< HEAD
-<!-- 
+<!--
 <div class="container main-section">
     <h2 class="section-header"><%= props.getProperty("gMapHeader") %></h2>
 
@@ -737,14 +549,9 @@ h2.vidcap {
 
 </div>
  -->
- 
-<%
-if((CommonConfiguration.getProperty("allowAdoptions",context)!=null)&&(CommonConfiguration.getProperty("allowAdoptions",context).equals("true"))){
-=======
 
 <%
-if((CommonConfiguration.getProperty("allowAdoptions", context)!=null)&&(CommonConfiguration.getProperty("allowAdoptions", context).equals("true"))){
->>>>>>> manualUserConsolidate
+if((CommonConfiguration.getProperty("allowAdoptions",context)!=null)&&(CommonConfiguration.getProperty("allowAdoptions",context).equals("true"))){
 %>
 <div class="container-fluid">
     <section class="container main-section">
