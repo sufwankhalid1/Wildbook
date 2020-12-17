@@ -25,25 +25,22 @@ Shepherd myShepherd=new Shepherd(context);
 
 
 <body>
-<<<<<<< HEAD:src/main/webapp/appadmin/fixSomeFields.jsp
 
-=======
->>>>>>> manualUserConsolidate:archive/fixSomeFields.jsp
 <ul>
 <%
 
 myShepherd.beginDBTransaction();
 <<<<<<< HEAD:src/main/webapp/appadmin/fixSomeFields.jsp
 try{
-	
+
 
 
 	Iterator allEncs=myShepherd.getAllEncounters();
-	
+
 
 
 	while(allEncs.hasNext()){
-		
+
 		Encounter enc=(Encounter)allEncs.next();
 		enc.setGenus("Spilogale");
 		//enc.refreshDependentProperties(context);
@@ -52,13 +49,10 @@ try{
 
 	}
 	myShepherd.rollbackDBTransaction();
-	
 
-=======
 
 int numFixes=0;
 
-<<<<<<< HEAD
 try {
 
 	String rootDir = getServletContext().getRealPath("/");
@@ -83,7 +77,6 @@ try {
   		myShepherd.beginDBTransaction();
     }
   }
->>>>>>> manualUserConsolidate:archive/fixSomeFields.jsp
 }
 catch(Exception e){
 	myShepherd.rollbackDBTransaction();

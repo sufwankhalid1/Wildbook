@@ -185,29 +185,17 @@ function forceLink(el) {
 		      }
 		      	//System.out.println("    EMG: got indID element "+individualID);
 
-		      
-<<<<<<< HEAD
-		      //Start caption render JSP side
-		      String[] capos=new String[1];
-		      capos[0]="<p style=\"color: white;\"><em>"+filename+"</em><br>";
-		      capos[0]+=individualID;
-		      
-		      capos[0]+=encprops.getProperty("encounter")+"&nbsp;<a target=\"_blank\" style=\"color: white;\" href=\"encounter.jsp?number="+enc.getCatalogNumber()+"\">"+enc.getCatalogNumber()+"</a><br>";
-		      capos[0]+=encprops.getProperty("date")+" "+enc.getDate()+"<br>";
-		      
-		      capos[0]+=encprops.getProperty("location")+" "+enc.getLocation()+"<br>"+encprops.getProperty("locationID")+" "+enc.getLocationID()+"<br>"+encprops.getProperty("paredMediaAssetID")+" <a style=\"color: white;\" target=\"_blank\" href=\"../obrowse.jsp?type=MediaAsset&id="+ma.getId()+"\">"+ma.getId()+"</a></p>";
-		      captionLinks.add(capos);
-=======
+
                 //Start caption render JSP side
                 String[] capos=new String[1];
                 capos[0]= "<p class=\"capos-individual-filename\" style=\"color: white;\"><em>"+filename+"</em><br>";
-                
+
                 capos[0]+=individualID;
-                
+
                 capos[0]+= "<span class=\"capos-encounter-id\">"+encprops.getProperty("encounter")+"&nbsp;<a target=\"_blank\" style=\"color: white;\" href=\"encounter.jsp?number="+enc.getCatalogNumber()+"\">"+enc.getCatalogNumber().substring(0,14)+"</a></span><br>";
-                
+
                 capos[0]+= "<span class=\"capos-encounter-date\">"+encprops.getProperty("date")+" "+enc.getDate()+"<br></span>";
-                
+
                 if (enc.getLocation()!=null&&!"".equals(enc.getLocation())) {
                     capos[0]+= "<span class=\"capos-encounter-location\">"+encprops.getProperty("location")+" "+enc.getLocation()+"</span><br>";
                 }
@@ -215,14 +203,13 @@ function forceLink(el) {
               capos[0]+="<div class=\"current-asset-id\" id=\"current-asset-id-"+ma.getId()+"\"></div>";
 
                 capos[0] += "<span class=\"capos-encounter-location-id\">"+encprops.getProperty("locationID")+" "+enc.getLocationID()+"</span><br>";
-                    
+
                 capos[0] += "<span class=\"capos-parent-asset\">"+encprops.getProperty("paredMediaAssetID")+" <a style=\"color: white;\" target=\"_blank\" href=\"../obrowse.jsp?type=MediaAsset&id="+ma.getId()+"\">"+ma.getId()+"</a></span></p>";
-                
+
 
               captionLinks.add(capos);
 		      //System.out.println("    EMG: got capos "+capos[0]);
 
->>>>>>> manualUserConsolidate
 		      //end caption render JSP side
 
 		      // SKIPPING NON-TRIVIAL ANNOTATIONS FOR NOW! TODO
@@ -651,7 +638,7 @@ if(request.getParameter("encounterNumber")!=null){
   }
 
 
-  
+
   var removeAnnotation = function(maId, aid) {
 	    if (confirm("Are you sure you want to remove this Annotation from the encounter?")) {
 	      $.ajax({
@@ -677,8 +664,8 @@ if(request.getParameter("encounterNumber")!=null){
 	      });
 	    }
 	  }
-  
-  
+
+
   assets.forEach( function(elem, index) {
     var assetId = elem['id'];
     console.log("   EMG asset "+index+" id: "+assetId);
@@ -882,21 +869,21 @@ function doImageEnhancer(sel) {
            <%
            if(!encNum.equals("")){
         	%>
-        	
-	            
+
+
 	            ['remove this image', function(enh) {
 	        		var mid = imageEnhancer.mediaAssetIdFromElement(enh.imgEl);
 	        		removeAsset(mid);
 	            }]
-	            
+
             <%
     		}
             %>
 
-            
-          
+
+
 	];
-        
+
 			//remove annotation option for non-trivial annots
         	opt.menu.push(
 	        	[
@@ -910,7 +897,7 @@ function doImageEnhancer(sel) {
 	        				}
 	        				return false;
 	        		}
-	        		, 
+	        		,
 	        		function(enh) {
 					var maId = imageEnhancer.mediaAssetIdFromElement(enh.imgEl);
 		           	var aid = imageEnhancer.annotationIdFromElement(enh.imgEl.context);
@@ -918,8 +905,8 @@ function doImageEnhancer(sel) {
 	            	}
 	        	]
         	);
-        	
-     
+
+
         	// opt.menu.push(['create optional feature region', function(enh) {
             //     var mid = enh.imgEl.data('enh-mediaassetid');
             //     window.location.href = 'encounterCR.jsp?number=' + encounterNumber + '&mediaAssetId=' + mid;
