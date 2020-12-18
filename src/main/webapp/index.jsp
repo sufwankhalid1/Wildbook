@@ -24,8 +24,7 @@ String context=ServletUtilities.getContext(request);
 Shepherd myShepherd=null;
 myShepherd=new Shepherd(context);
 myShepherd.setAction("index.jsp");
-
-
+String mapKey = CommonConfiguration.getGoogleMapsKey(context);
 String langCode=ServletUtilities.getLanguageCode(request);
 
 //check for and inject a default user 'tomcat' if none exists
@@ -45,7 +44,7 @@ if (!CommonConfiguration.isWildbookInitialized(myShepherd)) {
   <%
   StartupWildbook.initializeWildbook(request, myShepherd);
 }
-
+%>
 
 
 
@@ -59,6 +58,7 @@ width: 100% !important;
 height: 100% !important;
 margin-top: 0px !important;
 margin-bottom: 8px !important;
+}
 </style>
 <script src="//maps.google.com/maps/api/js?key=<%=mapKey%>&language=<%=langCode%>"></script>
 <script src="cust/mantamatcher/js/google_maps_style_vars.js"></script>
@@ -284,10 +284,6 @@ catch(Exception e){
             </a>
         </div>
         <div id="messageBox">
-            <div>
-                <h2 class="vidcap"><%=props.getProperty("4cetaceanResearch") %></h2>
-
-	</div>
 </section>
 
 <!-- usedta be the carousel -->
@@ -507,15 +503,10 @@ catch(Exception e){
                 <p class="brand-primary"><i><span class="massive"><%=numEncounters %></span> reported sightings<%=props.getProperty("reportedSightings") %></i></p>
             </section>
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-                <p class="brand-primary"><i><span class="massive"><%=numEncounters %></span> <%=props.getProperty("reportedSightings") %></i></p>
-            </section>
-            <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-
                 <p class="brand-primary"><i><span class="massive"><%=numUsersWithRoles %></span><%=props.getProperty("citizenScientists") %></i></p>
             </section>
             <section class="col-xs-12 col-sm-3 col-md-3 col-lg-3 padding">
-
-                <p class="brand-primary"><i><span class="massive"><%=numDataContributors %></span><%=props.getProperty("researcherCount") %></i></p>
+                <p class="brand-primary"><i><span class="massive"><%=numDataContributors %></span><%=props.getProperty("researchVolunteers") %></i></p>
             </section>
         </div>
 
