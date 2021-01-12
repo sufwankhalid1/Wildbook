@@ -1,7 +1,9 @@
 package org.ecocean;
 
 import org.json.JSONObject;
+import java.util.*;
 //import org.apache.commons.lang3.builder.ToStringBuilder;
+
 
 public class Decision {
 
@@ -61,6 +63,50 @@ public class Decision {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public void updateEncounterState(Shepherd myShepherd){
+      System.out.println("updateEncounterState entered!");
+      context=ServletUtilities.getContext(request);
+      String langCode=ServletUtilities.getLanguageCode(request);
+      Properties props = CommonConfig.loadProps(request);
+      props = ShepherdProperties.getProperties("commonConfiguration.properties", langCode, context);
+
+      Encounter currentEncounter = this.getEncounter();
+      List<Decision> decisionsForEncounter = myShepherd.getDecisionsForEncounter(currentEncounter);
+      System.out.println("decisionsForEncounter are: " + decisionsForEncounter.toString());
+      if(decisionsForEncounter != null && decisionsForEncounter.size() > 0){
+        int MIN_DECISIONS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_DECISIONS_TO_CHANGE_ENC_STATE",context))).intValue();
+        if(decisionsForEncounter.size() >= MIN_DECISIONS_TO_CHANGE_ENC_STATE){
+          //TODO property match
+          int numberOfAgreements = 5; //TODO check get number of agreements
+          int MIN_AGREEMENTS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_AGREEMENTS_TO_CHANGE_ENC_STATE",context))).intValue();
+          if(numberOfAgreements >= MIN_AGREEMENTS_TO_CHANGE_ENC_STATE){
+            System.out.println("updateEncounterState min decisions and min agreements criteria satisfied!");
+            myShepherd.beginDBTransaction();
+            try{
+              String newState = "temp"; //TODO ??
+              this.getEncounter().setState(newState);
+              myShepherd.updateDBTransaction();
+            }catch(Exception e){
+              System.out.println("Error trying to update encounter state in Decision.updateEncounterState()");
+              e.printStackTrace();
+            }
+            finally{
+              myShepherd.rollbackAndClose();
+            }
+          }else{
+            System.out.println("updateEncounterState min agreements criteria NOT satisfied!");
+            return;
+          }
+        }else{
+          System.out.println("updateEncounterState min decisions criteria NOT satisfied!");
+          return;
+        }
+      }else{
+        System.out.println("updateEncounterState min decisions criteria NOT satisfied!");
+        return;
+      }
     }
 
 
