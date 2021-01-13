@@ -16,6 +16,7 @@ java.lang.StringBuffer,
 java.util.Vector,
 java.util.Iterator,
 org.ecocean.servlet.importer.*,
+org.json.JSONObject,
 java.lang.NumberFormatException"%>
 
 <%
@@ -33,26 +34,35 @@ Shepherd myShepherd=new Shepherd(context);
     try{
 
         Encounter targetEncounter = myShepherd.getEncounter("c8d1aae2-a6f8-4c18-a96e-a090c97988e1");
-        String property = 'match';
-        JSONObject value = { id: '79b5cb31-77a5-497e-9a7a-cee0779b5a13', presented: 3, initTime: new Date().getTime(), attrSaveTime: new Date().getTime(), matchSaveTime: new Date().getTime() };
+        String property = "match";
+
+        // JSONObject value = { id: "79b5cb31-77a5-497e-9a7a-cee0779b5a13", presented: int(3), initTime: new Date().getTime(), attrSaveTime: new Date().getTime(), matchSaveTime: new Date().getTime() };
+        JSONObject value = new JSONObject();
+        value.put("id", "79b5cb31-77a5-497e-9a7a-cee0779b5a13");
         User user1 = myShepherd.getUserByUUID("f37d7426-27e7-4133-a205-dac746824436");
         User user2 = myShepherd.getUserByUUID("29827461-582e-4bf1-9b3d-453bd4d0cd56");
         User user3 = myShepherd.getUserByUUID("6c51eb42-8964-4ac1-97b6-2a1c1bad4628");
         User user4 = myShepherd.getUserByUUID("60edc960-ac45-4710-b28a-679501a0bc48");
         User user5 = myShepherd.getUserByUUID("6c887eab-3928-47d2-8d47-011e8d589caf");
         User user6 = myShepherd.getUserByUUID("0b616fdd-ccf9-40e6-bbd9-b93724b12014");
-        Decision dec = new Decision(user1, targetEncounter, key, value);
-        myShepherd.getPM().makePersistent(dec);
+        System.out.println("decision got here 1");
+        Decision dec = new Decision(user1, targetEncounter, property, value);
+        myShepherd.updateDBTransaction();
         dec.updateEncounterState(myShepherd);
-        // dec = new Decision(user2, targetEncounter, key, value);
         // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user3, targetEncounter, key, value);
+        System.out.println("decision got here 2");
+        System.out.println("decision got here 3");
+        // dec.updateEncounterState(myShepherd);
+        System.out.println("decision got here 4");
+        // dec = new Decision(user2, targetEncounter, property, value);
         // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user4, targetEncounter, key, value);
+        // dec = new Decision(user3, targetEncounter, property, value);
         // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user5, targetEncounter, key, value);
+        // dec = new Decision(user4, targetEncounter, property, value);
         // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user6, targetEncounter, key, value);
+        // dec = new Decision(user5, targetEncounter, property, value);
+        // myShepherd.getPM().makePersistent(dec);
+        // dec = new Decision(user6, targetEncounter, property, value);
         // myShepherd.getPM().makePersistent(dec);
 
 
