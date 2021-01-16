@@ -113,7 +113,7 @@ public class Decision {
       }
     }
 
-    public int getNumberOfAgreementsForMostAgreedUponMatch(List<Decision> decisionsForEncounter){
+    public static int getNumberOfAgreementsForMostAgreedUponMatch(List<Decision> decisionsForEncounter){
       System.out.println("getNumberOfAgreementsForMostAgreedUponMatch entered");
       int numAgreements = 0;
       String currentMatchedMarkedIndividualId = null;
@@ -144,7 +144,7 @@ public class Decision {
       return numAgreements;
     }
 
-    public String findWinner(JSONObject winningIndividualTracker) {
+    public static String findWinner(JSONObject winningIndividualTracker) {
       System.out.println("findWinner entered. winningIndividualTracker is: " + winningIndividualTracker.toString());
       int currentMax = 0;
       String currentWinner = null;

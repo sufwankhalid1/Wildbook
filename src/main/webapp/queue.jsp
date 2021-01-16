@@ -240,7 +240,7 @@ System.out.println("WARNING: queue.generateData() has no matchMap(" + ekey + ")"
             } else {
                 all[36] = "???";
             }
-            
+
             rows.add(all);
         }
     }
@@ -408,7 +408,7 @@ if (!forceList && (encs.size() > 0)) {
 }
 
 String[] theads = new String[]{"ID", "Sub Date"};
-if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date", "Col Date", "Dec Ct", "Flags"};
+if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date", "Col Date", "Dec Ct", "Level of Agreement", "Flags"};
 %>
 
 <jsp:include page="header.jsp" flush="true" />
@@ -606,6 +606,7 @@ if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date
             }
 
             out.println("<td class=\"col-dct-" + dct + "\">" + dct + "</td>");
+            out.println("<td class=\"col-lvl-ag-" + Decision.getNumberOfAgreementsForMostAgreedUponMatch(decs) + "\">" + Decision.getNumberOfAgreementsForMostAgreedUponMatch(decs) + "</td>");
             out.println("<td " + ((fct == 0) ? "" : " title=\"" + String.join(" | ", fmap.keySet()) + "\"") + " class=\"col-flag" + ((fct > 0) ? " is-flagged" : "") + " col-fct-" + fct + "\">" + fct + "</td>");
         }
 
