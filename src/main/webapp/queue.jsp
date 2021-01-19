@@ -463,6 +463,7 @@ if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date
 .row-state-rejected,
 .row-state-disputed,
 .row-state-processing,
+.row-state-mergereview,
 .row-state-finished,
 .row-state-practice,
 .row-state-unapproved,
@@ -499,6 +500,7 @@ if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date
     <button id="filter-button-incoming" onClick="return filter('incoming');">incoming<span class="fct"></span></button>
     <button id="filter-button-pending" onClick="return filter('pending');">pending<span class="fct"></span></button>
     <button id="filter-button-processing" onClick="return filter('processing');">processing<span class="fct"></span></button>
+    <button id="filter-button-processing" onClick="return filter('mergereview');">merge review<span class="fct"></span></button>
     <button id="filter-button-finished" onClick="return filter('finished');">finished<span class="fct"></span></button>
     <button id="filter-button-flagged" onClick="return filter('flagged');">flagged<span class="fct"></span></button>
     <button id="filter-button-disputed" onClick="return filter('disputed');">disputed<span class="fct"></span></button>
@@ -528,6 +530,11 @@ if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date
     for (Encounter enc : encs) {
         out.println("<tr class=\"enc-row row-state-" + enc.getState() + "\">");
         String ename = enc.getEventID();
+
+        // This will only need to be run once to update all of the already-existing encounters and the decisions that have been made based on them. Feel free to remove these lines if this has already happened and I forgot to delete. Should speed things up just a little bit... -Mark F.
+        Decision.updateEncounterStateBasedOnDecision(myShepherd, enc);
+        //
+        
         if (ename == null) ename = enc.getCatalogNumber().substring(0,8);
         out.println("<td class=\"col-id\">");
         if (isAdmin) {

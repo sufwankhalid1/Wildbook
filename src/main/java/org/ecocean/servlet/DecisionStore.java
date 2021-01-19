@@ -70,7 +70,7 @@ public class DecisionStore extends HttpServlet {
                 Decision dec = new Decision(user, enc, key, val);
                 myShepherd.getPM().makePersistent(dec);
                 ids.put(dec.getId());
-                dec.updateEncounterState(myShepherd);
+                Decision.updateEncounterStateBasedOnDecision(myShepherd, enc);
             }
             if (ids.length() > 0) {
                 rtn.put("success", true);
@@ -88,7 +88,7 @@ public class DecisionStore extends HttpServlet {
             myShepherd.getPM().makePersistent(dec);
             rtn.put("success", true);
             rtn.put("decisionId", dec.getId());
-            dec.updateEncounterState(myShepherd);
+            Decision.updateEncounterStateBasedOnDecision(myShepherd, enc);
         }
 
         if (rtn.optBoolean("success", false)) {

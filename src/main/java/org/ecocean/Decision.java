@@ -69,46 +69,46 @@ public class Decision {
         return timestamp;
     }
 
-    public void updateEncounterState(Shepherd myShepherd){
-      System.out.println("updateEncounterState entered!");
+    public static void updateEncounterStateBasedOnDecision(Shepherd myShepherd, Encounter enc){
+      System.out.println("updateEncounterStateBasedOnDecision entered!");
       String context="context0";
 
-      Encounter currentEncounter = this.getEncounter();
-      List<Decision> decisionsForEncounter = myShepherd.getDecisionsForEncounter(currentEncounter);
+      // Encounter enc = this.getEncounter();
+      List<Decision> decisionsForEncounter = myShepherd.getDecisionsForEncounter(enc);
       if(decisionsForEncounter != null && decisionsForEncounter.size() > 0){
         System.out.println("decisionsForEncounter are: " + decisionsForEncounter.toString() + ". There are " + decisionsForEncounter.size() + " of them");
         int MIN_DECISIONS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_DECISIONS_TO_CHANGE_ENC_STATE",context))).intValue();
-        int numberOfMatchDecisionsMadeForEncounter = getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter);
+        int numberOfMatchDecisionsMadeForEncounter = Decision.getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter);
         System.out.println("numberOfMatchDecisionsMadeForEncounter is: " + numberOfMatchDecisionsMadeForEncounter);
         if(getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter) >= MIN_DECISIONS_TO_CHANGE_ENC_STATE){
           //TODO property match
-          int numberOfAgreementsForMostAgreedUponMatch = getNumberOfAgreementsForMostAgreedUponMatch(decisionsForEncounter);
+          int numberOfAgreementsForMostAgreedUponMatch = Decision.getNumberOfAgreementsForMostAgreedUponMatch(decisionsForEncounter);
           System.out.println(" numberOfAgreementsForMostAgreedUponMatch is: " + numberOfAgreementsForMostAgreedUponMatch);
           int MIN_AGREEMENTS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_AGREEMENTS_TO_CHANGE_ENC_STATE",context))).intValue();
           if(numberOfAgreementsForMostAgreedUponMatch >= MIN_AGREEMENTS_TO_CHANGE_ENC_STATE){
-            System.out.println("updateEncounterState min decisions and min agreements criteria satisfied!");
+            System.out.println("updateEncounterStateBasedOnDecision min decisions and min agreements criteria satisfied!");
             myShepherd.beginDBTransaction();
             try{
-              String newState = "heyoo cool"; //TODO ??
-              this.getEncounter().setState(newState);
+              String newState = "mergereview"; //TODO ??
+              enc.setState(newState);
               myShepherd.updateDBTransaction();
             }catch(Exception e){
-              System.out.println("Error trying to update encounter state in Decision.updateEncounterState()");
+              System.out.println("Error trying to update encounter state in Decision.updateEncounterStateBasedOnDecision()");
               e.printStackTrace();
             }
             finally{
               myShepherd.rollbackAndClose();
             }
           }else{
-            System.out.println("updateEncounterState min agreements criteria NOT satisfied!");
+            System.out.println("updateEncounterStateBasedOnDecision min agreements criteria NOT satisfied!");
             return;
           }
         }else{
-          System.out.println("updateEncounterState min decisions criteria NOT satisfied!");
+          System.out.println("updateEncounterStateBasedOnDecision min decisions criteria NOT satisfied!");
           return;
         }
       }else{
-        System.out.println("updateEncounterState min decisions criteria NOT satisfied!");
+        System.out.println("updateEncounterStateBasedOnDecision min decisions criteria NOT satisfied!");
         return;
       }
     }
@@ -166,7 +166,7 @@ public class Decision {
       return currentWinner;
     }
 
-    public int getNumberOfMatchDecisionsMadeForEncounter(List<Decision> decisionsForEncounter){
+    public static int getNumberOfMatchDecisionsMadeForEncounter(List<Decision> decisionsForEncounter){
       int numAgreements = 0;
       if(decisionsForEncounter!=null && decisionsForEncounter.size()>0){
         for(Decision currentDecision: decisionsForEncounter){

@@ -48,7 +48,7 @@ Shepherd myShepherd=new Shepherd(context);
         System.out.println("decision got here 1");
         Decision dec = new Decision(user1, targetEncounter, property, value);
         myShepherd.updateDBTransaction();
-        dec.updateEncounterState(myShepherd);
+        Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
         // myShepherd.getPM().makePersistent(dec);
         System.out.println("decision got here 2");
         System.out.println("decision got here 3");
