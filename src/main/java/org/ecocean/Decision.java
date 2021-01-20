@@ -76,8 +76,10 @@ public class Decision {
       // Encounter enc = this.getEncounter();
       List<Decision> decisionsForEncounter = myShepherd.getDecisionsForEncounter(enc);
       if(decisionsForEncounter != null && decisionsForEncounter.size() > 0){
-        System.out.println("decisionsForEncounter are: " + decisionsForEncounter.toString() + ". There are " + decisionsForEncounter.size() + " of them");
+        // System.out.println("decisionsForEncounter are: " + decisionsForEncounter.toString() + ". There are " + decisionsForEncounter.size() + " of them");
+        System.out.println("There are " + decisionsForEncounter.size() + " decisions in the current encounter you're checking");
         int MIN_DECISIONS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_DECISIONS_TO_CHANGE_ENC_STATE",context))).intValue();
+        System.out.println("MIN_DECISIONS_TO_CHANGE_ENC_STATE is: " + MIN_DECISIONS_TO_CHANGE_ENC_STATE);
         int numberOfMatchDecisionsMadeForEncounter = Decision.getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter);
         System.out.println("numberOfMatchDecisionsMadeForEncounter is: " + numberOfMatchDecisionsMadeForEncounter);
         if(getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter) >= MIN_DECISIONS_TO_CHANGE_ENC_STATE){
@@ -85,9 +87,10 @@ public class Decision {
           int numberOfAgreementsForMostAgreedUponMatch = Decision.getNumberOfAgreementsForMostAgreedUponMatch(decisionsForEncounter);
           System.out.println(" numberOfAgreementsForMostAgreedUponMatch is: " + numberOfAgreementsForMostAgreedUponMatch);
           int MIN_AGREEMENTS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_AGREEMENTS_TO_CHANGE_ENC_STATE",context))).intValue();
+          System.out.println("MIN_AGREEMENTS_TO_CHANGE_ENC_STATE is: " + MIN_AGREEMENTS_TO_CHANGE_ENC_STATE);
           if(numberOfAgreementsForMostAgreedUponMatch >= MIN_AGREEMENTS_TO_CHANGE_ENC_STATE){
             System.out.println("updateEncounterStateBasedOnDecision min decisions and min agreements criteria satisfied!");
-            myShepherd.beginDBTransaction();
+            // myShepherd.beginDBTransaction(); //assume that a db transaction has already been opened from elsewhere when this is called
             try{
               String newState = "mergereview"; //TODO ??
               enc.setState(newState);
@@ -97,7 +100,7 @@ public class Decision {
               e.printStackTrace();
             }
             finally{
-              myShepherd.rollbackAndClose();
+              myShepherd.rollbackDBTransaction(); //rollbackAndClose
             }
           }else{
             System.out.println("updateEncounterStateBasedOnDecision min agreements criteria NOT satisfied!");
@@ -114,7 +117,7 @@ public class Decision {
     }
 
     public static int getNumberOfAgreementsForMostAgreedUponMatch(List<Decision> decisionsForEncounter){
-      System.out.println("getNumberOfAgreementsForMostAgreedUponMatch entered");
+      // System.out.println("getNumberOfAgreementsForMostAgreedUponMatch entered");
       int numAgreements = 0;
       String currentMatchedMarkedIndividualId = null;
       int currentMatchedMarkedIndividualCounter = 0;
@@ -129,37 +132,37 @@ public class Decision {
             currentDecisionValue = currentDecision.getValue();
             currentMatchedMarkedIndividualId = currentDecisionValue.optString("id", null);
             currentMatchedMarkedIndividualCounter = winningIndividualTracker.optInt(currentMatchedMarkedIndividualId, 0);
-            System.out.println("currentMatchedMarkedIndividualCounter before incrementing on "+ currentDecisionValue.toString() + " is: " + currentMatchedMarkedIndividualCounter);
+            // System.out.println("currentMatchedMarkedIndividualCounter before incrementing on "+ currentDecisionValue.toString() + " is: " + currentMatchedMarkedIndividualCounter);
             winningIndividualTracker.put(currentMatchedMarkedIndividualId, currentMatchedMarkedIndividualCounter+1); //TODO check logic
-            System.out.println("currentMatchedMarkedIndividualCounter AFTER incrementing on "+ currentDecisionValue.toString() + " is: " + winningIndividualTracker.optInt(currentMatchedMarkedIndividualId, 0));
+            // System.out.println("currentMatchedMarkedIndividualCounter AFTER incrementing on "+ currentDecisionValue.toString() + " is: " + winningIndividualTracker.optInt(currentMatchedMarkedIndividualId, 0));
           }
         }
         String winningMarkedIndividualId = findWinner(winningIndividualTracker);
         if(winningMarkedIndividualId!=null){
-          System.out.println("there was a highest rated individual!");
+          // System.out.println("there was a highest rated individual!");
           numAgreements = winningIndividualTracker.optInt(winningMarkedIndividualId, 0);
         }
       }
-      System.out.println("Exiting getNumberOfAgreementsForMostAgreedUponMatch. numAgreements is: " + numAgreements);
+      // System.out.println("Exiting getNumberOfAgreementsForMostAgreedUponMatch. numAgreements is: " + numAgreements);
       return numAgreements;
     }
 
     public static String findWinner(JSONObject winningIndividualTracker) {
-      System.out.println("findWinner entered. winningIndividualTracker is: " + winningIndividualTracker.toString());
+      // System.out.println("findWinner entered. winningIndividualTracker is: " + winningIndividualTracker.toString());
       int currentMax = 0;
       String currentWinner = null;
       Iterator<String> keys = winningIndividualTracker.keys();
       String key = null;
       while(keys.hasNext()) {
           key = keys.next();
-          System.out.println("got here in findWinner. We have an int!");
-          System.out.println("key is: " + key);
-          System.out.println("value is: " + winningIndividualTracker.optInt(key,0));
+          // System.out.println("got here in findWinner. We have an int!");
+          // System.out.println("key is: " + key);
+          // System.out.println("value is: " + winningIndividualTracker.optInt(key,0));
           if(winningIndividualTracker.optInt(key,0)>currentMax){
             currentMax = winningIndividualTracker.optInt(key,0);
-            System.out.println("currentMax is: " + currentMax);
+            // System.out.println("currentMax is: " + currentMax);
             currentWinner = key;
-            System.out.println("currentWinner is: " + currentWinner);
+            // System.out.println("currentWinner is: " + currentWinner);
           }
       }
       System.out.println("exiting findWinner. Winner is: " + currentWinner);
@@ -170,15 +173,15 @@ public class Decision {
       int numAgreements = 0;
       if(decisionsForEncounter!=null && decisionsForEncounter.size()>0){
         for(Decision currentDecision: decisionsForEncounter){
-          System.out.println("currentDecision is: " + currentDecision.toString());
-          System.out.println("currentDecision property is: " + currentDecision.getProperty());
-          System.out.println("currentDecision value is: " + currentDecision.getValue());
+          // System.out.println("currentDecision is: " + currentDecision.toString());
+          // System.out.println("currentDecision property is: " + currentDecision.getProperty());
+          // System.out.println("currentDecision value is: " + currentDecision.getValue());
           if(currentDecision.getProperty().equals("match")){
             numAgreements ++;
           }
         }
       }
-      System.out.println("getNumberOfMatchDecisionsMadeForEncounter is: " + numAgreements);
+      // System.out.println("getNumberOfMatchDecisionsMadeForEncounter is: " + numAgreements);
       return numAgreements;
     }
 
