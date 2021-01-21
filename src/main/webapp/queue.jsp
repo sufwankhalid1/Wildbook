@@ -690,10 +690,13 @@ function setActiveTab(state) {
 function filter(state) {
     currentActiveState = state;
     $('.enc-row').hide();
-    // $('.row-state-' + state).show();
     let oldestDateThatNeedsAttention = getOldestDateThatNeedsAttentionInState(state);
-    console.log("oldestDateThatNeedsAttention is: " + oldestDateThatNeedsAttention);
-    $('.col-date:contains('+oldestDateThatNeedsAttention+')').parents('.row-state-' + state).show();
+    if(oldestDateThatNeedsAttention){
+      $('.col-date:contains('+oldestDateThatNeedsAttention+')').parents('.row-state-' + state).show();
+    }else{
+      //if, for some reason, the oldest date fetch fails, at least show them the encounters in the state they want  -Mark F.
+      $('.row-state-' + state).show();
+    }
 
     if (state == 'flagged') {  //special case to find also *any* with flags
         $('.is-flagged').each(function(i, el) {
@@ -711,24 +714,16 @@ function filter(state) {
     setActiveTab(state);
 }
 
-function getOldestDateThatNeedsAttentionInState(state){
-  // console.log("getOldestDateThatNeedsAttentionInState entered");
+function getOldestDateThatNeedsAttentionInState(state){ //weird to use jQuery here and in the filter method to accomplish something similar, but I wanted clear division of task in this method -Mark F.
   let allDatesInState = $('.row-state-' + state).children('.col-date').map(function(){
     return $(this).text();
   }).get();
-  // console.log("allDatesInState is:");
-  // console.log(allDatesInState);
-  // console.log(typeof allDatesInState);
   let allDatesSorted = allDatesInState.sort(function(a,b) {
-    a = a.split('-').join(''); //a little hacky. Depends on the text date display format. But easy to change using .reverse() and changing the split character as needed -Mark F.
+    a = a.split('-').join(''); //a little hacky. Depends on the text date display format. But easy to change using .reverse() and changing the split character, say, to "/", as needed. Also, be mindful of month/date order if we ever add support for other languages here -Mark F.
     b = b.split('-').join('');
     return a > b ? 1 : a < b ? -1 : 0;
-    // return a.localeCompare(b);         // <-- alternative
   });
-  // console.log("allDatesSorted is: ");
-  // console.log(allDatesSorted);
   if(allDatesSorted && allDatesSorted.length>0){
-    // console.log("oldest in this category is: " + allDatesSorted[0]);
     return allDatesSorted[0];
   }else{
     return null;
