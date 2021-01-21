@@ -398,8 +398,9 @@ if (!forceList && (encs.size() > 0)) {
         if (eid == null) continue;  //snh
         Long ct = (Long)row[1];
         System.out.println("queue.jsp: ? can give " + eid + " (ct " + ct + ") to " + user);
+        int MIN_DECISIONS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_DECISIONS_TO_CHANGE_ENC_STATE",context))).intValue();
         for (Encounter enc : encs) {
-            if (eid.equals(enc.getCatalogNumber())) {
+            if (eid.equals(enc.getCatalogNumber()) && ct <= MIN_DECISIONS_TO_CHANGE_ENC_STATE) {
                 foundId = eid;
                 break IDFOUND;
             }
@@ -506,7 +507,7 @@ if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date
     <button id="filter-button-incoming" onClick="return filter('incoming');">incoming<span class="fct"></span></button>
     <button id="filter-button-pending" onClick="return filter('pending');">pending<span class="fct"></span></button>
     <button id="filter-button-processing" onClick="return filter('processing');">processing<span class="fct"></span></button>
-    <button id="filter-button-processing" onClick="return filter('mergereview');">merge review<span class="fct"></span></button>
+    <button id="filter-button-mergereview" onClick="return filter('mergereview');">merge review<span class="fct"></span></button>
     <button id="filter-button-finished" onClick="return filter('finished');">finished<span class="fct"></span></button>
     <button id="filter-button-flagged" onClick="return filter('flagged');">flagged<span class="fct"></span></button>
     <button id="filter-button-disputed" onClick="return filter('disputed');">disputed<span class="fct"></span></button>
@@ -539,9 +540,9 @@ if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date
         String ename = enc.getEventID();
 
         // TODO comment this back in and run once on production....This will only need to be run once to update all of the already-existing encounters and the decisions that have been made based on them. Feel free to remove these lines if this has already happened and I forgot to delete. Should speed things up just a little bit... -Mark F.
-        System.out.println("got here 1. Encounter " + enc.getCatalogNumber()+"'s state is: " + enc.getState());
-        Decision.updateEncounterStateBasedOnDecision(myShepherd, enc);
-        System.out.println("got here 2 Encounter " + enc.getCatalogNumber()+"'s state is now: " + enc.getState());
+        // System.out.println("got here 1. Encounter " + enc.getCatalogNumber()+"'s state is: " + enc.getState());
+        // Decision.updateEncounterStateBasedOnDecision(myShepherd, enc);
+        // System.out.println("got here 2 Encounter " + enc.getCatalogNumber()+"'s state is now: " + enc.getState());
         //
 
         if (ename == null) ename = enc.getCatalogNumber().substring(0,8);
@@ -683,13 +684,16 @@ function setActiveTab(state) {
     $('#filter-tabs .tab-active').removeClass('tab-active');
     $('#filter-button-' + state).addClass('tab-active');
     var ct = $('.enc-row:visible').length;
-    $('#filter-info').html('<b>' + ct + '</b> <i>' + state + '</i> submission' + (ct == 1 ? '' : 's'));
+    $('#filter-info').html('<b>' + ct + '</b> <i>' + state + '</i> submission' + (ct == 1 ? '' : 's') + ' in current day');
 }
 
 function filter(state) {
     currentActiveState = state;
     $('.enc-row').hide();
-    $('.row-state-' + state).show();
+    // $('.row-state-' + state).show();
+    let oldestDateThatNeedsAttention = getOldestDateThatNeedsAttentionInState(state);
+    console.log("oldestDateThatNeedsAttention is: " + oldestDateThatNeedsAttention);
+    $('.col-date:contains('+oldestDateThatNeedsAttention+')').parents('.row-state-' + state).show();
 
     if (state == 'flagged') {  //special case to find also *any* with flags
         $('.is-flagged').each(function(i, el) {
@@ -705,6 +709,30 @@ function filter(state) {
     }
 
     setActiveTab(state);
+}
+
+function getOldestDateThatNeedsAttentionInState(state){
+  // console.log("getOldestDateThatNeedsAttentionInState entered");
+  let allDatesInState = $('.row-state-' + state).children('.col-date').map(function(){
+    return $(this).text();
+  }).get();
+  // console.log("allDatesInState is:");
+  // console.log(allDatesInState);
+  // console.log(typeof allDatesInState);
+  let allDatesSorted = allDatesInState.sort(function(a,b) {
+    a = a.split('-').join(''); //a little hacky. Depends on the text date display format. But easy to change using .reverse() and changing the split character as needed -Mark F.
+    b = b.split('-').join('');
+    return a > b ? 1 : a < b ? -1 : 0;
+    // return a.localeCompare(b);         // <-- alternative
+  });
+  // console.log("allDatesSorted is: ");
+  // console.log(allDatesSorted);
+  if(allDatesSorted && allDatesSorted.length>0){
+    // console.log("oldest in this category is: " + allDatesSorted[0]);
+    return allDatesSorted[0];
+  }else{
+    return null;
+  }
 }
 
 </script>
