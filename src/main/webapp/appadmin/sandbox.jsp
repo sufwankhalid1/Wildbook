@@ -34,111 +34,100 @@ Shepherd myShepherd=new Shepherd(context);
     try{
 
         Encounter targetEncounter = myShepherd.getEncounter("c8d1aae2-a6f8-4c18-a96e-a090c97988e1");
-        String property = "match";
 
-        // JSONObject value = { id: "79b5cb31-77a5-497e-9a7a-cee0779b5a13", presented: int(3), initTime: new Date().getTime(), attrSaveTime: new Date().getTime(), matchSaveTime: new Date().getTime() };
-        JSONObject value = new JSONObject();
-        value.put("id", "79b5cb31-77a5-497e-9a7a-cee0779b5a13");
-        User user1 = myShepherd.getUserByUUID("f37d7426-27e7-4133-a205-dac746824436");
-        User user2 = myShepherd.getUserByUUID("29827461-582e-4bf1-9b3d-453bd4d0cd56");
-        User user3 = myShepherd.getUserByUUID("6c51eb42-8964-4ac1-97b6-2a1c1bad4628");
-        User user4 = myShepherd.getUserByUUID("60edc960-ac45-4710-b28a-679501a0bc48");
-        User user5 = myShepherd.getUserByUUID("6c887eab-3928-47d2-8d47-011e8d589caf");
-        User user6 = myShepherd.getUserByUUID("0b616fdd-ccf9-40e6-bbd9-b93724b12014");
-        System.out.println("decision got here 1");
-        Decision dec = new Decision(user1, targetEncounter, property, value);
+        //reset decisions on encounters
+        System.out.println("got here 1");
+        List<Decision> oldDecisions = myShepherd.getDecisionsForEncounter(targetEncounter);
+        System.out.println("got here 2");
+        if(oldDecisions!=null && oldDecisions.size()>0){
+          System.out.println("oldDecisions.size() is: " + oldDecisions.size());
+          for(Decision currentDecision: oldDecisions){
+            System.out.println("got here 3");
+            myShepherd.throwAwayDecision(currentDecision);
+          }
+          myShepherd.updateDBTransaction();
+        }
+        System.out.println("got here 4");
+        List<Decision> checkDecisions = myShepherd.getDecisionsForEncounter(targetEncounter);
+        System.out.println("got here 5");
+        if(checkDecisions==null || checkDecisions.size()<1){
+          System.out.println("things are going according to plan");
+          String property = "match";
+
+          JSONObject value = new JSONObject();
+          String matchCandidateCatalogNumber1 = "79b5cb31-77a5-497e-9a7a-cee0779b5a13";
+          String matchCandidateCatalogNumber2 = "56950464-9348-493f-a8a7-cbf019af583a";
+          value.put("id", matchCandidateCatalogNumber1);
+          User user1 = myShepherd.getUserByUUID("f37d7426-27e7-4133-a205-dac746824436");
+          User user2 = myShepherd.getUserByUUID("29827461-582e-4bf1-9b3d-453bd4d0cd56");
+          User user3 = myShepherd.getUserByUUID("6c51eb42-8964-4ac1-97b6-2a1c1bad4628");
+          User user4 = myShepherd.getUserByUUID("60edc960-ac45-4710-b28a-679501a0bc48");
+          User user5 = myShepherd.getUserByUUID("6c887eab-3928-47d2-8d47-011e8d589caf");
+          User user6 = myShepherd.getUserByUUID("0b616fdd-ccf9-40e6-bbd9-b93724b12014");
+          User user7 = myShepherd.getUserByUUID("0c205984-0105-469a-8efc-4829cc774914");
+          System.out.println("decision got here 1");
+          Decision dec = new Decision(user1, targetEncounter, property, value);
+          myShepherd.getPM().makePersistent(dec);
+          System.out.println("decision got here 1.5");
+          myShepherd.updateDBTransaction();
+          Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
+          // myShepherd.getPM().makePersistent(dec);
+          System.out.println("decision got here 2");
+          System.out.println("decision got here 3");
+          // dec.updateEncounterState(myShepherd);
+          System.out.println("decision got here 4");
+          dec = new Decision(user2, targetEncounter, property, value);
+          myShepherd.getPM().makePersistent(dec);
+          myShepherd.updateDBTransaction();
+          Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
+
+          dec = new Decision(user3, targetEncounter, property, value);
+          myShepherd.getPM().makePersistent(dec);
+          myShepherd.updateDBTransaction();
+          Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
+
+          dec = new Decision(user4, targetEncounter, property, value);
+          myShepherd.getPM().makePersistent(dec);
+          myShepherd.updateDBTransaction();
+          Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
+
+          value.put("id", matchCandidateCatalogNumber2);
+
+          dec = new Decision(user5, targetEncounter, property, value);
+          myShepherd.getPM().makePersistent(dec);
+          myShepherd.updateDBTransaction();
+          Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
+
+          dec = new Decision(user6, targetEncounter, property, value);
+          myShepherd.getPM().makePersistent(dec);
+          myShepherd.updateDBTransaction();
+          Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
+
+          dec = new Decision(user7, targetEncounter, property, value);
+          myShepherd.getPM().makePersistent(dec);
+          myShepherd.updateDBTransaction();
+          Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
+
+          checkDecisions = myShepherd.getDecisionsForEncounter(targetEncounter);
+          if(checkDecisions!=null){
+            System.out.println("after populating, checkDecisions.size() is: " + checkDecisions.size());
+          }
+        } else{
+          System.out.println("things are NOT going according to plan");
+        }
+
+
+        String newState = "finished";
+        targetEncounter.setState(newState);
         myShepherd.updateDBTransaction();
-        Decision.updateEncounterStateBasedOnDecision(myShepherd, targetEncounter);
-        // myShepherd.getPM().makePersistent(dec);
-        System.out.println("decision got here 2");
-        System.out.println("decision got here 3");
-        // dec.updateEncounterState(myShepherd);
-        System.out.println("decision got here 4");
-        // dec = new Decision(user2, targetEncounter, property, value);
-        // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user3, targetEncounter, property, value);
-        // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user4, targetEncounter, property, value);
-        // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user5, targetEncounter, property, value);
-        // myShepherd.getPM().makePersistent(dec);
-        // dec = new Decision(user6, targetEncounter, property, value);
-        // myShepherd.getPM().makePersistent(dec);
+
+        Encounter targetEncounter2 = myShepherd.getEncounter("ed3d828e-baf1-43f1-8130-4b24b0441463");
+        targetEncounter2.setState(newState);
+        myShepherd.updateDBTransaction();
 
 
-        // User mfisher1 = myShepherd.getUserByUUID("411704e5-045e-45c7-a14c-53d8ada46bc7");
-        // if(mfisher1!=null){
-        //   System.out.println("mfisher1 is: " + mfisher1.toString());
-        // }
-        // User mfisher = myShepherd.getUserByUUID("b9cf74d7-f630-46fd-92d4-5209c247e20f");
-        // String filter="SELECT FROM org.ecocean.Encounter where photographers.contains(user) && user.uuid==\""+mfisher1.getUUID()+"\" VARIABLES org.ecocean.User user";
-        // System.out.println("query in getPhotographerEncountersForUser is: " + filter);
-      	// List<Encounter> encs=new ArrayList<Encounter>();
-        // Query query= myShepherd.getPM().newQuery(filter);
-        // Collection c = (Collection) (query.execute());
-        // if(c!=null){
-        //   System.out.println("collection in getPhotographerEncountersForUser not null");
-        //   encs=new ArrayList<Encounter>(c);
-        //   System.out.println("encs are: " + encs.toString());
-        // }
-        // query.closeAll();
-
-        // User AMMTofo = myShepherd.getUserByUUID("702df060-0151-49f3-834a-4c3cd383c961");
-        // User aFlam = myShepherd.getUserByUUID("209a2d33-90ef-4ee4-9aa3-e319574ce33c");
-        // User userToRetain = AMMTofo;
-        // User userToBeConsolidated = aFlam;
-        //
-        // List<Organization> originalOrganizationsOfUserToRetain = userToRetain.getOrganizations();
-        // System.out.println("mark before consoldiating orgs: " + originalOrganizationsOfUserToRetain.toString());
-        // UserConsolidate.consolidateOrganizations(myShepherd, userToRetain, userToBeConsolidated);
-        // List<Organization> finalOrganizationsOfUserToRetain = userToRetain.getOrganizations();
-        // System.out.println("mark after consolidating orgs finalOrganizationsOfUserToRetain is: " + finalOrganizationsOfUserToRetain.toString());
-
-        // Encounter targetEncounter = myShepherd.getEncounter("967cd20d-6170-4334-a51e-6b409f30d130");
-        // if(targetEncounter!=null){
-        //   System.out.println("targetEncounter is: " + targetEncounter.toString());
-        //   List<User> photographers = targetEncounter.getPhotographers();
-        //   if(photographers!=null){
-        //     System.out.println("photographers are: " + photographers.toString());
-        //   }
-        // }
-        // Encounter targetEncounter2 = myShepherd.getEncounter("833c7343-eda9-4bb8-917e-27c4bf7d1059");
-        // if(targetEncounter2!=null){
-        //   System.out.println("targetEncounter2 is: " + targetEncounter2.toString());
-        //   List<User> photographers = targetEncounter2.getPhotographers();
-        //   if(photographers!=null){
-        //     System.out.println("photographers are: " + photographers.toString());
-        //   }
-        // }
-
-        // User mfisher1 = myShepherd.getUserByUUID("b9cf74d7-f630-46fd-92d4-5209c247e20f");
-        // User mfisher1_only_collaborator = myShepherd.getUserByUUID("07271b48-2d8d-4c93-a195-678204eb33b5");
-        // if(targetEncounter!=null && mfisher1_only_collaborator!=null){
-        //   System.out.println("targetEncounter is: " + targetEncounter.toString());
-        //   System.out.println("mfisher1_only_collaborator is: " + mfisher1_only_collaborator.toString());
-        //   targetEncounter.addSubmitter(mfisher1_only_collaborator);
-        //   System.out.println("added submitter");
-        // }
-
-        // Occurrence targetOccurrence = myShepherd.getOccurrence("a3fa9ea3-dfd4-4553-bcb9-6bf7fe018a88");
-        // System.out.println("targetOccurrence is: " + targetOccurrence.toString());
-        // User mfisher1_only_collaborator = myShepherd.getUserByUUID("07271b48-2d8d-4c93-a195-678204eb33b5");
-        // List<User> newUsersToAdd = new ArrayList<User>();
-        // if(targetOccurrence!=null && mfisher1_only_collaborator!=null){
-        //   newUsersToAdd.add(mfisher1_only_collaborator);
-        //   System.out.println("newUsersToAdd is: " + newUsersToAdd.toString());
-        //   targetOccurrence.setSubmitters(newUsersToAdd);
-        //   targetOccurrence.setInformOthers(newUsersToAdd);
-        // }
         myShepherd.commitDBTransaction();
       	myShepherd.beginDBTransaction();
-
-
-        // User userToRetain = myShepherd.getUserByUUID("702df060-0151-49f3-834a-4c3cd383c961");//"702df060-0151-49f3-834a-4c3cd383c961");
-        // User userToBeConsolidated = myShepherd.getUserByUUID("d9ff86dd-88b5-4de8-aeaf-ea161b9e41e2");//"0fa7dc0b-107e-43e0-942d-cc2326f09036");  //d9ff86dd-88b5-4de8-aeaf-ea161b9e41e2 = craig o'neil
-        //
-        // List<User> similarUsers = UserConsolidate.getSimilarUsers(userToBeConsolidated, myShepherd.getPM());
-        // System.out.println("similarUsers are: " + similarUsers.toString());
 
 
       }finally{

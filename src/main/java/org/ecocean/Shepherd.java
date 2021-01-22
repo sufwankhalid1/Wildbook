@@ -4870,5 +4870,9 @@ public class Shepherd {
     return null;
   }
 
+  public void throwAwayDecision(Decision regrettableDecision) {
+    pm.deletePersistent(regrettableDecision);
+  }
+
 
 } //end Shepherd class

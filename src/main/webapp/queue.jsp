@@ -543,7 +543,6 @@ if (isAdmin) theads = new String[]{"ID", "State", "Cat", "MatchPhoto", "Sub Date
         // System.out.println("got here 1. Encounter " + enc.getCatalogNumber()+"'s state is: " + enc.getState());
         // Decision.updateEncounterStateBasedOnDecision(myShepherd, enc);
         // System.out.println("got here 2 Encounter " + enc.getCatalogNumber()+"'s state is now: " + enc.getState());
-        //
 
         if (ename == null) ename = enc.getCatalogNumber().substring(0,8);
         out.println("<td class=\"col-id\">");
@@ -691,9 +690,10 @@ function filter(state) {
     currentActiveState = state;
     $('.enc-row').hide();
     let oldestDateThatNeedsAttention = getOldestDateThatNeedsAttentionInState(state);
-    if(oldestDateThatNeedsAttention){
+    if(oldestDateThatNeedsAttention && state!=="finished"){ //finished should not filter by date; it should capture _all_ encounters that are in the finished state
       $('.col-date:contains('+oldestDateThatNeedsAttention+')').parents('.row-state-' + state).show();
     }else{
+      console.log("got here and encounter state is: " + state);
       //if, for some reason, the oldest date fetch fails, at least show them the encounters in the state they want  -Mark F.
       $('.row-state-' + state).show();
     }

@@ -70,29 +70,31 @@ public class Decision {
     }
 
     public static void updateEncounterStateBasedOnDecision(Shepherd myShepherd, Encounter enc){
-      System.out.println("updateEncounterStateBasedOnDecision entered!");
+      // System.out.println("updateEncounterStateBasedOnDecision entered!");
       String context="context0";
 
       // Encounter enc = this.getEncounter();
       List<Decision> decisionsForEncounter = myShepherd.getDecisionsForEncounter(enc);
       if(decisionsForEncounter != null && decisionsForEncounter.size() > 0){
         // System.out.println("decisionsForEncounter are: " + decisionsForEncounter.toString() + ". There are " + decisionsForEncounter.size() + " of them");
-        System.out.println("There are " + decisionsForEncounter.size() + " decisions in the current encounter you're checking");
+        // System.out.println("There are " + decisionsForEncounter.size() + " decisions in the current encounter you're checking");
         int MIN_DECISIONS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_DECISIONS_TO_CHANGE_ENC_STATE",context))).intValue();
-        System.out.println("MIN_DECISIONS_TO_CHANGE_ENC_STATE is: " + MIN_DECISIONS_TO_CHANGE_ENC_STATE);
+        // System.out.println("MIN_DECISIONS_TO_CHANGE_ENC_STATE is: " + MIN_DECISIONS_TO_CHANGE_ENC_STATE);
         int numberOfMatchDecisionsMadeForEncounter = Decision.getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter);
-        System.out.println("numberOfMatchDecisionsMadeForEncounter is: " + numberOfMatchDecisionsMadeForEncounter);
+        System.out.println("Decision numberOfMatchDecisionsMadeForEncounter is: " + numberOfMatchDecisionsMadeForEncounter);
         if(getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter) >= MIN_DECISIONS_TO_CHANGE_ENC_STATE){
+          System.out.println(getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter) + " decisions have been made about the ecounter, which is at or above the " + MIN_DECISIONS_TO_CHANGE_ENC_STATE + " count threshold.");
           //TODO property match
           int numberOfAgreementsForMostAgreedUponMatch = Decision.getNumberOfAgreementsForMostAgreedUponMatch(decisionsForEncounter);
-          System.out.println(" numberOfAgreementsForMostAgreedUponMatch is: " + numberOfAgreementsForMostAgreedUponMatch);
+
           int MIN_AGREEMENTS_TO_CHANGE_ENC_STATE = (new Integer(CommonConfiguration.getProperty("MIN_AGREEMENTS_TO_CHANGE_ENC_STATE",context))).intValue();
-          System.out.println("MIN_AGREEMENTS_TO_CHANGE_ENC_STATE is: " + MIN_AGREEMENTS_TO_CHANGE_ENC_STATE);
+          // System.out.println("MIN_AGREEMENTS_TO_CHANGE_ENC_STATE is: " + MIN_AGREEMENTS_TO_CHANGE_ENC_STATE);
           if(numberOfAgreementsForMostAgreedUponMatch >= MIN_AGREEMENTS_TO_CHANGE_ENC_STATE){
-            System.out.println("updateEncounterStateBasedOnDecision min decisions and min agreements criteria satisfied!");
+            System.out.println("Decision numberOfAgreementsForMostAgreedUponMatch is: " + numberOfAgreementsForMostAgreedUponMatch + ", which is at or above the "+ MIN_AGREEMENTS_TO_CHANGE_ENC_STATE + " count threshold");
+            // System.out.println("updateEncounterStateBasedOnDecision min decisions and min agreements criteria satisfied!");
             // myShepherd.beginDBTransaction(); //assume that a db transaction has already been opened from elsewhere when this is called
             try{
-              String newState = "mergereview"; //TODO ??
+              String newState = "mergereview";
               enc.setState(newState);
               myShepherd.updateDBTransaction();
             }catch(Exception e){
@@ -103,15 +105,26 @@ public class Decision {
               myShepherd.rollbackDBTransaction(); //rollbackAndClose
             }
           }else{
-            System.out.println("updateEncounterStateBasedOnDecision min agreements criteria NOT satisfied!");
-            return;
+            if(numberOfAgreementsForMostAgreedUponMatch < MIN_AGREEMENTS_TO_CHANGE_ENC_STATE){
+              System.out.println("Decision numberOfAgreementsForMostAgreedUponMatch is: " + numberOfAgreementsForMostAgreedUponMatch + ", which is below the "+ MIN_AGREEMENTS_TO_CHANGE_ENC_STATE + " count threshold. This means that the encounter decisions are disputed");
+              try{
+                String newState = "disputed";
+                enc.setState(newState);
+                myShepherd.updateDBTransaction();
+              }catch(Exception e){
+                System.out.println("Error trying to update encounter state in Decision.updateEncounterStateBasedOnDecision()");
+                e.printStackTrace();
+              }finally{
+                myShepherd.rollbackDBTransaction(); //rollbackAndClose
+              }
+            }
           }
         }else{
-          System.out.println("updateEncounterStateBasedOnDecision min decisions criteria NOT satisfied!");
+          System.out.println(getNumberOfMatchDecisionsMadeForEncounter(decisionsForEncounter) + "Decision decisions have been made about the ecounter, which is below the " + MIN_DECISIONS_TO_CHANGE_ENC_STATE + " count threshold.");
           return;
         }
       }else{
-        System.out.println("updateEncounterStateBasedOnDecision min decisions criteria NOT satisfied!");
+        System.out.println("Decision no decisions have been made!");
         return;
       }
     }
