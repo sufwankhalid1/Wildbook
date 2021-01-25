@@ -7,9 +7,6 @@ java.util.HashMap,
 javax.jdo.Query,
 java.io.FileInputStream, java.io.File, java.io.FileNotFoundException, org.ecocean.*, org.apache.commons.lang3.StringEscapeUtils" %>
 
-<script src="<%=urlLoc %>/tools/simplePagination/jquery.simplePagination.js"></script>
-<link type="text/css" rel="stylesheet" href="<%=urlLoc %>/tools/simplePagination/simplePagination.css"/>
-
 <%!
 
 private static String rotationInfo(MediaAsset ma) {
@@ -243,12 +240,16 @@ System.out.println("getMatchPhoto(" + indiv + ") -> secondary = " + secondary);
             jd.put("value", d.getValue());
             jdecs.put(jd);
         }
+
+        String urlLoc = "//" + CommonConfiguration.getURLLocation(request);
 %>
 
 <jsp:include page="../header.jsp" flush="true" />
 <script>
 var userDecisions = <%=jdecs.toString(4)%>;
 </script>
+<script src="<%=urlLoc %>/tools/simplePagination/jquery.simplePagination.js"></script>
+<link type="text/css" rel="stylesheet" href="<%=urlLoc %>/tools/simplePagination/simplePagination.css"/>
 
 <script src="../tools/panzoom/jquery.panzoom.min.js"></script>
 
