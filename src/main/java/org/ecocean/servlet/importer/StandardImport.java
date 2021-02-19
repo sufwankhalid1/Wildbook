@@ -159,6 +159,7 @@ public class StandardImport extends HttpServlet {
 
     //Thus MUST be full path, such as: /import/NEAQ/converted/importMe.xlsx
     String filename = request.getParameter("filename");
+    filename = filename.replaceAll("[^a-zA-Z\\. ]", "");
 
     System.out.println("Filename? = "+filename);
 
@@ -226,8 +227,6 @@ public class StandardImport extends HttpServlet {
   }
 
   public void doImport(String filename, File dataFile, HttpServletRequest request, HttpServletResponse response) {
-
-
     missingColumns = new HashSet<String>();
     numFolderRows = 0;
     boolean dataFound = (dataFile!=null && dataFile.exists());
@@ -256,12 +255,9 @@ public class StandardImport extends HttpServlet {
     int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
     int rows = sheet.getPhysicalNumberOfRows();; // No of rows
     Row firstRow = sheet.getRow(0);
-
     initColIndexVariables(firstRow); // IMPORTANT: this initializes the TabularFeedback
-
     int cols = firstRow.getPhysicalNumberOfCells(); // No of columns
     //int lastColNum = firstRow.getLastCellNum();
-
 
     if(committing) {
       Shepherd myShepherd = new Shepherd(context);
@@ -1176,7 +1172,6 @@ public class StandardImport extends HttpServlet {
   }
 
   public ArrayList<Annotation> loadAnnotations(Row row, Shepherd myShepherd, Map<String,MediaAsset> myAssets) {
-
     AssetStore astore = getAssetStore(myShepherd);
 
   	//if (isFolderRow(row)) return loadAnnotationsFolderRow(row);
@@ -1325,6 +1320,7 @@ public class StandardImport extends HttpServlet {
     }
 
     String localPath = getString(row, "Encounter.mediaAsset"+i);
+    localPath = localPath.replaceAll("[^a-zA-Z\\. ]", "");
 
     if (isUserUpload) {
       // user uploads currently flatten all images into a folder (TODO fix that!) so we trim extensions

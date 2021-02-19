@@ -1302,15 +1302,45 @@ if(enc.getLocation()!=null){
  	<!-- adding ne submit GPS-->
 
 
+<%
+  String longy="";
+  String laty="";
+  if(enc.getLatitudeAsDouble()!=null){
+    laty=enc.getLatitudeAsDouble().toString();
+    if (!isOwner) {
+      BigDecimal latBD = new BigDecimal(laty);
+      latBD = latBD.setScale(1, RoundingMode.HALF_UP);
+      laty = latBD.toString();
+      laty += " ("+encprops.getProperty("truncated")+")";
+    }
+  }
+  if(enc.getLongitudeAsDouble()!=null){
+    longy=enc.getLongitudeAsDouble().toString();
+    if (!isOwner) {
+      BigDecimal lonBD = new BigDecimal(longy);
+      lonBD = lonBD.setScale(1, RoundingMode.HALF_UP);
+      longy = lonBD.toString();
+      longy += " ("+encprops.getProperty("truncated")+")";
+    }
+  }
 
- 	<%
- 	if(isOwner){
- 		String longy="";
-       	String laty="";
-       	if(enc.getLatitudeAsDouble()!=null){laty=enc.getLatitudeAsDouble().toString();}
-       	if(enc.getLongitudeAsDouble()!=null){longy=enc.getLongitudeAsDouble().toString();}
+  String uName = null;
+  User gpsUser = null;
+  if (request.getUserPrincipal()!=null) {
+    uName = request.getUserPrincipal().getName();
+    gpsUser = myShepherd.getUser(uName);
+  }
+  if(gpsUser!=null&&CommonConfiguration.showProperty("showGPSToResearchers",context)&&gpsUser.hasRoleByName("researcher", myShepherd)){
+    if (longy==null||"".equals(longy)||laty==null||"".equals(laty)) {
+      longy = encprops.getProperty("noGPS");
+      laty = encprops.getProperty("noGPS");
+    }
+%>
+    <p><em><strong>Latitude:&nbsp;</strong></em><span id="latitudeSpan"><%=laty%></span>,&nbsp;&nbsp;<em><strong>Longitude:&nbsp;</strong></em><span id="longitudeSpan"><%=longy%></span></p>
+<%
+  }
+%>
 
-     	%>
 
       <script type="text/javascript">
         $(document).ready(function() {
@@ -1496,7 +1526,7 @@ if(enc.getLocation()!=null){
     								 String indyDisplayName="";
     								 if(enc.hasMarkedIndividual()){
                       hrefVal="../individuals.jsp?langCode="+langCode+"&number="+enc.getIndividualID();
-                      
+
     									indyDisplayName=enc.getIndividual().getDisplayName(request, myShepherd);
     								 }
                      				%>
@@ -4892,6 +4922,7 @@ button#upload-button {
 
   flow.on('fileAdded', function(file, event){
     $('#file-activity').show();
+    file.name = file.name.replace(/[^a-zA-Z\. ]/g, "");
     console.log('added %o %o', file, event);
   });
   flow.on('fileProgress', function(file, chunk){
