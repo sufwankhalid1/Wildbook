@@ -25,6 +25,7 @@ async function sendAndRedirect(link, uuid){
         url: link,
         success: function(data) {
             console.log("finished task");
+		}
     });
     $("body").css("cursor", "progress");
     await new Promise(r => setTimeout(r, 3000));
