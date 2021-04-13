@@ -51,6 +51,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ecocean.ia.IA;
+
 //import com.amazonaws.services.route53.model.GetGeoLocationRequest;
 
 //import src.main.java.org.ecocean.servlet.String;
@@ -1409,6 +1411,19 @@ public class StandardImport extends HttpServlet {
 
       if (committing) {
         ma = astore.copyIn(f, assetParams);
+        
+        //register acmID and fail gracefully
+        try {
+          ArrayList<MediaAsset> maList=new ArrayList<MediaAsset>();
+          maList.add(ma);
+          IA.handleMissingAcmids(maList, myShepherd);
+        }
+        catch(Exception e) {
+          System.out.println("Failed to get an acmID for MediaAsset: "+ma.getId());
+          e.printStackTrace();
+        }
+        //end acmID registration
+          
         if(kws!=null)ma.setKeywords(kws);
         if(labels!=null) {
           for(LabeledKeyword lkw:labels) {
