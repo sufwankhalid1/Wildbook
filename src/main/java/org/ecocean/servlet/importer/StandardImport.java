@@ -162,7 +162,7 @@ public class StandardImport extends HttpServlet {
     //Thus MUST be full path, such as: /import/NEAQ/converted/importMe.xlsx
     String filename = request.getParameter("filename");
     if(Util.stringExists(filename)){
-      filename = filename.replaceAll("[^a-zA-Z0-9\\. ]", "");
+      //filename = filename.replaceAll("[^a-zA-Z0-9\\. ]", "");
       System.out.println("Filename? = "+filename);
     }
 
