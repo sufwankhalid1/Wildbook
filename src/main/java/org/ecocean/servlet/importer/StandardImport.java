@@ -164,7 +164,6 @@ public class StandardImport extends HttpServlet {
     //Thus MUST be full path, such as: /import/NEAQ/converted/importMe.xlsx
     String filename = request.getParameter("filename");
     if(Util.stringExists(filename)){
-      //filename = filename.replaceAll("[^a-zA-Z0-9\\. ]", "");
       System.out.println("Filename? = "+filename);
     }
 
@@ -1325,7 +1324,6 @@ public class StandardImport extends HttpServlet {
     }
 
     String localPath = getString(row, "Encounter.mediaAsset"+i);
-    //if(Util.stringExists(localPath)) localPath = localPath.replaceAll("[^a-zA-Z0-9\\. ]", "");
 
     if (isUserUpload) {
       // user uploads currently flatten all images into a folder (TODO fix that!) so we trim extensions
@@ -2009,21 +2007,18 @@ System.out.println("use existing MA [" + fhash + "] -> " + myAssets.get(fhash));
     System.out.println("Calling getString on row "+row.getRowNum()+" with cell "+i+" value "+String.valueOf(row.getCell(i)));
     final Cell cell = row.getCell(i);
     String colNameOfCell = getKeyByValue(colIndexMap, cell.getColumnIndex()); //get the key of colIndexMap from it's index value.
-    System.out.println("deleteMe colNameOfCell is: " + colNameOfCell);
     String str = null;
     try {
       if (cell!=null&&cell.getCellType()==Cell.CELL_TYPE_STRING) {
         System.out.println("Current cell: "+cell.toString()+" Current row: "+cell.getRowIndex()+" Current col: "+cell.getColumnIndex());
         str = cell.getStringCellValue();
-        if(Pattern.matches(".*mediaAsset\\d+$", colNameOfCell)){ //only column names ending mediaAssets followed by digits should return true here
-          System.out.println("deleteMe passed the pattern matching for colNameOfCell: " + colNameOfCell);
+        if(Pattern.matches(".*mediaAsset\\d+$", colNameOfCell)){ //only column names ending with mediaAssets followed by digits should return true here and get sanitized below
           if(Util.stringExists(str)) str = str.replaceAll("[^a-zA-Z0-9\\. ]", "");
       }
       }
       // not ideal, but maybe get something
       if (str==null&&cell!=null) {
         str = cell.toString();
-        //if(Util.stringExists(str)) str = str.replaceAll("[^a-zA-Z0-9\\. ]", "");
       }
     } catch (Exception e) {
       // it should be basically impossible to get here. this is not a challenge.
