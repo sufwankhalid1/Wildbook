@@ -1801,13 +1801,16 @@ function drawFeature(imgEl, ft, asset) {
 }
 
 function checkForResults() {
+	console.log("deleteMe got here a7 checkForResults called");
 	jQuery.ajax({
 		url: 'ia?getJobResultFromTaskID=' + taskId,
 		success: function(d) {
+			console.log("deleteMe got here a1");
 			console.info(d);
 			processResults(d);
 		},
 		error: function() {
+			console.log("deleteMe got here a2");
 			alert('error fetching results');
 		},
 		dataType: 'json'
@@ -1816,6 +1819,8 @@ function checkForResults() {
 
 var countdown = 100;
 function processResults(res) {
+	console.log("deleteMe got here and res.matchAnnotations is: ");
+	console.log(res.matchAnnotations);
 	if (!res || !res.queryAnnotation) {
 console.info('waiting to try again...');
 		$('#results').html('Waiting for results. You may leave this page.  [countdown=' + countdown + ']');
@@ -2039,6 +2044,7 @@ function addNegativeButton(encId, oldDisplayName) {
 }
 
 function getProjectData(currentUsername, selectedProject) {
+	console.log("deleteMe got here a4");
   let requestJSON = {};
   requestJSON['participantId'] = currentUsername;
   console.log("all requestJSON for populateProjectDropdown() : "+JSON.stringify(requestJSON));
@@ -2049,6 +2055,7 @@ function getProjectData(currentUsername, selectedProject) {
       dataType: 'json',
       contentType: 'application/json',
       success: function(d) {
+		  console.log("deleteMe got here a5");
           console.info('Success in ProjectGet retrieving data! Got back '+JSON.stringify(d));
 		  let projectsArr = d.projects;
 		  if (projectsArr.length) {
@@ -2056,6 +2063,7 @@ function getProjectData(currentUsername, selectedProject) {
 		  }
       },
       error: function(x,y,z) {
+		  console.log("deleteMe got here a6");
           console.warn('%o %o %o', x, y, z);
       }
   });
@@ -2084,6 +2092,7 @@ function populateProjectsDropdown(projectsArr, selectedProject) {
 }
 
 $(document).ready(function(){
+	console.log("deleteMe got here a3");
 	let currentUsername = '<%=currentUsername%>';
 	let selectedProject = '<%=projectIdPrefix%>';
 	if (selectedProject=="null"||selectedProject=="") selectedProject = false;
