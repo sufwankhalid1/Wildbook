@@ -114,7 +114,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       // business logic start here
       WritableWorkbook excelWorkbook = Workbook.createWorkbook(excelFile);
       WritableSheet sheet = excelWorkbook.createSheet("Search Results", 0);
-      
+
       List<ExportColumn> columns = new ArrayList<ExportColumn>();
       newEasyColumn("Encounter.catalogNumber", columns); // adds Encounter.catalogNumber to columns
       //newEasyColumn("Encounter.individualID", columns);
@@ -130,7 +130,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
 
       Method encDepthGetter = Encounter.class.getMethod("getDepthAsDouble", null); // depth is special bc the getDepth getter can fail with a NPE
       ExportColumn depthIsSpecial = new ExportColumn(Encounter.class, "Encounter.depth", encDepthGetter, columns);
-      
+
       newEasyColumn("Encounter.dateInMilliseconds", columns);
       newEasyColumn("Encounter.year", columns);
       newEasyColumn("Encounter.month", columns);
@@ -195,6 +195,51 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         }
 
       }
+
+      // add measurements to export
+
+      /*
+       * Start measurements import
+       */
+      List<String> measureVals=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurement", context);
+      List<String> measureUnits=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurementUnits", context);
+      // measurements by index number in cc.properties OR verbatim name
+      // you can do both I guess if you are chaotic alignment
+
+      int numMeasureVals=measureVals.size();
+      // for(int bg=0;bg<numMeasureVals;bg++){
+      //
+      //   // by name
+      //   colName = "Encounter.measurement."+measureVals.get(bg);
+      //   val = getDouble(row, colName);
+      //   if (val!=null) {
+      //     Measurement valMeas = new Measurement(encID, measureVals.get(bg), val, measureUnits.get(bg), "");
+      //     if (committing) enc.setMeasurement(valMeas, myShepherd);
+      //     if (unusedColumns!=null) unusedColumns.remove(colName);
+      //   }
+      // }
+
+
+
+      /*
+       * End measurements import
+       */
+      Method measurementGetName = Measurement.class.getMethod("toString");
+      // for (int maNum = 0; maNum < numMediaAssetCols; maNum++) { // numMediaAssetCols set by setter above
+      //   String mediaAssetColName = "Encounter.mediaAsset"+maNum;
+      //   String fullPathName = "Encounter.mediaAsset"+maNum+".filePath";
+      //   ExportColumn maFilenameK = new ExportColumn(MediaAsset.class, mediaAssetColName, maGetFilename, columns);
+      //   maFilenameK.setMaNum(maNum); // important for later!
+      //   ExportColumn maPathK = new ExportColumn(MediaAsset.class, fullPathName, maLocalPath, columns);
+      //   maPathK.setMaNum(maNum);
+
+        for (int measurementNum = 0; measurementNum < numMeasureVals; measurementNum++) {
+          String measurementColName = "Encounter.measurement" + measureVals.get(measurementNum);
+          ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, measurementGetName, columns);
+          measurementCol.setMeasurementNum(measurementNum);
+        }
+
+      // }
 
       for (ExportColumn exportCol: columns) {
         exportCol.writeHeaderLabel(sheet);
