@@ -197,10 +197,6 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       }
 
       // add measurements to export
-
-      /*
-       * Start measurements import
-       */
       List<String> measureVals=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurement", context);
       List<String> measureUnits=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurementUnits", context);
       // measurements by index number in cc.properties OR verbatim name
@@ -220,11 +216,6 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       //   }
       // }
 
-
-
-      /*
-       * End measurements import
-       */
       Method measurementGetName = Measurement.class.getMethod("toString");
       // for (int maNum = 0; maNum < numMediaAssetCols; maNum++) { // numMediaAssetCols set by setter above
       //   String mediaAssetColName = "Encounter.mediaAsset"+maNum;
@@ -237,12 +228,14 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         for (int measurementNum = 0; measurementNum < numMeasureVals; measurementNum++) {
           String measurementColName = "Encounter.measurement." + measureVals.get(measurementNum);
           System.out.println("deleteMe current measurementColName is: " + measurementColName);
-          ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, measurementGetName, columns);
+          ExportColumn measurementCol = new ExportColumn(Encounter.class, measurementColName, measurementGetName, columns);
           measurementCol.setMeasurementNum(measurementNum);
           System.out.println("deleteMe measurementCol is: " + measurementCol.toString());
         }
 
       // }
+
+      // End measurements export
 
       for (ExportColumn exportCol: columns) {
         System.out.println("deleteMe current exportColumn is: " + exportCol.toString());
@@ -269,7 +262,13 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         // use exportColumns, passing in the appropriate object for each column
         // (can't use switch statement bc Class is not a java primitive type)
         for (ExportColumn exportCol: columns) {
-          if (exportCol.isFor(Encounter.class)) exportCol.writeLabel(enc, row, sheet);
+          if (exportCol.isFor(Encounter.class)){
+            System.out.println("deleteMe got here e1");
+            System.out.println("deleteMe got here e2 and enc is: " + enc.toString());
+            System.out.println("deleteMe got here e2 and row is: " + row);
+            System.out.println("deleteMe got here e2 and sheet is: " + sheet.toString());
+            exportCol.writeLabel(enc, row, sheet);
+          }
           else if (exportCol.isFor(Occurrence.class)) exportCol.writeLabel(occ, row, sheet);
           else if (exportCol.isFor(MarkedIndividual.class)) exportCol.writeLabel(ind, row, sheet);
           else if (exportCol.isFor(MultiValue.class)) {

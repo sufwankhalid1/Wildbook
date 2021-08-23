@@ -47,12 +47,17 @@ public class ExportColumn {
     //public ExportColumn individualNameColumn(String nameKey)
 
     public String getStringValue(Object obj) throws InvocationTargetException, IllegalAccessException {
+      System.out.println("deleteMe e5 getStringValue entered. obj is: " + obj.toString());
       if (obj == null) return null;
       Object value = null;
       try {
         value = getter.invoke(declaringClass.cast(obj)); // this is why we need declaringClass
       } catch (InvocationTargetException e) {
         System.out.println("EncounterSearchExportMetadataExcel got an InvocationTargetException on column "+header+" and object "+obj);
+        return null;
+      } catch (Error e){
+        System.out.println("EncounterSearchExportMetadataExcel got an error on coumn " + header + " and object " + obj);
+        e.printStackTrace();
         return null;
       }
       if (value == null) return null;
@@ -83,6 +88,7 @@ public class ExportColumn {
     }
 
     public Label getLabel(Object obj, int rowNum) throws InvocationTargetException, IllegalAccessException {
+      System.out.println("deleteMe e4 getLabel entered. obj is: " + obj.toString());
       return new Label(colNum, rowNum, getStringValue(obj));
     }
     public void writeLabel(Object obj, int rowNum, WritableSheet sheet) throws jxl.write.WriteException, InvocationTargetException, IllegalAccessException {
