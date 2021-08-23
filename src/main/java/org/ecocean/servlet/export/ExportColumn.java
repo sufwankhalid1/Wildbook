@@ -51,16 +51,25 @@ public class ExportColumn {
       if (obj == null) return null;
       Object value = null;
       try {
+        System.out.println("deleteMe e6");
         value = getter.invoke(declaringClass.cast(obj)); // this is why we need declaringClass
+        System.out.println("deleteMe e7");
       } catch (InvocationTargetException e) {
+        System.out.println("deleteMe e8");
         System.out.println("EncounterSearchExportMetadataExcel got an InvocationTargetException on column "+header+" and object "+obj);
         return null;
       } catch (Error e){
+        System.out.println("deleteMe e9");
         System.out.println("EncounterSearchExportMetadataExcel got an error on coumn " + header + " and object " + obj);
         e.printStackTrace();
         return null;
       }
-      if (value == null) return null;
+      System.out.println("deleteMe e10");
+      if (value == null){
+        System.out.println("deleteMe e10.5");
+        return null;
+      }
+      System.out.println("deleteMe e11");
       return value.toString();
     }
 
