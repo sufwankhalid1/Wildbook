@@ -199,10 +199,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       // add measurements to export
       List<String> measureVals=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurement", context);
       List<String> measureUnits=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurementUnits", context);
-      // measurements by index number in cc.properties OR verbatim name
-      // you can do both I guess if you are chaotic alignment
-
       int numMeasureVals=measureVals.size();
+      Method getMeasurementValue = Measurement.class.getMethod("getValue");
       System.out.println("deleteMe numMeasureVals is: " + numMeasureVals);
       // for(int bg=0;bg<numMeasureVals;bg++){
       //
@@ -216,19 +214,11 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       //   }
       // }
 
-      Method measurementGetName = Measurement.class.getMethod("toString");
-      // for (int maNum = 0; maNum < numMediaAssetCols; maNum++) { // numMediaAssetCols set by setter above
-      //   String mediaAssetColName = "Encounter.mediaAsset"+maNum;
-      //   String fullPathName = "Encounter.mediaAsset"+maNum+".filePath";
-      //   ExportColumn maFilenameK = new ExportColumn(MediaAsset.class, mediaAssetColName, maGetFilename, columns);
-      //   maFilenameK.setMaNum(maNum); // important for later!
-      //   ExportColumn maPathK = new ExportColumn(MediaAsset.class, fullPathName, maLocalPath, columns);
-      //   maPathK.setMaNum(maNum);
 
         for (int measurementNum = 0; measurementNum < numMeasureVals; measurementNum++) {
           String measurementColName = "Encounter.measurement." + measureVals.get(measurementNum);
           System.out.println("deleteMe current measurementColName is: " + measurementColName);
-          ExportColumn measurementCol = new ExportColumn(Encounter.class, measurementColName, measurementGetName, columns);
+          ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, getMeasurementValue, columns);
           measurementCol.setMeasurementNum(measurementNum);
           System.out.println("deleteMe measurementCol is: " + measurementCol.toString());
         }

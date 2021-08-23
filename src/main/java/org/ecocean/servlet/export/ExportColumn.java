@@ -53,7 +53,10 @@ public class ExportColumn {
       try {
         System.out.println("deleteMe e6");
         value = getter.invoke(declaringClass.cast(obj)); // this is why we need declaringClass
-        System.out.println("deleteMe e7");
+        if(value != null){
+          System.out.println("deleteMe e7 and value is: " + value.toString());
+          System.out.println(value);
+        }
       } catch (InvocationTargetException e) {
         System.out.println("deleteMe e8");
         System.out.println("EncounterSearchExportMetadataExcel got an InvocationTargetException on column "+header+" and object "+obj);
