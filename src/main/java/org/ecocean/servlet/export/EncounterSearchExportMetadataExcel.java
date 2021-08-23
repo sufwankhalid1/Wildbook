@@ -207,6 +207,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       // you can do both I guess if you are chaotic alignment
 
       int numMeasureVals=measureVals.size();
+      System.out.println("deleteMe numMeasureVals is: " + numMeasureVals);
       // for(int bg=0;bg<numMeasureVals;bg++){
       //
       //   // by name
@@ -234,14 +235,18 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       //   maPathK.setMaNum(maNum);
 
         for (int measurementNum = 0; measurementNum < numMeasureVals; measurementNum++) {
-          String measurementColName = "Encounter.measurement" + measureVals.get(measurementNum);
+          String measurementColName = "Encounter.measurement." + measureVals.get(measurementNum);
+          System.out.println("deleteMe current measurementColName is: " + measurementColName);
           ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, measurementGetName, columns);
           measurementCol.setMeasurementNum(measurementNum);
+          System.out.println("deleteMe measurementCol is: " + measurementCol.toString());
         }
 
       // }
 
       for (ExportColumn exportCol: columns) {
+        System.out.println("deleteMe current exportColumn is: " + exportCol.toString());
+        System.out.println("deleteMe current exportColumn getHeaderLabel is: " + exportCol.getHeaderLabel());
         exportCol.writeHeaderLabel(sheet);
       }
 
