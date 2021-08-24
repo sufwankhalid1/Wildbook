@@ -33,7 +33,9 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
 
   private int numMediaAssetCols = 0;
   private int numKeywords = 0;
+  private int numMeasurements = 0;
   private int numNameCols = 0;
+  private List<String> measurementColTitles = new ArrayList<String>();
 
   int rowLimit = 100000;
 
@@ -42,9 +44,20 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
     int maxNumMedia = 0;
     int maxNumKeywords = 0;
     int maxNumNames = 0;
+    int maxNumMeasurements = 0;
     Set<String> individualIDsChecked = new HashSet<String>();
     for (int i=0;i<rEncounters.size() && i< rowLimit;i++) {
       Encounter enc=(Encounter)rEncounters.get(i);
+      if(enc.getMeasurements().size() > -1){
+        for(int j=0; i<enc.getMeasurements().size(); i++){ // populate a list of measurementColName with measurements in current encounter set only
+            Measurement currentMeasurement = enc.getMeasurements().get(j);
+            String currentMeasurementType = currentMeasurement.getType();
+            if(currentMeasurementType != null && !measurementColTitles.contains(currentMeasurementType)){
+              measurementColTitles.add(currentMeasurementType);
+            }
+        }
+      }
+      if (enc.getMeasurements().size() > maxNumMeasurements) maxNumMeasurements = enc.getMeasurements().size();
       ArrayList<MediaAsset> mas = enc.getMedia();
       int numMedia = mas.size();
       if (numMedia > maxNumMedia) maxNumMedia = numMedia;
@@ -63,8 +76,9 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
     numMediaAssetCols = maxNumMedia;
     numKeywords = maxNumKeywords;
     numNameCols = maxNumNames;
+    numMeasurements = maxNumMeasurements;
     System.out.println("EncounterSearchExportMetadataExcel: environment vars numMediaAssetCols = "+numMediaAssetCols+"; maxNumKeywords = "+maxNumKeywords+" and maxNumNames = "+numNameCols);
-
+    System.out.println("deleteMe measurementColTitles is: " + measurementColTitles.toString());
   }
 
 
@@ -197,11 +211,11 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       }
 
       // add measurements to export
-      List<String> measureVals=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurement", context);
-      List<String> measureUnits=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurementUnits", context);
-      int numMeasureVals=measureVals.size();
-      Method getMeasurementValue = Measurement.class.getMethod("getValue");
-      System.out.println("deleteMe numMeasureVals is: " + numMeasureVals);
+      // List<String> measureVals=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurement", context);
+      // List<String> measureUnits=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurementUnits", context);
+      // int numMeasureVals=measureVals.size();
+      Method getMeasurementValue = Measurement.class.getMethod("toExcelFormat");
+      // System.out.println("deleteMe numMeasureVals is: " + numMeasureVals);
       // for(int bg=0;bg<numMeasureVals;bg++){
       //
       //   // by name
@@ -214,14 +228,20 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       //   }
       // }
 
-
-        for (int measurementNum = 0; measurementNum < numMeasureVals; measurementNum++) {
-          String measurementColName = "Encounter.measurement." + measureVals.get(measurementNum);
-          System.out.println("deleteMe current measurementColName is: " + measurementColName);
-          ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, getMeasurementValue, columns);
-          measurementCol.setMeasurementNum(measurementNum);
-          System.out.println("deleteMe measurementCol is: " + measurementCol.toString());
+        if(measurementColTitles.size() > -1){
+          System.out.println("deleteMe got here g1 measurementColTitles.size() is: " + measurementColTitles.size());
+          System.out.println("deleteMe got here g1.5 and measurementColTitles is: " + measurementColTitles.toString());
+          for (int measurementNum = 0; measurementNum < numMeasurements; measurementNum++) {
+            System.out.println("deleteMe got here g2 measurementNum is: " + measurementNum);
+            String measurementColName = "Encounter.measurement." + measurementColTitles.get(measurementNum);
+            System.out.println("deleteMe current measurementColName is: " + measurementColName);
+            ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, getMeasurementValue, columns);
+            System.out.println("deleteMe setting measurementNum for the measurementColumnn to : " + measurementNum);
+            measurementCol.setMeasurementNum(measurementNum);
+            System.out.println("deleteMe measurementCol is: " + measurementCol.toString());
+          }
         }
+
 
       // }
 
@@ -282,6 +302,23 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
             Keyword kw = ma.getKeyword(kwNum);
             if (kw == null) continue;
             exportCol.writeLabel(kw, row, sheet);
+          }
+          else if (exportCol.isFor(Measurement.class)) {
+            System.out.println("deleteMe got here f1 export col is for Measurement. exportCol.getMeasurementNum() is: " + exportCol.getMeasurementNum());
+            int measurementNumber = exportCol.getMeasurementNum();
+            System.out.println("deleteMe got here f2 and measurementNumber is: " + measurementNumber);
+            if(measurementNumber < 0) continue;
+            System.out.println("deleteMe got here f3");
+            if(enc.getMeasurements() != null && enc.getMeasurements().size() > 0 && measurementNumber < enc.getMeasurements().size()){
+              System.out.println("deleteMe got here f3.25 and enc.getMeasurements().size() is: " + enc.getMeasurements().size());
+              System.out.println("deleteMe got here f3.5 and measurementNumber is: " + measurementNumber);
+              Measurement currentMeasurement = enc.getMeasurements().get(measurementNumber);
+              System.out.println("deleteMe got here f4");
+              if (currentMeasurement == null) continue;
+              System.out.println("deleteMe got here f5");
+              exportCol.writeLabel(currentMeasurement, row, sheet);
+              System.out.println("deleteMe got here f6");
+            }
           }
           else System.out.println("EncounterSearchExportMetadataExcel: no object found for class "+exportCol.getDeclaringClass());
         }
