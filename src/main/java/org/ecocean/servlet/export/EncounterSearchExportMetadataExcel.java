@@ -220,7 +220,28 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       }
 
       // add measurements to export
-      // List<String> measureVals=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurement", context);
+
+      //sort measurementColTitles by order in which they will appear in enc.getMeasurements, which is dictated by commonConfig array. If this doesn't happen, some encounters with measurements starting with a rare measurement will end up misplaced in the colunns
+      List<String> sortedMeasurementColTitles = new ArrayList<String>();
+      if(measurementColTitles.size() > 0){
+        List<String> measureVals=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurement", context);
+        List<Integer> measurementColTitlesRanked = new ArrayList<Integer>();
+        for(int i = 0; i< measurementColTitles.size(); i++){
+          int currentIndexInMeasureVals = measureVals.indexOf(measurementColTitles.get(i));
+          measurementColTitlesRanked.add(currentIndexInMeasureVals);
+        }
+        System.out.println("deleteMe got here j1 measurementColTitlesRanked is: " + measurementColTitlesRanked.toString());
+        List<Integer> measurementColTitlesRankedSorted = measurementColTitlesRanked;
+        Collections.sort(measurementColTitlesRankedSorted);
+        System.out.println("deleteMe got here j2 measurementColTitlesRankedSorted is: " + measurementColTitlesRankedSorted.toString());
+        for(int j=0; j<measurementColTitlesRankedSorted.size(); j++){
+          sortedMeasurementColTitles.add(measureVals.get(measurementColTitlesRankedSorted.get(j)));
+        }
+        System.out.println("deleteMe got here j3 sortedMeasurementColTitles is: " + sortedMeasurementColTitles.toString());
+
+      }
+
+
       // List<String> measureUnits=(List<String>)CommonConfiguration.getIndexedPropertyValues("measurementUnits", context);
       // int numMeasureVals=measureVals.size();
       Method getMeasurementValue = Measurement.class.getMethod("toExcelFormat");
@@ -237,18 +258,16 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       //   }
       // }
 
-        if(measurementColTitles.size() > 0){
-          System.out.println("deleteMe got here g1 measurementColTitles.size() is: " + measurementColTitles.size());
-          System.out.println("deleteMe got here g1.5 and measurementColTitles is: " + measurementColTitles.toString());
-          for (int measurementNum = 0; measurementNum < numMeasurements; measurementNum++) {
+        if(sortedMeasurementColTitles.size() > 0){
+          for (int measurementNum = 0; measurementNum < sortedMeasurementColTitles.size(); measurementNum++) {
             System.out.println("deleteMe got here g2 measurementNum is: " + measurementNum);
-            String measurementColName = "Encounter.measurement." + measurementColTitles.get(measurementNum);
+            String measurementColName = "Encounter.measurement." + sortedMeasurementColTitles.get(measurementNum);
             System.out.println("deleteMe current measurementColName is: " + measurementColName);
             ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, getMeasurementValue, columns);
             System.out.println("deleteMe setting measurementNum for the measurementColumnn to : " + measurementNum);
             String modifiedColumnName = measurementColName.replace("Encounter.measurement.", "");
             System.out.println("deleteMe got here h0 modifiedColumnName is: " + modifiedColumnName);
-            int matchingMeasurementColNum = measurementColTitles.indexOf(modifiedColumnName);
+            int matchingMeasurementColNum = sortedMeasurementColTitles.indexOf(modifiedColumnName);
             System.out.println("deleteMe got here h1 matchingMeasurementColNum is: " + matchingMeasurementColNum);
             measurementCol.setMeasurementNum(matchingMeasurementColNum);
             System.out.println("deleteMe measurementCol is: " + measurementCol.toString());
@@ -325,7 +344,10 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
             if(enc.getMeasurements() != null && enc.getMeasurements().size() > 0 && measurementNumber < enc.getMeasurements().size()){
               System.out.println("deleteMe got here f3.25 and for enc " + enc.getCatalogNumber() + ", enc.getMeasurements().size() is: " + enc.getMeasurements().size());
               System.out.println("deleteMe got here f3.5 and measurementNumber is: " + measurementNumber);
-              Measurement currentMeasurement = enc.getMeasurements().get(measurementNumber);
+              String typeInSortedMeasurementColTitlesMatchingMeasurementNumber = sortedMeasurementColTitles.get(measurementNumber);
+              System.out.println("deleteMe got here f3.75 typeInSortedMeasurementColTitlesMatchingMeasurementNumber is: " + typeInSortedMeasurementColTitlesMatchingMeasurementNumber);
+              Measurement currentMeasurement = enc.getMeasurement(typeInSortedMeasurementColTitlesMatchingMeasurementNumber.replace("Encounter.measurement.", ""));
+              // Measurement currentMeasurement = enc.getMeasurements().get(measurementNumber);
               System.out.println("deleteMe got here f4");
               if (currentMeasurement == null) continue;
               System.out.println("deleteMe got here f5");
