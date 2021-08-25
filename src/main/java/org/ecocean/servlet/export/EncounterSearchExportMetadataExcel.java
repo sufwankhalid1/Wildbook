@@ -48,15 +48,24 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
     Set<String> individualIDsChecked = new HashSet<String>();
     for (int i=0;i<rEncounters.size() && i< rowLimit;i++) {
       Encounter enc=(Encounter)rEncounters.get(i);
+      System.out.println("deleteMe got here g1");
       if(enc.getMeasurements().size() > -1){
-        for(int j=0; i<enc.getMeasurements().size(); i++){ // populate a list of measurementColName with measurements in current encounter set only
+        System.out.println("deleteMe got here g2");
+        for(int j=0; j<enc.getMeasurements().size(); j++){ // populate a list of measurementColName with measurements in current encounter set only
+          System.out.println("deleteMe got here g3");
             Measurement currentMeasurement = enc.getMeasurements().get(j);
+            System.out.println("deleteMe got here g4");
             String currentMeasurementType = currentMeasurement.getType();
+            System.out.println("deleteMe got here g5");
             if(currentMeasurementType != null && !measurementColTitles.contains(currentMeasurementType)){
+              System.out.println("deleteMe got here g6");
+              System.out.println("deleteMe got here g7 adding currentMeasurementType: " + currentMeasurementType + " to measurementColTitles");
               measurementColTitles.add(currentMeasurementType);
+              System.out.println("deleteMe got here g8");
             }
         }
       }
+      System.out.println("deleteMe got here g9");
       if (enc.getMeasurements().size() > maxNumMeasurements) maxNumMeasurements = enc.getMeasurements().size();
       ArrayList<MediaAsset> mas = enc.getMedia();
       int numMedia = mas.size();
@@ -228,7 +237,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       //   }
       // }
 
-        if(measurementColTitles.size() > -1){
+        if(measurementColTitles.size() > 0){
           System.out.println("deleteMe got here g1 measurementColTitles.size() is: " + measurementColTitles.size());
           System.out.println("deleteMe got here g1.5 and measurementColTitles is: " + measurementColTitles.toString());
           for (int measurementNum = 0; measurementNum < numMeasurements; measurementNum++) {
@@ -237,7 +246,11 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
             System.out.println("deleteMe current measurementColName is: " + measurementColName);
             ExportColumn measurementCol = new ExportColumn(Measurement.class, measurementColName, getMeasurementValue, columns);
             System.out.println("deleteMe setting measurementNum for the measurementColumnn to : " + measurementNum);
-            measurementCol.setMeasurementNum(measurementNum);
+            String modifiedColumnName = measurementColName.replace("Encounter.measurement.", "");
+            System.out.println("deleteMe got here h0 modifiedColumnName is: " + modifiedColumnName);
+            int matchingMeasurementColNum = measurementColTitles.indexOf(modifiedColumnName);
+            System.out.println("deleteMe got here h1 matchingMeasurementColNum is: " + matchingMeasurementColNum);
+            measurementCol.setMeasurementNum(matchingMeasurementColNum);
             System.out.println("deleteMe measurementCol is: " + measurementCol.toString());
           }
         }
@@ -310,7 +323,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
             if(measurementNumber < 0) continue;
             System.out.println("deleteMe got here f3");
             if(enc.getMeasurements() != null && enc.getMeasurements().size() > 0 && measurementNumber < enc.getMeasurements().size()){
-              System.out.println("deleteMe got here f3.25 and enc.getMeasurements().size() is: " + enc.getMeasurements().size());
+              System.out.println("deleteMe got here f3.25 and for enc " + enc.getCatalogNumber() + ", enc.getMeasurements().size() is: " + enc.getMeasurements().size());
               System.out.println("deleteMe got here f3.5 and measurementNumber is: " + measurementNumber);
               Measurement currentMeasurement = enc.getMeasurements().get(measurementNumber);
               System.out.println("deleteMe got here f4");
