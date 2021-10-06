@@ -57,20 +57,29 @@
 			"locationID": []
 		},
 		{
-			"name": "Drum Drumsticks",
-			"id": "DD",
-			"geospatialInfo": {
-				"lat": -35.047,
-				"long": 150.-54
-			},
-			"locationID": []
-		},
-		{
 			"name": "Dalmeny Point",
 			"id": "DP",
 			"geospatialInfo": {
 				"lat": -36.167,
 				"long": 150.1333
+			},
+			"locationID": []
+		},
+    {
+			"name": "Diamond Bay, Vaucluse, Sydney",
+			"id": "VAUCLUSE",
+			"geospatialInfo": {
+				"lat": -33.862778,
+				"long": 151.283333
+			},
+			"locationID": []
+		},
+    {
+			"name": "Drum Drumsticks",
+			"id": "DD",
+			"geospatialInfo": {
+				"lat": -35.047,
+				"long": 150.54
 			},
 			"locationID": []
 		},
