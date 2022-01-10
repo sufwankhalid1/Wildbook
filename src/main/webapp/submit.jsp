@@ -157,21 +157,25 @@ Array.prototype.remove = function() {
 
 function getDefaultSelectedProject(){
 	let defaultProject = '<%= CommonConfiguration.getDefaultSelectedProject(context) %>';
+	console.log('deleteMe defaultProject is: ' + defaultProject);
 	return defaultProject;
 }
 
 function getDefaultProjectOrganizationParameter(){
 	let defaultProjectOrganizationParameter = '<%= CommonConfiguration.getDefaultProjectOrganizationParameter(context) %>';
+	console.log('deleteMe defaultProjectOrganizationParameter is: ' + defaultProjectOrganizationParameter);
 	return defaultProjectOrganizationParameter;
 }
 
 function getDefaultSelectedProjectId(){
 	let defaultProjectId = '<%= CommonConfiguration.getDefaultSelectedProjectId(context) %>';
+	console.log('deleteMe defaultProjectId is: ' + defaultProjectId);
 	return defaultProjectId;
 }
 
 function getLoggedOutDefaultDesired(){
 	let loggedOutDefaultDesired = '<%= CommonConfiguration.getLoggedOutDefaultDesired(context) %>';
+	console.log('deleteMe loggedOutDefaultDesired is: ' + loggedOutDefaultDesired);
 	return loggedOutDefaultDesired;
 }
 
@@ -1023,7 +1027,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
 %>
           </select>
         </div>
-    </div> 
+    </div>
 <%
 }
 %> -->
@@ -1116,7 +1120,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
     <div id="advancedInformation" fade="1" style="display: none;">
 
       <h3><%=props.getProperty("aboutAnimal") %></h3>
-      
+
       <fieldset>
 
         <div class="form-group">
@@ -1196,7 +1200,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
             List<String> behaviors = CommonConfiguration.getSequentialPropertyValues("behavior", context);
             if (behaviors.size()>0) {
             %>
-              <select class="form-control" name="lifeStage" id="lifeStage"> 
+              <select class="form-control" name="lifeStage" id="lifeStage">
                 <option value="" selected="selected"></option>
             <%
             for (int i=0;i<behaviors.size();i++) {
@@ -1206,7 +1210,7 @@ if(CommonConfiguration.showProperty("showTaxonomy",context)){
             <%
             }
             %>
-              </select> 
+              </select>
             <%
             } else {
             //if nothing is defined just give regualr string input
