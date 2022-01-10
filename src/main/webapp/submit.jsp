@@ -156,24 +156,56 @@ Array.prototype.remove = function() {
 };
 
 function getDefaultSelectedProject(){
+	<%
+	if(CommonConfiguration.getDefaultSelectedProject(context) == null){
+		System.out.println("deleteMe got here a1 and returning null");
+	%>
+	return null;
+	<%
+	}
+	%>
 	let defaultProject = '<%= CommonConfiguration.getDefaultSelectedProject(context) %>';
 	console.log('deleteMe defaultProject is: ' + defaultProject);
 	return defaultProject;
 }
 
 function getDefaultProjectOrganizationParameter(){
+	<%
+	if(CommonConfiguration.getDefaultProjectOrganizationParameter(context) == null){
+		System.out.println("deleteMe got here a2 and returning null");
+	%>
+	return null;
+	<%
+	}
+	%>
 	let defaultProjectOrganizationParameter = '<%= CommonConfiguration.getDefaultProjectOrganizationParameter(context) %>';
 	console.log('deleteMe defaultProjectOrganizationParameter is: ' + defaultProjectOrganizationParameter);
 	return defaultProjectOrganizationParameter;
 }
 
 function getDefaultSelectedProjectId(){
+	<%
+	if(CommonConfiguration.getDefaultSelectedProjectId(context) == null){
+		System.out.println("deleteMe got here a3 and returning null");
+	%>
+	return null;
+	<%
+	}
+	%>
 	let defaultProjectId = '<%= CommonConfiguration.getDefaultSelectedProjectId(context) %>';
 	console.log('deleteMe defaultProjectId is: ' + defaultProjectId);
 	return defaultProjectId;
 }
 
 function getLoggedOutDefaultDesired(){
+	<%
+	if(CommonConfiguration.getLoggedOutDefaultDesired(context) == null){
+		System.out.println("deleteMe got here a4 and returning null");
+	%>
+	return null;
+	<%
+	}
+	%>
 	let loggedOutDefaultDesired = '<%= CommonConfiguration.getLoggedOutDefaultDesired(context) %>';
 	console.log('deleteMe loggedOutDefaultDesired is: ' + loggedOutDefaultDesired);
 	return loggedOutDefaultDesired;

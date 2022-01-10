@@ -417,23 +417,52 @@ public class CommonConfiguration {
   }
 
   public static String getNewSubmissionEmail(String context) {
+
     return getProperty("newSubmissionEmail",context).trim();
   }
 
   public static String getDefaultSelectedProject(String context){
-    return getProperty("defaultProjName", context).trim();
+    try {
+      String returnVal =  getProperty("defaultProjName", context).trim();
+      System.out.println("deleteMe returnVal is: " + returnVal);
+      return getProperty("defaultProjName", context).trim();
+    } catch (Error e){
+      System.out.println("deleteMe error in getDefaultSelectedProject:");
+      e.printStackTrace();
+      return null;
+    }
+
   }
 
   public static String getDefaultProjectOrganizationParameter(String context){
-    return getProperty("defaultProjectOrganizationParameter", context).trim();
+    try{
+      return getProperty("defaultProjectOrganizationParameter", context).trim();
+    } catch (Error e){
+      System.out.println("deleteMe error in getDefaultProjectOrganizationParameter:");
+      e.printStackTrace();
+      return null;
+    }
   }
 
   public static String getDefaultSelectedProjectId(String context){
-    return getProperty("defaultProjId", context).trim();
+    try{
+      return getProperty("defaultProjId", context).trim();
+    }catch (Error e){
+      System.out.println("deleteMe error in getDefaultSelectedProjectId:");
+      e.printStackTrace();
+      return null;
+    }
+
   }
 
   public static boolean getLoggedOutDefaultDesired(String context){
-    return parseBoolean(getProperty("loggedOutDefaultDesired", context), false);
+    try{
+      return parseBoolean(getProperty("loggedOutDefaultDesired", context), false);
+    } catch (Error e){
+      System.out.println("deleteMe error in getLoggedOutDefaultDesired:");
+      e.printStackTrace();
+      return false;
+    }
   }
 
   public static String getR(String context) {
