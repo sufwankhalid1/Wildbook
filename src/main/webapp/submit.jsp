@@ -123,16 +123,20 @@ function populateProjectNameDropdown(options, values, selectedOption, isVisible,
 		let projectNameHtml = '';
 		projectNameHtml += '<div class="col-xs-6 col-md-4">';
 		if(loggedOutDefaultDesired){
+			console.log('deleteMe got here b1');
 			projectNameHtml += '<input type="hidden" name="defaultProject" id="defaultProject" value="' + getDefaultSelectedProjectId() + '" />';
 			// console.log("hidden default project selected with name: " + getDefaultSelectedProjectId());
 		}
 		if(isVisible){
+			console.log('deleteMe got here b2');
 			projectNameHtml += '<label class="control-label "><%=props.getProperty("projectMultiSelectLabel") %></label>';
 			projectNameHtml += '<select name="proj-id-dropdown" id="proj-id-dropdown" class="form-control" multiple="multiple">';
 		}else{
+			console.log('deleteMe got here b3');
 			projectNameHtml += '<select style="display: none;" name="proj-id-dropdown" id="proj-id-dropdown" class="form-control" multiple="multiple">';
 		}
 		if(defaultSelectItem){
+			console.log('deleteMe got here b4');
 			projectNameHtml += '<option value="' + defaultSelectItemId + '" selected>'+ defaultSelectItem +'</option>';
 			options = options.remove(defaultSelectItem);
 		}
@@ -215,12 +219,17 @@ function doAjaxForProject(requestJSON,userId){
 			dataType: 'json',
 			contentType: 'application/json',
 			success: function(data) {
+				console.log('deleteMe got here p1');
 				let projectNameResults = data.projects;
 				let projNameOptions = null;
 				if(projectNameResults){
+					console.log('deleteMe got here p2');
 					projNameOptions = projectNameResults.map(entry =>{return entry.researchProjectName});
+					console.log('deleteMe got here p3');
 					projNameIds = projectNameResults.map(entry =>{return entry.projectIdPrefix});
+					console.log('deleteMe got here p4');
 					populateProjectNameDropdown(projNameOptions,projNameIds,"", true, getDefaultSelectedProject(), getDefaultSelectedProjectId(), getLoggedOutDefaultDesired());
+					console.log('deleteMe got here p5');
 				}
 			},
 			error: function(x,y,z) {
