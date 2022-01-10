@@ -104,7 +104,11 @@ $(document).ready( function() {
 	%>
 });
 
-function populateProjectNameDropdown(options, values, selectedOption, isVisible, defaultSelectItem, defaultSelectItemId, loggedOutDefaultDesired){
+function populateProjectNameDropdown(options, values, selectedOption, isVisible, defaultSelectItem, defaultSelectItemId, loggedOutDefaultDesired
+	console.log('deleteMe populateProjectNameDropdown entered');
+	console.log('deleteMe defaultSelectItem is: ' + defaultSelectItem);
+	console.log('deleteMe defaultSelectItemId is: ' + defaultSelectItemId);
+	console.log('deleteMe loggedOutDefaultDesired is: ' + loggedOutDefaultDesired);
 	let useCustomStyle = '<%= ServletUtilities.useCustomStyle(request,CommonConfiguration.getDefaultProjectOrganizationParameter(context)) %>' == "true"?true: false;
 	if(useCustomStyle){
 		//do nothing unusual
@@ -198,14 +202,6 @@ function getDefaultSelectedProjectId(){
 }
 
 function getLoggedOutDefaultDesired(){
-	<%
-	if(CommonConfiguration.getLoggedOutDefaultDesired(context) == null){
-		System.out.println("deleteMe got here a4 and returning null");
-	%>
-	return null;
-	<%
-	}
-	%>
 	let loggedOutDefaultDesired = '<%= CommonConfiguration.getLoggedOutDefaultDesired(context) %>';
 	console.log('deleteMe loggedOutDefaultDesired is: ' + loggedOutDefaultDesired);
 	return loggedOutDefaultDesired;
