@@ -1266,10 +1266,18 @@ console.log('algoDesc %o %s %s', res.status._response.response.json_result.query
 
 function displayAnnot(taskId, acmId, num, score, illustrationUrl) {
 console.info('%d ===> %s', num, acmId);
+// console.log('deleteMe score is: ');
+// console.log(score);
+console.log('deleteMe the score manipulated is: ' + score.toString().substring(0,6));
 	let dataInd = parseInt(num) + 1;
 	var h = '<div data-index="' + dataInd + '" data-acmid="' + acmId + '" class="has-data-index annot-summary annot-summary-' + acmId + '">';
 	h += '<div class="annot-info"><span class="annot-info-num"></span> <b>' + score.toString().substring(0,6) + '</b></div></div>';
 	var perCol = Math.ceil(RESMAX / 3);
+  console.log('deleteMe perCol is: ');
+  console.log(perCol);
+  console.log('deleteMe num is: ');
+  console.log(num);
+  console.log('deleteMe the calculation is: ' + Math.floor(num / perCol));
 	if (num >= 0) $('#task-' + taskId + ' .task-summary .col' + Math.floor(num / perCol)).append(h);
 
 

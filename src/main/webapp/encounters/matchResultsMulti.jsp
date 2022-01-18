@@ -113,7 +113,7 @@ if ((request.getParameter("number") != null) && (request.getParameter("individua
 		indiv.addEncounter(enc2, context);
 	}
 	myShepherd.getPM().makePersistent(indiv);
-	
+
 	myShepherd.commitDBTransaction();
 	myShepherd.closeDBTransaction();
 	res.put("success", true);
@@ -638,6 +638,10 @@ console.info('%d ===> %s', num, annId);
 	var h = '<div data-annid="' + annId + '" class="annot-summary annot-summary-' + annId + '">';
 	h += '<div class="annot-info"><span class="annot-info-num">' + (num + 1) + '</span> <b>' + score.toString().substring(0,6) + '</b></div></div>';
 	var perCol = Math.ceil(RESMAX / 3);
+  console.log('deleteMe perCol is: ');
+  console.log(perCol);
+  console.log('deleteMe num is: ');
+  console.log(num);
 	if (num >= 0) $('#task-' + taskId + ' .task-summary .col' + Math.floor(num / perCol)).append(h);
 	//now the image guts
 	h = '<div class="annot-wrapper annot-wrapper-' + ((num < 0) ? 'query' : 'dict') + ' annot-' + annId + '">';
