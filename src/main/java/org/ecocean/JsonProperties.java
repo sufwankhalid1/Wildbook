@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.File;
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -126,20 +127,27 @@ public class JsonProperties extends Properties {
 		}
 	}
 
-	public static JSONObject fromFile(String fullPath) {
+  public static JSONObject fromFile(String fullPath) {
     File f = new File(fullPath);
     JSONObject json = null;
     try {
       InputStream is = new FileInputStream(fullPath);
-      String jsonTxt = IOUtils.toString(is, "UTF-8");
-      System.out.println("JSONProperties successfully parsed "+fullPath);
-      json = new JSONObject(jsonTxt);
-    } catch (Exception e) {
-    	System.out.println("Hit an exception on JsonProperties.fromFile("+fullPath+")");
-    	e.printStackTrace();
+      try {
+        String jsonTxt = IOUtils.toString(is, "UTF-8");
+        System.out.println("JSONProperties successfully parsed "+fullPath);
+        json = new JSONObject(jsonTxt);
+      }
+      catch(IOException ioe) {
+        ioe.printStackTrace();
+      }
+      finally{is.close();}
+    } 
+    catch (Exception e) {
+      System.out.println("Hit an exception on JsonProperties.fromFile("+fullPath+")");
+      e.printStackTrace();
     }
     return json;
-	}
+  }
 
 	private String overrideFilepath() {
 		return propertiesOverrideDir + File.separator + getFname();
