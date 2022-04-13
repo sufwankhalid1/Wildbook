@@ -5,7 +5,7 @@
 <jdo>
     <package name="org.ecocean.configuration">
 
-	<class name="Configuration" identity-type="application">
+	<class name="Configuration" cacheable="false" identity-type="application">
 		<field name="id" primary-key="true">
         		<column length="4096" jdbc-type="VARCHAR"/>
 		</field>

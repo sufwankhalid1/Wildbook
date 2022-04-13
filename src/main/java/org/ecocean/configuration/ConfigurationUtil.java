@@ -88,8 +88,9 @@ public class ConfigurationUtil {
         String root = idGetRoot(id);
         //TODO other cache checks?  expires? etc
         Configuration conf = null;
+        valueCache.remove(root);  // this disables cache cuz its kinda broken now  :(
         if (valueCache.get(root) != null) {
-            //System.out.println("INFO: _loadConfiguration(" + root + ") read from cache");
+            System.out.println("INFO: _loadConfiguration(" + root + ") read from cache");
             try {
                 conf = new Configuration(root, valueCache.get(root));
             } catch (Exception e) {
