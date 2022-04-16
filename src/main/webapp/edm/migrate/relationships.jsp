@@ -10,6 +10,7 @@ java.util.HashSet,
 javax.jdo.*,
 java.util.Arrays,
 org.json.JSONObject,
+org.json.JSONArray,
 org.ecocean.MigrationUtil,
 java.lang.reflect.*,
 java.time.ZonedDateTime,
@@ -26,7 +27,7 @@ org.ecocean.media.*
               "
 %><%!
 
-public Map<String,Set<String>> typeRoleMap = new HashMap<String, Set<String>>();
+public JSONObject typeRoleMap = new JSONObject();
 
 private String filePreview(String name) throws java.io.IOException {
     File path = new File(MigrationUtil.getDir(), name);
@@ -116,15 +117,44 @@ INDIVIDUAL2_ID_OID                     | 99fbf9ed-95fa-455e-847c-3a369e7f3593
 
 */
 
+
+private String guidForType(String typeLabel) {
+    for (Object g : typeRoleMap.keySet()) {
+        String guid = (String)g;
+        if (typeRoleMap.getJSONObject(guid).getString("label").equals(typeLabel)) return guid;
+    }
+    String newGuid = Util.generateUUID();
+    JSONObject tj = new JSONObject();
+    tj.put("guid", newGuid);
+    tj.put("label", typeLabel);
+    tj.put("roles", new JSONArray());
+    typeRoleMap.put(newGuid, tj);
+    return newGuid;
+}
+
+private String guidForRole(String typeGuid, String roleLabel) {
+    for (int i = 0 ; i < typeRoleMap.getJSONObject(typeGuid).getJSONArray("roles").length() ; i++) {
+        JSONObject el = typeRoleMap.getJSONObject(typeGuid).getJSONArray("roles").getJSONObject(i);
+        if (el.getString("label").equals(roleLabel)) return el.getString("guid");
+    }
+    String newGuid = Util.generateUUID();
+    JSONObject rj = new JSONObject();
+    rj.put("guid", newGuid);
+    rj.put("label", roleLabel);
+    typeRoleMap.getJSONObject(typeGuid).getJSONArray("roles").put(rj);
+    return newGuid;
+}
+
 private String relationshipSql(Relationship rel) {
     if (rel == null) return "";
     MarkedIndividual indiv1 = rel.getMarkedIndividual1();
     MarkedIndividual indiv2 = rel.getMarkedIndividual2();
     if ((indiv1 == null) || (indiv2 == null)) return "-- unable to get individual(s) on " + rel.toString() + "\n\n";
 
-    String sqlIns = "INSERT INTO relationship (created, updated, viewed, guid, start_date, end_date, type) VALUES (now(), now(), now(), ?, ?, ?, ?);";
-    String memSqlIns = "INSERT INTO relationship_individual_member (created, updated, viewed, guid, relationship_guid, individual_guid, individual_role) VALUES (now(), now(), now(), ?, ?, ?, ?);";
+    String sqlIns = "INSERT INTO relationship (created, updated, viewed, guid, start_date, end_date, type_guid) VALUES (now(), now(), now(), ?, ?, ?, ?);";
+    String memSqlIns = "INSERT INTO relationship_individual_member (created, updated, viewed, guid, relationship_guid, individual_guid, individual_role_guid) VALUES (now(), now(), now(), ?, ?, ?, ?);";
 
+    String typeGuid = guidForType(rel.getType());
     String guid = Util.generateUUID();
     sqlIns = MigrationUtil.sqlSub(sqlIns, guid);
     Long st = rel.getStartTime();
@@ -133,27 +163,25 @@ private String relationshipSql(Relationship rel) {
     if (et < 1L) et = null;
     sqlIns = MigrationUtil.sqlSub(sqlIns, Util.millisToIso8601StringNoTimezone(st));
     sqlIns = MigrationUtil.sqlSub(sqlIns, Util.millisToIso8601StringNoTimezone(et));
-    sqlIns = MigrationUtil.sqlSub(sqlIns, rel.getType());
+    sqlIns = MigrationUtil.sqlSub(sqlIns, typeGuid);
 
-    if (!typeRoleMap.containsKey(rel.getType())) typeRoleMap.put(rel.getType(), new HashSet<String>());
-
+    String r1 = rel.getMarkedIndividualRole1();
+    if (r1 == null) r1 = "member";
+    String role1Guid = guidForRole(typeGuid, r1);
     String m1 = memSqlIns;
     m1 = MigrationUtil.sqlSub(m1, Util.generateUUID());
     m1 = MigrationUtil.sqlSub(m1, guid);
     m1 = MigrationUtil.sqlSub(m1, indiv1.getId());
-    String r1 = rel.getMarkedIndividualRole1();
-    if (r1 == null) r1 = "member";
-    m1 = MigrationUtil.sqlSub(m1, r1);
-    typeRoleMap.get(rel.getType()).add(r1);
+    m1 = MigrationUtil.sqlSub(m1, role1Guid);
 
+    String r2 = rel.getMarkedIndividualRole2();
+    if (r2 == null) r2 = "member";
+    String role2Guid = guidForRole(typeGuid, r2);
     String m2 = memSqlIns;
     m2 = MigrationUtil.sqlSub(m2, Util.generateUUID());
     m2 = MigrationUtil.sqlSub(m2, guid);
     m2 = MigrationUtil.sqlSub(m2, indiv2.getId());
-    String r2 = rel.getMarkedIndividualRole2();
-    if (r2 == null) r2 = "member";
-    m2 = MigrationUtil.sqlSub(m2, r2);
-    typeRoleMap.get(rel.getType()).add(r2);
+    m2 = MigrationUtil.sqlSub(m2, role2Guid);
 
     return sqlIns + "\n" + m1 + "\n" + m2 + "\n\n";
 }
@@ -163,7 +191,7 @@ private String siteSettingSql(String key, JSONObject data) {
     if ((data == null) || (key == null)) return "";
     String sqlIns = "INSERT INTO site_setting (created, updated, key, public, data) VALUES (now(), now(), ?, 't', ?);";
     sqlIns = MigrationUtil.sqlSub(sqlIns, key);
-    sqlIns = MigrationUtil.sqlSub(sqlIns, data.toString());
+    sqlIns = MigrationUtil.sqlSub(sqlIns, "\"" + data.toString().replaceAll("\"", "\\\\\"") + "\"");
     return "DELETE FROM site_setting WHERE key='" + key + "';\n" + sqlIns;
 }
 
@@ -207,8 +235,7 @@ for (Relationship rel : all) {
 content += "\n\nEND;\n";
 MigrationUtil.appendFile(fname, content);
 
-JSONObject rtrJson = new JSONObject(typeRoleMap);
-content = "BEGIN;\n\n" + siteSettingSql("relationship_type_roles", rtrJson) + "\n\nEND;\n";
+content = "BEGIN;\n\n" + siteSettingSql("relationship_type_roles", typeRoleMap) + "\n\nEND;\n";
 MigrationUtil.appendFile(fname, content);
 out.println(filePreview(fname));
 
