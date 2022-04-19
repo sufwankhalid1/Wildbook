@@ -72,10 +72,32 @@ Collection c = (Collection)query.execute();
 List<Encounter> allEnc = new ArrayList<Encounter>(c);
 query.closeAll();
 
+
+sql = "SELECT DISTINCT(CONCAT(\"GENUS\", ' ', \"SPECIFICEPITHET\")) FROM \"MARKEDINDIVIDUAL\" WHERE \"GENUS\" IS NOT NULL AND \"SPECIFICEPITHET\" IS NOT NULL";
+List<String> allIndiv = new ArrayList<String>();
+query = myShepherd.getPM().newQuery("javax.jdo.query.SQL", sql);
+results = (List)query.execute();
+it = results.iterator();
+while (it.hasNext()) {
+    String t = (String)it.next();
+    allIndiv.add(t);
+}
+query.closeAll();
+
+jdoql = "SELECT FROM org.ecocean.MarkedIndividual WHERE taxonomy == null ORDER BY id";
+query = myShepherd.getPM().newQuery(jdoql);
+c = (Collection)query.execute();
+List<MarkedIndividual> allIndivNeed = new ArrayList<MarkedIndividual>(c);
+query.closeAll();
+
+
+
 out.println("<hr />");
 if (!commit) {
     out.println("<p><b>" + all.size() + " Taxonomies</b> in use by Encounters</p><p><b>" + allEnc.size() + " Encounters</b> needing .taxonomy</p><hr />");
-    myShepherd.commitDBTransaction();
+    out.println("<b>" + allIndiv.size() + " Taxonomies</b> in use by Individuals</p><p><b>" + allIndivNeed.size() + " Individuals</b> needing .taxonomy</p><hr />");
+    //myShepherd.commitDBTransaction();
+    myShepherd.rollbackDBTransaction();
 
     String configKey = "site.species";
     Configuration currentConf = null;
@@ -116,7 +138,7 @@ if (!commit) {
 </form>
 
 <hr /><p><b>commit=false</b>, not modifying anything</p>
-<p><a href="?commit=true">Proccess <b><%=allEnc.size()%> Encounters</b> needing Taxonomies</a></p>
+<p><a href="?commit=true">Proccess <b><%=allEnc.size()%> Encounters</b> and <b><%=allIndivNeed.size()%> Individuals</b> needing Taxonomies</a></p>
 <%
     return;
 }
@@ -132,6 +154,19 @@ for (Encounter enc : allEnc) {
     }
     enc.setTaxonomy(tx);
     if (ct % 100 == 0) System.out.println("taxonomies.jsp [" + ct + "/" + allEnc.size()+ "] updated enc taxonomies");
+}
+
+ct = 0;
+for (MarkedIndividual indiv : allIndivNeed) {
+    ct++;
+    Taxonomy tx = txMap.get(indiv.getTaxonomyString());
+    if (tx == null) {
+        out.println("<p>" + indiv.getId() + ": <b>invalid taxonomyString [" + indiv.getTaxonomyString() + "]</b>; skipping</p>");
+        System.out.println("taxonomies.jsp: got invalid taxonomyString ["+ indiv.getTaxonomyString() + "] on " + indiv);
+        continue;
+    }
+    indiv.setTaxonomy(tx);
+    if (ct % 100 == 0) System.out.println("taxonomies.jsp [" + ct + "/" + allIndivNeed.size()+ "] updated indiv taxonomies");
 }
 
 myShepherd.commitDBTransaction();
