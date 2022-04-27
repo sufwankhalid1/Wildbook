@@ -166,7 +166,7 @@ public class MigrationUtil {
         String confKey = "site.custom.customFieldCategories";
         Configuration conf = ConfigurationUtil.getConfiguration(myShepherd, confKey);
         JSONArray cats = new JSONArray();
-        if (conf != null) cats = conf.getValueAsJSONArray();
+        if ((conf != null) && conf.hasValue()) cats = conf.getValueAsJSONArray();
         for (int i = 0 ; i < cats.length() ; i++) {
             JSONObject c = cats.optJSONObject(i);
             if (c == null) continue;
