@@ -2991,12 +2991,15 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
         org.json.JSONObject res = new org.json.JSONObject();
         org.json.JSONObject merged = new org.json.JSONObject();
         Set<MultiValue> otherNames = new HashSet<MultiValue>();
+        Set<Encounter> movedEncounters = new HashSet<Encounter>();
         for (MarkedIndividual from : fromIndividuals) {
             org.json.JSONArray jencs = new org.json.JSONArray();
             if (from.getNumEncounters() > 0) for (Encounter enc : from.getEncounters()) {
                 jencs.put(enc.getId());
                 from.removeEncounter(enc);
-                enc.setIndividual(this);
+                enc.setIndividual(null);
+                movedEncounters.add(enc);
+                SystemLog.debug("mergeFrom(): starting to move {} from {} to {}", enc, from, this);
             }
             otherNames.add(from.getNames());
             merged.put(from.getId(), jencs);
@@ -3009,6 +3012,10 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
                 SystemLog.error("mergeFrom on {} failed to delete {} due to {}", this, fromStr, ex.toString(), ex);
                 throw new MergeException("deletion of individual " + fromStr + " failed", "sourceIndividualIds");
             }
+        }
+        for (Encounter enc : movedEncounters) {
+            enc.setIndividual(this);
+            this.addEncounter(enc);
         }
 
         if ((parameters != null) && (parameters.optJSONObject("override") != null)) {
