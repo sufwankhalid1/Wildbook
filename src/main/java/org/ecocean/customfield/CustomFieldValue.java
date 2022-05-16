@@ -45,6 +45,8 @@ public abstract class CustomFieldValue implements java.io.Serializable {
                 return new CustomFieldValueDouble(def, val);
             case "date":
                 return new CustomFieldValueDate(def, val);
+            case "boolean":
+                return new CustomFieldValueBoolean(def, val);
             default:
                 SystemLog.warn("CustomFieldValue.makeSpecific() got bad type on " + def.toString());
                 return null;
