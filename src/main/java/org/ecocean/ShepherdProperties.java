@@ -216,7 +216,7 @@ System.out.println("INFO: __configurationContentToProperties() got Properties wi
   }
 
   public static Properties getContextsProperties(){
-System.out.println("DEPRECATED getContextsProperties() called");
+//System.out.println("DEPRECATED getContextsProperties() called");
     LinkedProperties props=new LinkedProperties();
       try {
         InputStream inputStream = ShepherdProperties.class.getResourceAsStream("/bundles/contexts.properties");

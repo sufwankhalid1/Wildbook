@@ -79,7 +79,13 @@ private String encSql(Encounter enc, Shepherd myShepherd) {
     boolean err = false;
     String pubId = MigrationUtil.getPublicUserId(myShepherd);
     if (!Util.stringExists(enc.getId())) return "";
-    String sqlIns = "INSERT INTO encounter (created, updated, viewed, guid, version, owner_guid, submitter_guid, public) VALUES (now(), now(), now(), ?, ?, ?, ?, ?);\n";
+    String sqlIns = "INSERT INTO encounter (created, updated, viewed, guid, version, owner_guid, submitter_guid) VALUES (?, now(), now(), ?, ?, ?, ?);\n";
+    String created = enc.getDWCDateAdded();
+    if (Util.stringExists(created)) {
+        sqlIns = MigrationUtil.sqlSub(sqlIns, created);
+    } else {
+        sqlIns = MigrationUtil.sqlSub(sqlIns, "now()", false);
+    }
     sqlIns = MigrationUtil.sqlSub(sqlIns, enc.getId());
     Long vers = enc.getVersion();
     if (vers == null) vers = 3L;  //better than null, i say?
@@ -91,7 +97,7 @@ private String encSql(Encounter enc, Shepherd myShepherd) {
     }
     sqlIns = MigrationUtil.sqlSub(sqlIns, oid);
     sqlIns = MigrationUtil.sqlSub(sqlIns, oid);
-    sqlIns = MigrationUtil.sqlSub(sqlIns, pubId.equals(oid));
+    //sqlIns = MigrationUtil.sqlSub(sqlIns, pubId.equals(oid));
 
     if (err) {
         System.out.println("migration/occ_enc_ind.jsp: could not find owner for " + enc);
@@ -118,7 +124,22 @@ private String occSql(Occurrence occ, Shepherd myShepherd) {
     // this is necessary cuz we couldnt compute ComplexDateTime without encounters any way?
     if (Util.collectionIsEmptyOrNull(occ.getEncounters())) return "-- EMPTY encounters on " + occ + "; skipping\n\n";
 
-    String sqlIns = "INSERT INTO sighting (created, updated, viewed, guid, version, stage, name, time_guid) VALUES (now(), now(), now(), ?, ?, ?, ?, ?);\n";
+    Set<String> encIds = new HashSet<String>();
+    String created = occ.getDateTimeCreated();
+    boolean skipEncCreated = Util.stringExists(created);
+    for (Encounter enc : occ.getEncounters()) {
+        encIds.add(enc.getId());
+        if (skipEncCreated) continue;
+        String ec = enc.getDWCDateAdded();
+        if (Util.stringExists(ec) && (!Util.stringExists(created) || (ec.compareTo(created) < 0))) created = ec;
+    }
+
+    String sqlIns = "INSERT INTO sighting (created, updated, viewed, guid, version, stage, name, time_guid) VALUES (?, now(), now(), ?, ?, ?, ?, ?);\n";
+    if (Util.stringExists(created)) {
+        sqlIns = MigrationUtil.sqlSub(sqlIns, created);
+    } else {
+        sqlIns = MigrationUtil.sqlSub(sqlIns, "now()", false);
+    }
     sqlIns = MigrationUtil.sqlSub(sqlIns, occ.getId());
     Long vers = occ.getVersion();
     if (vers == null) vers = 3L;  //better than null, i say?
@@ -128,10 +149,6 @@ private String occSql(Occurrence occ, Shepherd myShepherd) {
     // since sighting.time is required, we had better have a complex_date_time setup via datetime.jsp!
     sqlIns = MigrationUtil.sqlSub(sqlIns, MigrationUtil.partnerGuid(occ.getId()));
 
-    Set<String> encIds = new HashSet<String>();
-    for (Encounter enc : occ.getEncounters()) {
-        encIds.add(enc.getId());
-    }
     sqlIns += "UPDATE encounter SET sighting_guid='" + occ.getId() + "' WHERE guid IN ('" + String.join("', '", encIds) + "');\n";
 
     return "\n" + sqlIns;
@@ -139,21 +156,34 @@ private String occSql(Occurrence occ, Shepherd myShepherd) {
 
 private String indSql(MarkedIndividual indiv, Shepherd myShepherd) {
     if (!Util.stringExists(indiv.getId())) return "";
-    String sqlIns = "INSERT INTO individual (created, updated, viewed, guid, version) VALUES (now(), now(), now(), ?, ?);\n";
+
+    // are we allowing empty individuals in codex??  TODO
+    String created = indiv.getDateTimeCreated();
+    boolean skipEncCreated = Util.stringExists(created);
+    String sqlEncs = "";
+    if (indiv.numEncounters() > 0) {
+        Set<String> encIds = new HashSet<String>();
+        for (Encounter enc : indiv.getEncounters()) {
+            encIds.add(enc.getId());
+            if (skipEncCreated) continue;
+            String ec = enc.getDWCDateAdded();
+            if (Util.stringExists(ec) && (!Util.stringExists(created) || (ec.compareTo(created) < 0))) created = ec;
+        }
+        sqlEncs += "UPDATE encounter SET individual_guid='" + indiv.getId() + "' WHERE guid IN ('" + String.join("', '", encIds) + "');\n";
+    }
+
+    String sqlIns = "INSERT INTO individual (created, updated, viewed, guid, version) VALUES (?, now(), now(), ?, ?);\n";
+    if (Util.stringExists(created)) {
+        sqlIns = MigrationUtil.sqlSub(sqlIns, created);
+    } else {
+        sqlIns = MigrationUtil.sqlSub(sqlIns, "now()", false);
+    }
     sqlIns = MigrationUtil.sqlSub(sqlIns, indiv.getId());
     Long vers = indiv.getVersion();
     if (vers == null) vers = 3L;  //better than null, i say?
     sqlIns = MigrationUtil.sqlSub(sqlIns, vers);
 
-    // are we allowing empty individuals in codex??  TODO
-    if (indiv.numEncounters() > 0) {
-        Set<String> encIds = new HashSet<String>();
-        for (Encounter enc : indiv.getEncounters()) {
-            encIds.add(enc.getId());
-        }
-        sqlIns += "UPDATE encounter SET individual_guid='" + indiv.getId() + "' WHERE guid IN ('" + String.join("', '", encIds) + "');\n";
-    }
-
+    sqlIns += sqlEncs;
     return "\n" + sqlIns;
 }
 
