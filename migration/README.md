@@ -51,7 +51,8 @@ Once the EDM is up, some data can be migrated using houston tasks.  The first sh
 
 ### Users
 
-`# invoke app.users.sync-edm` should migrate all historical users from EDM to houston.
+`# invoke app.users.sync-edm` should migrate all historical users from EDM to houston.  If there is a <b>public user</b> that has been migrated,
+change the email address to `public@localhost`.
 
 
 ## Migrating data (via EDM urls)
