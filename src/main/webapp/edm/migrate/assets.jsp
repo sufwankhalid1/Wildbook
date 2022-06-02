@@ -324,7 +324,7 @@ for (String occId : agMap.keySet()) {
         String filename = ma.getFilename();
         content += "cp -a $TMP_ASSET_DIR'/" + path + "' $TARGET_DIR/" + subdir + "/_asset_group/" + MigrationUtil.getStoredFilename(filename) + "\n";
         int dot = filename.lastIndexOf(".");
-        String ext = (dot < 0) ? "" : "." + filename.substring(dot + 1);
+        String ext = (dot < 0) ? "" : "." + filename.substring(dot + 1).toLowerCase();
         if (ext.length() < 2) ext = ".unknown";  //fallback?
         content += "ln -s ../_asset_group/" + MigrationUtil.getStoredFilename(filename) + " $TARGET_DIR/" + subdir + "/_assets/" + ma.getUUID() + ext + "\n";
         String filesystemGuid = "00000000-0000-0000-0000-000000000000";  // TODO calculate
