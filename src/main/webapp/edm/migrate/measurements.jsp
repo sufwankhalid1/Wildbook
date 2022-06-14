@@ -130,6 +130,10 @@ for (Encounter enc : all) {
     }
     System.out.println("measurements.jsp: [" + ect + "/" + all.size() + "] migrated " + ct + " Measurements on " + enc);
     ect++;
+    if (ect % 100 == 0) {
+        myShepherd.commitDBTransaction();
+        myShepherd.beginDBTransaction();
+    }
 }
 
 //update configuration to reflect changes in CustomFieldDefinitions
