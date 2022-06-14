@@ -305,15 +305,16 @@ for (String occId : agMap.keySet()) {
     content += "\nmkdir -p $TARGET_DIR/" + subdir + "/_asset_group\n";
     content += "mkdir $TARGET_DIR/" + subdir + "/_assets\n";
 
-    String agSql = "INSERT INTO asset_group (created, updated, viewed, guid, major_type, description, owner_guid, config) VALUES (now(), now(), now(), ?, 'filesystem', 'Legacy migration', ?, '\"{}\"');";
+    String agSql = "INSERT INTO git_store (created, updated, viewed, guid, git_store_type, major_type, description, owner_guid, config, indexed) VALUES (now(), now(), now(), ?, 'asset_group', 'filesystem', 'Legacy migration', ?, '\"{}\"', now());\nINSERT INTO asset_group VALUES (?);";
     String userId = coerceOwnerId(occ, myShepherd);
     agSql = MigrationUtil.sqlSub(agSql, occId);
     agSql = MigrationUtil.sqlSub(agSql, userId);
+    agSql = MigrationUtil.sqlSub(agSql, occId);
     allSql += agSql + "\n";
     occ = null;
 
     // ma.contentHash _may_ contain filesystem_xxhash64 (but needs getter)
-    String sqlIns = "INSERT INTO asset (created, updated, viewed, guid, extension, path, mime_type, magic_signature, size_bytes, filesystem_xxhash64, filesystem_guid, semantic_guid, content_guid, title, meta, asset_group_guid) VALUES (?, now(), now(), ?, ?, ?, ?, 'TBD', ?, ?, ?, ?, ?, ?, ?, ?);";
+    String sqlIns = "INSERT INTO asset (created, updated, viewed, guid, path, mime_type, magic_signature, size_bytes, filesystem_xxhash64, filesystem_guid, semantic_guid, content_guid, title, meta, git_store_guid, indexed) VALUES (?, now(), now(), ?, ?, ?, 'TBD', ?, ?, ?, ?, ?, ?, ?, ?, now());";
     String sta_sqlIns = "INSERT INTO sighting_assets (created, updated, viewed, sighting_guid, asset_guid) VALUES (?, now(), now(), ?, ?);";
     for (Integer maId : agMap.get(occId)) {
         System.out.println("migration/assets.jsp: " + maId + " from " + occId);
@@ -337,7 +338,7 @@ for (String occId : agMap.keySet()) {
         String s = sqlIns;
         s = MigrationUtil.sqlSub(s, createdStr);
         s = MigrationUtil.sqlSub(s, ma.getUUID());
-        s = MigrationUtil.sqlSub(s, ext.substring(1));
+        // s = MigrationUtil.sqlSub(s, ext.substring(1));
         s = MigrationUtil.sqlSub(s, filename);
         s = MigrationUtil.sqlSub(s, mimeType);
         s = MigrationUtil.sqlSub(s, -1);
