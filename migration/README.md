@@ -57,6 +57,9 @@ change the email address to `public@localhost`.
 
 ## Migrating data (via EDM urls)
 
+Be sure to have the legacy Wildbook's `commonConfigurations.properties` and `locationID.json` files in the
+`/usr/local/tomcat/webapps/wildbook_data_dir/WEB-INF/classes/bundles/` location.
+
 Using the EDM, migrating data can be done from the `/edm/migrate/` url.  It will list links to the following:
 
 ### User Collaborations
