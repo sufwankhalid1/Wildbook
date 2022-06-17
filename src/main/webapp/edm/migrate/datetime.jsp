@@ -132,6 +132,9 @@ boolean commit = Util.requestParameterSet(request.getParameter("commit"));
 String tz = request.getParameter("timeZone");
 if (tz == null) tz = "UTC+00:00";
 
+// this will throw exception if invalid timezone
+ComplexDateTime testCDT = new ComplexDateTime("2000-01-02T03:04:05", tz);
+
 Shepherd myShepherd = new Shepherd("context0");
 myShepherd.beginDBTransaction();
 
