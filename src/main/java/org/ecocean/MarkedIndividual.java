@@ -2942,6 +2942,7 @@ public Float getMinDistanceBetweenTwoMarkedIndividuals(MarkedIndividual otherInd
                   try {
                     myShepherd.beginDBTransaction();
                     this.removeEncounter(found);
+                    found.setIndividual(null);
                     myShepherd.commitDBTransaction();
                   } catch (Exception e) {
                     myShepherd.rollbackDBTransaction();
