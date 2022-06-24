@@ -134,7 +134,7 @@ private String occSql(Occurrence occ, Shepherd myShepherd) {
         if (Util.stringExists(ec) && (!Util.stringExists(created) || (ec.compareTo(created) < 0))) created = ec;
     }
 
-    String sqlIns = "INSERT INTO sighting (created, updated, viewed, guid, version, stage, name, time_guid) VALUES (?, now(), now(), ?, ?, ?, ?, ?);\n";
+    String sqlIns = "INSERT INTO sighting (created, updated, viewed, guid, version, stage, name, time_guid, jobs) VALUES (?, now(), now(), ?, ?, ?, ?, ?, '\"{}\"');\n";
     if (Util.stringExists(created)) {
         sqlIns = MigrationUtil.sqlSub(sqlIns, created);
     } else {
