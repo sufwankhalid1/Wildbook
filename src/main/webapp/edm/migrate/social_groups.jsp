@@ -44,7 +44,7 @@ private String filePreview(String name) throws java.io.IOException {
 }
 
 
-private String socialGroupSql(SocialUnit soc, Set<String> allRoles) {
+private String socialGroupSql(SocialUnit soc, Map<String,String> roleMap) {
     if (soc == null) return "";
     int size = Util.collectionSize(soc.getAllMembers());
     String sql = "\n-- " + soc.getSocialUnitName() + " (" + size + ")\n";
@@ -67,9 +67,10 @@ private String socialGroupSql(SocialUnit soc, Set<String> allRoles) {
         memSqlIns = MigrationUtil.sqlSub(memSqlIns, guid);
         memSqlIns = MigrationUtil.sqlSub(memSqlIns, mem.getMarkedIndividual().getId());
         String roles = "\"[]\"";
-        if (mem.getRole() != null) {
-            allRoles.add(mem.getRole());
-            roles = "\"[\\\"" + mem.getRole() + "\\\"]\"";
+        String role = mem.getRole();
+        if (role != null) {
+            if (!roleMap.containsKey(role)) roleMap.put(role, Util.generateUUID());
+            roles = "\"[\\\"" + roleMap.get(role) + "\\\"]\"";
         }
         memSqlIns = MigrationUtil.sqlSub(memSqlIns, roles);
         sql += memSqlIns + "\n";
@@ -116,18 +117,20 @@ if (all.size() < 1) {
 String fname = "houston_10_indiv_socialgroups.sql";
 MigrationUtil.writeFile(fname, "");
 
-Set<String> allRoles = new HashSet<String>();
+Map<String,String> roleMap = new HashMap<String,String>();
 String content = "BEGIN;\n";
 for (SocialUnit soc : all) {
-    content += socialGroupSql(soc, allRoles);
+    content += socialGroupSql(soc, roleMap);
 }
 content += "\n\nEND;\n";
 MigrationUtil.appendFile(fname, content);
 
 JSONArray roleData = new JSONArray();
-for (String role : allRoles) {
+for (String roleLabel : roleMap.keySet()) {
     JSONObject jr = new JSONObject();
-    jr.put("label", role);
+    jr.put("multipleInGroup", true);  //meh?
+    jr.put("label", roleLabel);
+    jr.put("guid", roleMap.get(roleLabel));
     roleData.put(jr);
 }
 content = "BEGIN;\n\n" + siteSettingSql("social_group_roles", roleData) + "\n\nEND;\n";
