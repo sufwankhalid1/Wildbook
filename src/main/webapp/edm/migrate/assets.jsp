@@ -286,24 +286,22 @@ which were rsync'ed (above) into the proper final location for the houston asset
 
 <%
 
-fname = filename("dirs_and_copy.sh");
-MigrationUtil.writeFile(fname, "");
+fname = filename("dirs_and_copy.tsv");
 String allSql_fname = filename("houston_02_assetgroups_assets.sql");
 MigrationUtil.writeFile(allSql_fname, "");
 String sta_fname = "final_99_sighting_to_asset.sql";
 MigrationUtil.writeFile(sta_fname, "");
-content = "### change these to appropriate directories\nTMP_ASSET_DIR=/data/migration/assets\nTARGET_DIR=/data/var/asset_group\n\n";
+MigrationUtil.writeFile(fname, "");
+content = "# source_file\ttarget_dir\tupload_filename\tasset_filename\n";
 String allSql = "BEGIN;\n\n";
 String sta_content = "BEGIN;\n\n";
 ct = 0;
 for (String occId : agMap.keySet()) {
-    content = "";
+
     Occurrence occ = myShepherd.getOccurrence(occId);
     ct++;
     if (ct % 10 == 0) System.out.println("migration/assets.jsp [" + ct + "/" + agMap.keySet().size() + "] asset_groups processed");
     String subdir = occId;
-    content += "\nmkdir -p $TARGET_DIR/" + subdir + "/_asset_group\n";
-    content += "mkdir $TARGET_DIR/" + subdir + "/_assets\n";
 
     String agSql = "INSERT INTO git_store (created, updated, viewed, guid, git_store_type, major_type, description, owner_guid, config, indexed) VALUES (now(), now(), now(), ?, 'asset_group', 'filesystem', 'Legacy migration', ?, '\"{}\"', now());\nINSERT INTO asset_group VALUES (?);";
     String userId = coerceOwnerId(occ, myShepherd);
@@ -323,11 +321,13 @@ for (String occId : agMap.keySet()) {
         String path = getRelPath(ma);
         //out.println(ma);
         String filename = ma.getFilename();
-        content += "cp -a $TMP_ASSET_DIR'/" + path + "' $TARGET_DIR/" + subdir + "/_asset_group/" + MigrationUtil.getStoredFilename(filename) + "\n";
+        content += path + "\t";
+        content += subdir + "\t";
+        content += MigrationUtil.getStoredFilename(filename) + "\t";
         int dot = filename.lastIndexOf(".");
         String ext = (dot < 0) ? "" : "." + filename.substring(dot + 1).toLowerCase();
         if (ext.length() < 2) ext = ".unknown";  //fallback?
-        content += "ln -s ../_asset_group/" + MigrationUtil.getStoredFilename(filename) + " $TARGET_DIR/" + subdir + "/_assets/" + ma.getUUID() + ext + "\n";
+        content += ma.getUUID() + ext + "\n";
         String filesystemGuid = "00000000-0000-0000-0000-000000000000";  // TODO calculate
         String mimeType = "UNKNOWN";
         ImageAttributes iattr = ma.getImageAttributes();
