@@ -6,6 +6,7 @@ java.util.ArrayList,
 javax.jdo.*,
 java.util.Arrays,
 org.json.JSONObject,
+org.json.JSONArray,
 java.lang.reflect.*,
 
 org.ecocean.api.ApiCustomFields,
@@ -38,6 +39,7 @@ myShepherd.beginDBTransaction();
 String fieldName = request.getParameter("fieldName");
 String className = request.getParameter("className");
 boolean commit = Util.requestParameterSet(request.getParameter("commit"));
+boolean pulldown = Util.requestParameterSet(request.getParameter("pulldown"));
 if ((className == null) || (fieldName == null)) {
 %>
 <form method="GET">
@@ -47,7 +49,14 @@ if ((className == null) || (fieldName == null)) {
 <option>MarkedIndividual</option>
 </select>
 
+
 <input name="fieldName" placeholder="field (property) name" />
+
+<br/>
+<select name="pulldown">
+<option value="true">pulldown/select</option>
+<option value="false">text</option>
+</select>
 <p>
     <input type="submit" value="Validate" />
 </p>
@@ -81,7 +90,34 @@ schema.put("category", categoryId);
 schema.put("_migration", System.currentTimeMillis());
 
 CustomFieldDefinition cfd = new CustomFieldDefinition(field, schema);
+
+//modify if wanting pulldown
+if (pulldown) {
+    schema = cfd.toJSONObject().getJSONObject("schema");
+    schema.put("displayType", "select");
+
+    //get distinct values
+    JSONArray choices = new JSONArray();
+    String sql = "SELECT DISTINCT(\"" + fieldName.toUpperCase() + "\") FROM \"" + className.toUpperCase() + "\" WHERE \"" + fieldName.toUpperCase() + "\" IS NOT NULL;";
+    Query query = myShepherd.getPM().newQuery("javax.jdo.query.SQL", sql);
+    Collection c = (Collection)query.execute();
+    for (Object o : c) {
+        String val = MigrationUtil.cleanup(o.toString());
+        if (val == null) continue;
+        JSONObject cj = new JSONObject();
+        cj.put("label", val);
+        cj.put("value", val);
+        choices.put(cj);
+    }
+    query.closeAll();
+    schema.put("choices", choices);
+    JSONObject params = new JSONObject();
+    params.put("schema", schema);
+    cfd.setParameters(params);
+}
+
 out.println("<p>new cfd: <b>" + cfd + "</b><xmp>" + cfd.toJSONObject().toString(4) + "</xmp></p>");
+
 CustomFieldDefinition found = CustomFieldDefinition.find(myShepherd, cfd);
 if (found != null) {
     out.println("<p>collision with existing cfd: <b>" + found + "</b></p>");
@@ -89,11 +125,12 @@ if (found != null) {
     return;
 }
 
+
 if (!commit) {
     myShepherd.rollbackDBTransaction();
 %>
 <hr /><p><b>commit=false</b>, not modifying anything</p>
-<p><a href="?className=<%=className%>&fieldName=<%=fieldName%>&commit=true">Create CustomField and migrate data</a></p>
+<p><a href="?className=<%=className%>&fieldName=<%=fieldName%>&pulldown=<%=pulldown%>&commit=true">Create CustomField and migrate data</a></p>
 <%
     return;
 }
