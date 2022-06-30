@@ -342,7 +342,13 @@ for (String occId : agMap.keySet()) {
         s = MigrationUtil.sqlSub(s, filename);
         s = MigrationUtil.sqlSub(s, mimeType);
         s = MigrationUtil.sqlSub(s, -1);
-        s = MigrationUtil.sqlSub(s, ma.getContentHash());
+        String xxhash64 = ma.getContentHash();
+        // we need *a* value for this, so this is pretty hacktacular, but we will pad with a prefix so maybe we notice it while debugging?
+        if (xxhash64 == null) {
+            xxhash64 = Util.generateUUID();
+            xxhash64 = xxhash64.replaceAll("^.{8}", "10000000");
+        }
+        s = MigrationUtil.sqlSub(s, xxhash64);
         s = MigrationUtil.sqlSub(s, filesystemGuid);
         s = MigrationUtil.sqlSub(s, Util.generateUUID());  //semantic guid -- needs to be unique????
         s = MigrationUtil.sqlSub(s, ma.getAcmId());
@@ -398,7 +404,8 @@ SQL to create the keywords in houston:
 <%
 fname = filename("houston_01_keywords.sql");
 MigrationUtil.writeFile(fname, "");
-content = "BEGIN;\n";
+// we do this public fixer here cuz this is the first sql we run
+content = "UPDATE \"user\" SET email='public@localhost' WHERE email='public@wildme.org';\n\nBEGIN;\n";
 Map<String,String> kmap = new HashMap<String,String>();
 List<LabeledKeyword> lkws = myShepherd.getAllLabeledKeywords();
 List<Keyword> kws = myShepherd.getAllKeywordsList();
