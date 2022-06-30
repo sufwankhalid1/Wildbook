@@ -13,7 +13,7 @@ foreach (@all_lines) {
     printf("mkdir -p \$TARGET_DIR/%s/_uploads/\n", $target_dir);
     printf("mkdir -p \$TARGET_DIR/%s/_assets/\n", $target_dir);
     printf("cp \"\$SOURCE_ROOT/%s\" \$TARGET_DIR/%s/_uploads/%s\n", $source_file, $target_dir, $upload_filename);
-    printf("ln -s ../uploads/%s \$TARGET_DIR/%s/_assets/%s\n\n", $upload_filename, $target_dir, $asset_filename);
+    printf("ln -s ../_uploads/%s \$TARGET_DIR/%s/_assets/%s\n\n", $upload_filename, $target_dir, $asset_filename);
     $ct--;
 }
 
