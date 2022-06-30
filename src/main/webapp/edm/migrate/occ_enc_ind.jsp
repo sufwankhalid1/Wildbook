@@ -266,6 +266,7 @@ for (Encounter enc : allEnc) {
     content = "";
 }
 content += "END;\n";
+content += "\nDELETE FROM annotation WHERE encounter_guid IS NULL;\n";
 MigrationUtil.appendFile(fname, content);
 out.println(filePreview(fname));
 
