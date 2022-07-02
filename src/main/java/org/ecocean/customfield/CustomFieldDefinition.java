@@ -8,6 +8,8 @@ import org.ecocean.SystemLog;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.io.IOException;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.lang.reflect.Field;
@@ -78,7 +80,7 @@ public class CustomFieldDefinition implements java.io.Serializable {
         this.name = name;
         this.type = type;
         this.multiple = mult;
-        this.parameters = params.toString();
+        this.setParameters(params);
     }
 
     public String getId() {
@@ -230,8 +232,30 @@ public class CustomFieldDefinition implements java.io.Serializable {
             this.parameters = null;
             return;
         }
+
+        //i think this might be unused now?
         if (param.has("options") && (param.optJSONArray("options") == null)) throw new CustomFieldException("options parameter must be array");
-        //TODO check this.type against contents of array
+
+        JSONObject schema = param.optJSONObject("schema");
+        if (schema != null) {
+            //schema.choices is for multi/select
+            JSONArray carr = schema.optJSONArray("choices");
+            if (schema.has("choices") && (carr == null)) throw new CustomFieldException("choices parameter must be array");
+            if (carr != null) {  // we have choices, so lets make sure all is good
+                Set<String> uniq = new HashSet<String>();
+                for (int i = 0 ; i < carr.length() ; i++) {
+                    JSONObject cj = carr.optJSONObject(i);
+                    if (cj == null) throw new CustomFieldException("choices i=" + i + " not json object");
+                    if (!cj.has("value")) throw new CustomFieldException("choices i=" + i + " has no value");
+                    // i guess we should allow value=null, so we need a way to detect value=not-string
+                    String fail = "FAIL" + Util.generateUUID();  //probably could also use .isNull() but that has been... wonky
+                    String value = cj.optString("value", fail);
+                    if (fail.equals(value)) throw new CustomFieldException("choices i=" + i + " value seems to not be a string");
+                    if (uniq.contains(value)) throw new CustomFieldException("choices i=" + i + " has duplicate value=" + value);  //DEX-1270
+                    uniq.add(value);
+                }
+            }
+        }
         this.parameters = param.toString();
     }
 
