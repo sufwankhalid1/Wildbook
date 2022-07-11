@@ -455,7 +455,7 @@
         <column jdbc-type="LONGVARCHAR"/>
       </field>
 
-      <field name="researcherComments" persistence-modifier="persistent" default-fetch-group="false">
+      <field name="researcherComments" persistence-modifier="persistent" default-fetch-group="true">
         <column jdbc-type="LONGVARCHAR"/>
       </field>
       <field name="additionalImageNames" persistence-modifier="persistent" default-fetch-group="false">
