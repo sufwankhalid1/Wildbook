@@ -326,6 +326,7 @@ for (String occId : agMap.keySet()) {
         content += MigrationUtil.getStoredFilename(filename) + "\t";
         int dot = filename.lastIndexOf(".");
         String ext = (dot < 0) ? "" : "." + filename.substring(dot + 1).toLowerCase();
+        if (".jpeg".equals(ext)) ext = ".jpg";  // DEX-1195
         if (ext.length() < 2) ext = ".unknown";  //fallback?
         content += ma.getUUID() + ext + "\n";
         String filesystemGuid = "00000000-0000-0000-0000-000000000000";  // TODO calculate
