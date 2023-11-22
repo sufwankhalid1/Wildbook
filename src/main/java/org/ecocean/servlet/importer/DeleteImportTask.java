@@ -58,7 +58,7 @@ public class DeleteImportTask extends HttpServlet {
 
            Encounter enc= allEncs.get(i);
            Occurrence occ = myShepherd.getOccurrence(enc);
-           MarkedIndividual mark = myShepherd.getMarkedIndividualQuiet(enc.getIndividualID());
+           MarkedIndividual mark = enc.getIndividual();
            List<Project> projects = myShepherd.getProjectsForEncounter(enc);
 
            ArrayList<Annotation> anns = enc.getAnnotations();
@@ -103,9 +103,15 @@ public class DeleteImportTask extends HttpServlet {
                  }
                }
                
+               //check for ScheduledIndividualMerge reliance and remove if present. This individual is
+               //TBD
+               
+               
                myShepherd.throwAwayMarkedIndividual(mark);
                myShepherd.updateDBTransaction();
              }
+             
+             
            }
 
            //handle projects
