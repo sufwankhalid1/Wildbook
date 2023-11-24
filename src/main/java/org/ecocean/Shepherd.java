@@ -491,6 +491,17 @@ public class Shepherd {
   public void throwAwaySocialUnit(SocialUnit su) {
     pm.deletePersistent(su);
   }
+  
+  public void throwAwayScheduledIndividualMerge(ScheduledIndividualMerge su) {
+    
+    //delete the individual links
+    su.setPrimaryIndividual(null);
+    su.setSecondaryIndividual(null);
+    updateDBTransaction();
+    
+    //delete the merge
+    pm.deletePersistent(su);
+  }
 
   public void throwAwayCollaboration(Collaboration collab) {
     pm.deletePersistent(collab);
@@ -5668,6 +5679,24 @@ public Long countMediaAssets(Shepherd myShepherd){
 
       return allAnnotIds;
     }
+    
+    public ArrayList<ScheduledIndividualMerge> getAllIndividualMergesForMarkedIndividual(String individualID) {
+      String idQuery = "";
+      if (individualID!=null&&!"".equals(individualID)) {
+        idQuery = " && (this.primaryIndividual.individualID == '"+individualID.trim()+"' ||  this.secondaryIndividual.individualID == '"+individualID.trim()+"')";
+      }
+      // this is where long names get you
+      List<WildbookScheduledTask> tasks = getAllWildbookScheduledTasksWithFilter("this.scheduledTaskType == 'ScheduledIndividualMerge' "+idQuery);
+      ArrayList<ScheduledIndividualMerge> mergeTasks = new ArrayList<>();
+      if (tasks!=null) {
+        for (WildbookScheduledTask task : tasks) {
+          ScheduledIndividualMerge mergeTask = (ScheduledIndividualMerge) task;
+          mergeTasks.add(mergeTask);
+        }
+      }
+      return mergeTasks;
+    }
+    
 
 
 

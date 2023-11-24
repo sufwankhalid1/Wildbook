@@ -158,5 +158,15 @@ public class ScheduledIndividualMerge extends WildbookScheduledTask {
     public MarkedIndividual getSecondaryIndividual() {
         return secondaryIndividual;
     }
+    
+    public void setPrimaryIndividual(MarkedIndividual indy) {
+      if(indy == null) {primaryIndividual=null;}
+      else {primaryIndividual=indy;}
+    }
+
+    public void setSecondaryIndividual(MarkedIndividual indy) {
+      if(indy == null) {secondaryIndividual=null;}
+      else {secondaryIndividual=indy;}
+    }
 
 }

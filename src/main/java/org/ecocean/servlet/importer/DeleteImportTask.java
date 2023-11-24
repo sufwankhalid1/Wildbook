@@ -13,6 +13,9 @@ import org.ecocean.security.Collaboration;
 import org.ecocean.servlet.ServletUtilities;
 import org.ecocean.social.SocialUnit;
 
+import org.ecocean.scheduled.ScheduledIndividualMerge;
+
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
+
 
 public class DeleteImportTask extends HttpServlet {
 
@@ -104,8 +108,15 @@ public class DeleteImportTask extends HttpServlet {
                }
                
                //check for ScheduledIndividualMerge reliance and remove if present. This individual is
-               //TBD
-               
+               ArrayList<ScheduledIndividualMerge> indyMerges = myShepherd.getAllIndividualMergesForMarkedIndividual(mark.getIndividualID());
+               if(indyMerges!=null && indyMerges.size()>0) {
+                 for(ScheduledIndividualMerge merge:indyMerges) {
+                   
+                   //break individual connections
+                   myShepherd.throwAwayScheduledIndividualMerge(merge);
+                   myShepherd.updateDBTransaction();
+                 }
+               }
                
                myShepherd.throwAwayMarkedIndividual(mark);
                myShepherd.updateDBTransaction();
