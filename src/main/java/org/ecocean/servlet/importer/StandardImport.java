@@ -1356,7 +1356,7 @@ public class StandardImport extends HttpServlet {
       MediaAsset ma = getMediaAsset(row, i, astore, myShepherd, myAssets, colIndexMap, verbose, missingColumns, unusedColumns, feedback, isUserUpload, photoDirectory, foundPhotos, committing, missingPhotos,context, allColsMap, skipCols);
       if (ma==null) continue;
 
-      String species = getSpeciesString(row,colIndexMap, verbose, missingColumns, unusedColumns,feedback,context);
+      String species = getSpeciesString(row,colIndexMap, verbose, missingColumns, unusedColumns,feedback);
       Annotation ann = new Annotation(species, ma);
       ann.setIsExemplar(true);
 
@@ -1469,27 +1469,11 @@ public class StandardImport extends HttpServlet {
   //  return ans;
   // }
 
-  public String getSpeciesString(Row row, Map<String,Integer> colIndexMap, boolean verbose, Set<String> missingColumns, Set<String> unusedColumns,TabularFeedback feedback, String context) {
+  public String getSpeciesString(Row row, Map<String,Integer> colIndexMap, boolean verbose, Set<String> missingColumns, Set<String> unusedColumns,TabularFeedback feedback) {
     String genus = getString(row, "Encounter.genus",colIndexMap, verbose, missingColumns, unusedColumns,feedback);
     String species = getString(row, "Encounter.specificEpithet",colIndexMap, verbose, missingColumns, unusedColumns,feedback);
     String total = genus+" "+species;
-    ArrayList<String> allowedSpecies = CommonConfiguration.getSequentialPropertyValues("genusSpecies", context);
-    
-    //is it an empty field and forgotten?
-    if (total==null||total.trim().equals("")) {
-      total = "unknown";
-    }
-    
-    //do we support this species?
-    if(!allowedSpecies.contains(total)) {
-      total = "UNSUPPORTED SPECIES";
-    }
-    
-    if(total.equals("unknown") || total.equals("UNSUPPORTED SPECIES")) {
-      feedback.logParseError(getColIndexFromColName("Encounter.genus", colIndexMap), total, row);
-      feedback.logParseError(getColIndexFromColName("Encounter.specificEpithet", colIndexMap), total, row);
-    }
-    
+    if (total==null||total.equals(" ")) total = "unknown";
     return total;
   }
 
