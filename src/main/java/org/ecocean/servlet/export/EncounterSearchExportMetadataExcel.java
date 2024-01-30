@@ -198,9 +198,16 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       newEasyColumn("Encounter.otherCatalogNumbers", columns);
       newEasyColumn("Encounter.occurrenceRemarks", columns);
 
+      
+
 
       Method maGetFilename = MediaAsset.class.getMethod("getFilename", null);
       Method maLocalPath   = MediaAsset.class.getMethod("localPath", null);
+      Method maImgUrl   = MediaAsset.class.getMethod("webURL", null);
+      Method annBbox = Annotation.class.getMethod("getBboxAsString", null);
+      Method annViewpoint = Annotation.class.getMethod("getViewpoint", null);
+
+
       // This will include labels in a labeledKeyword value
       Method keywordGetName   = Keyword.class.getMethod("getDisplayName");
       Method labeledKeywordGetValue   = LabeledKeyword.class.getMethod("getValue");
@@ -211,6 +218,19 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         maFilenameK.setMaNum(maNum); // important for later!
         ExportColumn maPathK = new ExportColumn(MediaAsset.class, fullPathName, maLocalPath, columns);
         maPathK.setMaNum(maNum);
+
+        String imageUrl = "Encounter.mediaAsset"+maNum+".imageUrl";
+        String bBox = "Annotation"+maNum+".bbox";
+        String Viewpoint = "Annotation"+maNum+".Viewoint";
+
+        ExportColumn maimageUrlK = new ExportColumn(MediaAsset.class, imageUrl, maImgUrl, columns);
+        maimageUrlK.setMaNum(maNum);
+
+        ExportColumn aanBboxK = new ExportColumn(Annotation.class, bBox, annBbox, columns);
+        aanBboxK.setMaNum(maNum);
+
+        ExportColumn aanViewpointK = new ExportColumn(Annotation.class, Viewpoint, annViewpoint, columns);
+        aanViewpointK.setMaNum(maNum);
 
         for (int kwNum = 0; kwNum < numKeywords; kwNum++) {
           String keywordColName = "Encounter.mediaAsset"+maNum+".keyword"+kwNum;
@@ -283,6 +303,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         MultiValue names = (ind!=null) ? ind.getNames() : null;
         List<String> sortedNameKeys = (names!=null) ? names.getSortedKeys() : null;
         List<MediaAsset> mas = enc.getMedia();
+        List<Annotation> anns = enc.getAnnotations();
+
 
         // use exportColumns, passing in the appropriate object for each column
         // (can't use switch statement bc Class is not a java primitive type)
@@ -300,6 +322,13 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
             MediaAsset ma = mas.get(num);
             if (ma == null) continue; // on to next column
             exportCol.writeLabel(ma, row, sheet);
+          }
+          else if (exportCol.isFor(Annotation.class)) {
+            int num = exportCol.getMaNum();
+            if (num >= mas.size()) continue;
+            Annotation ann  = anns.get(num);
+            if (ann == null || !ann.getMatchAgainst()) continue; // on to next column
+            exportCol.writeLabel(ann, row, sheet);
           }
           //add labeled keywords
           else if (exportCol.isFor(LabeledKeyword.class)) {
@@ -364,8 +393,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       out.close();
     }
 
-    myShepherd.rollbackDBTransaction();
-    myShepherd.closeDBTransaction();
+//     myShepherd.rollbackDBTransaction();
+//     myShepherd.closeDBTransaction();
 
     // now write out the file
     response.setContentType("application/msexcel");
