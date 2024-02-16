@@ -41,16 +41,22 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
   private int numMeasurements = 0;
   private int numNameCols = 0;
   private List<String> measurementColTitles = new ArrayList<String>();
+  private int numSubmitters = 0;
+  private int numSocialUnits = 0;
 
   int rowLimit = 100000;
 
-  private void setMediaAssetCounts(Vector rEncounters) {
+  private void setMediaAssetCounts(Vector rEncounters, Shepherd myShepherd) {
     System.out.println("EncounterSearchExportMetadataExcel: setting environment vars for "+Math.max(rEncounters.size(), rowLimit)+" encs.");
     int maxNumMedia = 0;
     int maxNumKeywords = 0;
     int maxNumLabeledKeywords = 0;
     int maxNumNames = 0;
     int maxNumMeasurements = 0;
+    int maxSocialUnits = 0;
+    int maxSubmitters = 0;
+    int maxSocialUnits = 0;
+
     Set<String> individualIDsChecked = new HashSet<String>();
     for (int i=0;i<rEncounters.size() && i< rowLimit;i++) {
       Encounter enc=(Encounter)rEncounters.get(i);
@@ -62,6 +68,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
             }
         }
       }
+
+      if (enc.getSubmitters().size() > maxSubmitters) maxSubmitters = enc.getSubmitters().size();
       if (enc.getMeasurements().size() > maxNumMeasurements) maxNumMeasurements = enc.getMeasurements().size();
       ArrayList<MediaAsset> mas = enc.getMedia();
       int numMedia = mas.size();
@@ -82,12 +90,18 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         int numNames = enc.getIndividual().numNames();
         //System.out.println("Individual "+enc.getIndividual()+" isnull = "+(enc.getIndividual()==null)+" and has # names: "+numNames);
         if (numNames>maxNumNames) maxNumNames = numNames;
+
+        List<String> mySocialUnits = myShepherd.getAllSocialUnitsForMarkedIndividual(id);
+        if (mySocialUnits.size() < maxSocialUnits) maxSocialUnits = mySocialUnits.size();
+
       }
     }
     numMediaAssetCols = maxNumMedia;
     numKeywords = maxNumKeywords;
     numNameCols = maxNumNames;
     numMeasurements = maxNumMeasurements;
+    numSubmitters = maxSubmitters;
+    numSocialUnits = maxSocialUnits
     System.out.println("EncounterSearchExportMetadataExcel: environment vars numMediaAssetCols = "+numMediaAssetCols+"; maxNumKeywords = "+maxNumKeywords+" and maxNumNames = "+numNameCols);
   }
 
@@ -130,7 +144,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       HiddenEncReporter hiddenData = new HiddenEncReporter(rEncounters, request, myShepherd);
 
       // so we know how many MA columns we need
-      setMediaAssetCounts(rEncounters);
+      setMediaAssetCounts(rEncounters, myShepherd);
 
       // so we know how many name columns we need
 
@@ -144,7 +158,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       List<ExportColumn> columns = new ArrayList<ExportColumn>();
       newEasyColumn("Encounter.catalogNumber", columns); // adds Encounter.catalogNumber to columns
       //newEasyColumn("Encounter.individualID", columns);
-      //newEasyColumn("Encounter.alternateID", columns);
+      newEasyColumn("Encounter.alternateID", columns);
       MultiValueExportColumn.addNameColumns(numNameCols, columns);
       newEasyColumn("Occurrence.occurrenceID", columns);
       //newEasyColumn("Occurrence.sightingPlatform", columns);
@@ -197,6 +211,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       newEasyColumn("Encounter.specificEpithet", columns);
       newEasyColumn("Encounter.otherCatalogNumbers", columns);
       newEasyColumn("Encounter.occurrenceRemarks", columns);
+      newEasyColumn("Encounter.state", columns);
+//       newEasyColumn("Encounter.submitterProject", columns);
 
       
 
@@ -206,6 +222,30 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       Method maImgUrl   = MediaAsset.class.getMethod("webURL", null);
       Method annBbox = Annotation.class.getMethod("getBboxAsString", null);
       Method annViewpoint = Annotation.class.getMethod("getViewpoint", null);
+      Method submitterAffiliation = User.class.getMethod("getAffiliation", null);
+      Method submitterProject= User.class.getMethod("getUserProject", null);
+      Method SocialUnitName= SocialUnit.class.getMethod("getSocialUnitName", null);
+
+      for (int subNum=0; subNum < numSocialUnits; subNum++)
+      {
+        String socialUnitsName = "SocialUnit"+subNum+".socialUnitName";
+        ExportColumn maSocialK = new ExportColumn(SocialUnit.class, socialUnitsName, SocialUnitName, columns);
+        maSocialK.setMaNum(subNum);
+      }
+
+
+      for (int subNum =0; subNum < numSubmitters; subNum++)
+      {
+
+       String submitterAffiliationName = "Encounter.submitter"+subNum+".Affiliation";
+       ExportColumn maPathK = new ExportColumn(User.class, submitterAffiliationName, submitterAffiliation, columns);
+       maPathK.setMaNum(subNum);
+
+       String submitterProjectName = "Encounter.submitter"+subNum+".Project";
+       ExportColumn maPathK2 = new ExportColumn(User.class, submitterProjectName, submitterProject, columns);
+       maPathK2.setMaNum(subNum);
+
+      }
 
 
       // This will include labels in a labeledKeyword value
@@ -304,6 +344,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         List<String> sortedNameKeys = (names!=null) ? names.getSortedKeys() : null;
         List<MediaAsset> mas = enc.getMedia();
         List<Annotation> anns = enc.getAnnotations();
+        List<User> submitters = enc.getSubmitters();
+        List<SocialUnit> socialUnits = myShepherd.getAllSocialUnitsForMarkedIndividual(ind)
 
 
         // use exportColumns, passing in the appropriate object for each column
@@ -325,11 +367,29 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
           }
           else if (exportCol.isFor(Annotation.class)) {
             int num = exportCol.getMaNum();
-            if (num >= mas.size()) continue;
-            Annotation ann  = anns.get(num);
-            if (ann == null || !ann.getMatchAgainst()) continue; // on to next column
-            exportCol.writeLabel(ann, row, sheet);
+            if (num >= anns.size()) continue;
+
+            for (int annNum=0; annNum<anns.size(); annNum++) {
+              Annotation ann  = anns.get(annNum);
+              if (ann == null || !ann.getMatchAgainst()) continue;
+              exportCol.writeLabel(ann, row, sheet);
+           
+            }
           }
+          else if (exportCol.isFor(User.class)) {
+            int num = exportCol.getMaNum();
+            if (num >= submitters.size()) continue;
+            User user  = submitters.get(num);
+            exportCol.writeLabel(user, row, sheet);
+
+          }
+          else if (exportCol.isFor(SocialUnit.class)) {
+            int num = exportCol.getMaNum();
+            if (num >= socialUnits.size()) continue;
+            SocialUnit social  = socialUnits.get(num);
+            exportCol.writeLabel(social, row, sheet);
+          }
+
           //add labeled keywords
           else if (exportCol.isFor(LabeledKeyword.class)) {
             int maNum = exportCol.getMaNum();
