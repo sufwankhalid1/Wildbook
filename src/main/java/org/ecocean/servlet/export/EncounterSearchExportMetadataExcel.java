@@ -16,7 +16,7 @@ import java.lang.StringBuffer;
 import jxl.write.*;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
-
+import org.ecocean.social.SocialUnit;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
@@ -55,7 +55,6 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
     int maxNumMeasurements = 0;
     int maxSocialUnits = 0;
     int maxSubmitters = 0;
-    int maxSocialUnits = 0;
 
     Set<String> individualIDsChecked = new HashSet<String>();
     for (int i=0;i<rEncounters.size() && i< rowLimit;i++) {
@@ -91,7 +90,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         //System.out.println("Individual "+enc.getIndividual()+" isnull = "+(enc.getIndividual()==null)+" and has # names: "+numNames);
         if (numNames>maxNumNames) maxNumNames = numNames;
 
-        List<String> mySocialUnits = myShepherd.getAllSocialUnitsForMarkedIndividual(id);
+        List<SocialUnit> mySocialUnits = myShepherd.getAllSocialUnitsForMarkedIndividual(id);
         if (mySocialUnits.size() < maxSocialUnits) maxSocialUnits = mySocialUnits.size();
 
       }
@@ -101,7 +100,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
     numNameCols = maxNumNames;
     numMeasurements = maxNumMeasurements;
     numSubmitters = maxSubmitters;
-    numSocialUnits = maxSocialUnits
+    numSocialUnits = maxSocialUnits;
     System.out.println("EncounterSearchExportMetadataExcel: environment vars numMediaAssetCols = "+numMediaAssetCols+"; maxNumKeywords = "+maxNumKeywords+" and maxNumNames = "+numNameCols);
   }
 
@@ -345,7 +344,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         List<MediaAsset> mas = enc.getMedia();
         List<Annotation> anns = enc.getAnnotations();
         List<User> submitters = enc.getSubmitters();
-        List<SocialUnit> socialUnits = myShepherd.getAllSocialUnitsForMarkedIndividual(ind)
+        List<SocialUnit> socialUnits = myShepherd.getAllSocialUnitsForMarkedIndividual(ind);
 
 
         // use exportColumns, passing in the appropriate object for each column
@@ -386,7 +385,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
           else if (exportCol.isFor(SocialUnit.class)) {
             int num = exportCol.getMaNum();
             if (num >= socialUnits.size()) continue;
-            SocialUnit social  = socialUnits.get(num);
+            SocialUnit social = socialUnits.get(num);
             exportCol.writeLabel(social, row, sheet);
           }
 
