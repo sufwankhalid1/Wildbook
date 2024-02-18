@@ -42,7 +42,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
   private int numNameCols = 0;
   private List<String> measurementColTitles = new ArrayList<String>();
   private int numSubmitters = 0;
-  private int numSocialUnits = 0;
+  private int numSocialUnits = 1;
 
   int rowLimit = 100000;
 
@@ -53,7 +53,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
     int maxNumLabeledKeywords = 0;
     int maxNumNames = 0;
     int maxNumMeasurements = 0;
-    int maxSocialUnits = 0;
+    int maxSocialUnits = 1;
     int maxSubmitters = 0;
 
     Set<String> individualIDsChecked = new HashSet<String>();
