@@ -221,6 +221,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       Method maImgUrl   = MediaAsset.class.getMethod("webURL", null);
       Method annBbox = Annotation.class.getMethod("getBboxAsString", null);
       Method annViewpoint = Annotation.class.getMethod("getViewpoint", null);
+      Method annMatchAgainst = Annotation.class.getMethod("getMatchAgainst", null);
+
       Method submitterAffiliation = User.class.getMethod("getAffiliation", null);
       Method submitterProject= User.class.getMethod("getUserProject", null);
       Method SocialUnitName= SocialUnit.class.getMethod("getSocialUnitName", null);
@@ -261,6 +263,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         String imageUrl = "Encounter.mediaAsset"+maNum+".imageUrl";
         String bBox = "Annotation"+maNum+".bbox";
         String Viewpoint = "Annotation"+maNum+".Viewoint";
+        String MatchAgainst = "Annotation"+maNum+".MatchAgainst";
 
         ExportColumn maimageUrlK = new ExportColumn(MediaAsset.class, imageUrl, maImgUrl, columns);
         maimageUrlK.setMaNum(maNum);
@@ -270,6 +273,9 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
 
         ExportColumn aanViewpointK = new ExportColumn(Annotation.class, Viewpoint, annViewpoint, columns);
         aanViewpointK.setMaNum(maNum);
+
+        ExportColumn annMatchAgainstK = new ExportColumn(Annotation.class, MatchAgainst, annMatchAgainst, columns);
+        annMatchAgainstK.setMaNum(maNum);
 
         for (int kwNum = 0; kwNum < numKeywords; kwNum++) {
           String keywordColName = "Encounter.mediaAsset"+maNum+".keyword"+kwNum;
@@ -367,13 +373,9 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
           else if (exportCol.isFor(Annotation.class)) {
             int num = exportCol.getMaNum();
             if (num >= anns.size()) continue;
+            Annotation ann = anns.get(num);
+            exportCol.writeLabel(ann, row, sheet);
 
-            for (int annNum=0; annNum<anns.size(); annNum++) {
-              Annotation ann  = anns.get(annNum);
-              if (ann == null || !ann.getMatchAgainst()) continue;
-              exportCol.writeLabel(ann, row, sheet);
-           
-            }
           }
           else if (exportCol.isFor(User.class)) {
             int num = exportCol.getMaNum();
