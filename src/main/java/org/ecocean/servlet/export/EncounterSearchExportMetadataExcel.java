@@ -211,9 +211,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       newEasyColumn("Encounter.otherCatalogNumbers", columns);
       newEasyColumn("Encounter.occurrenceRemarks", columns);
       newEasyColumn("Encounter.state", columns);
-//       newEasyColumn("Encounter.submitterProject", columns);
 
-      
+
 
 
       Method maGetFilename = MediaAsset.class.getMethod("getFilename", null);
@@ -229,11 +228,10 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
 
       for (int subNum=0; subNum < numSocialUnits; subNum++)
       {
-        String socialUnitsName = "SocialUnit"+subNum+".socialUnitName";
+        String socialUnitsName = "SocialUnit.socialUnitName"+subNum;
         ExportColumn maSocialK = new ExportColumn(SocialUnit.class, socialUnitsName, SocialUnitName, columns);
         maSocialK.setMaNum(subNum);
       }
-
 
       for (int subNum =0; subNum < numSubmitters; subNum++)
       {
@@ -471,8 +469,8 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
       out.close();
     }
 
-//     myShepherd.rollbackDBTransaction();
-//     myShepherd.closeDBTransaction();
+    myShepherd.rollbackDBTransaction();
+    myShepherd.closeDBTransaction();
 
     // now write out the file
     response.setContentType("application/msexcel");
