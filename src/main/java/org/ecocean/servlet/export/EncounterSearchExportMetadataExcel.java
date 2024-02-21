@@ -265,6 +265,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
         String Viewpoint = "Annotation"+maNum+".Viewoint";
         String MatchAgainst = "Annotation"+maNum+".MatchAgainst";
 
+
         ExportColumn maimageUrlK = new ExportColumn(MediaAsset.class, imageUrl, maImgUrl, columns);
         maimageUrlK.setMaNum(maNum);
 
@@ -276,6 +277,7 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
 
         ExportColumn annMatchAgainstK = new ExportColumn(Annotation.class, MatchAgainst, annMatchAgainst, columns);
         annMatchAgainstK.setMaNum(maNum);
+
 
         for (int kwNum = 0; kwNum < numKeywords; kwNum++) {
           String keywordColName = "Encounter.mediaAsset"+maNum+".keyword"+kwNum;
@@ -371,10 +373,25 @@ public class EncounterSearchExportMetadataExcel extends HttpServlet {
             exportCol.writeLabel(ma, row, sheet);
           }
           else if (exportCol.isFor(Annotation.class)) {
-            int num = exportCol.getMaNum();
-            if (num >= anns.size()) continue;
-            Annotation ann = anns.get(num);
-            exportCol.writeLabel(ann, row, sheet);
+
+            boolean alreadyMatched = false;
+
+            for (int annNum=0;annNum<anns.size();annNum++)
+            {
+                Annotation ann = anns.get(annNum);
+
+                if (ann.getMatchAgainst())
+                {
+                    alreadyMatched = true;
+                    exportCol.writeLabel(ann, row, sheet);
+                }
+                else{
+                    if (!alreadyMatched){
+                        exportCol.writeLabel(ann, row, sheet);
+                    }
+                }
+
+            }
 
           }
           else if (exportCol.isFor(User.class)) {
