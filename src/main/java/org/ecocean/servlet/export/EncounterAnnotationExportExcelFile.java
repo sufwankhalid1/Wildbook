@@ -121,7 +121,7 @@ public class EncounterAnnotationExportExcelFile extends HttpServlet {
     Vector rEncounters = new Vector();
 
     //set up the files
-    String filename = "encounterSearchResults_export_" + request.getRemoteUser() + ".xls";
+    String filename = "encounterAnnotation_export_" + request.getRemoteUser() + ".xls";
     //setup data dir
     String rootWebappPath = getServletContext().getRealPath("/");
     File webappsDir = new File(rootWebappPath).getParentFile();

@@ -150,7 +150,7 @@
 		<p><br>Standard Format Export <a href="<%=serverUrl%>/EncounterSearchExportMetadataExcel?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
 		</p>
 
-		<p><br>Encounter Annotation Export <a href="<%=serverUrl%>/EncounterSearchExportMetadataExcel?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
+		<p><br>Encounter Annotation Export <a href="<%=serverUrl%>/EncounterAnnotationExportExcelFile?<%=request.getQueryString()%>"><%=map_props.getProperty("clickHere")%></a>
 		</p>
 
 
