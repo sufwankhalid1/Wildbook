@@ -863,7 +863,7 @@ try{
 
 		if ($('#match-filter-owner-me').is(':checked')){
 			if(!data.taskParameters.matchingSetFilter) data.taskParameters.matchingSetFilter = {};
-			data.taskParameters.matchingSetFilter["owner"] = ["me"]
+			data.taskParameters.matchingSetFilter["owner"] = "me"
 		}
 	
 	    console.log('sendToIA() SENDING: locationIds=%o data=%o', locationIds, data);
@@ -898,7 +898,7 @@ try{
 	
 	    console.log('resendToID() SENDING: locationIds=%o', locationIds);
 		if ($('#match-filter-owner-me').is(':checked')){
-			owner = "&owner=" + encodeURIComponent(JSON.stringify(["me"]));
+			owner = "&owner=me"
 		}
 	    
 	    $.ajax({

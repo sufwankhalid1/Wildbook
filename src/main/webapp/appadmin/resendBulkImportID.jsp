@@ -61,7 +61,7 @@ try {
             if(locationIDs!=null && locationIDs.size()>0)mf.put("locationIds",locationIDs);
             //mf.put("projectId", project.getId());
             if (!ownerFilter.isEmpty()) {
-                mf.put("owner", ownerFilter);
+                mf.put("owner", new JSONArray(Arrays.asList(ownerFilter)));
             }
             taskParameters.put("matchingSetFilter", mf);
 
